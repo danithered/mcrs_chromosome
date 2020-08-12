@@ -11,9 +11,10 @@
 
 namespace cadv {
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
-	
+	enum Ca_edge {wall = 0, mirror = 1, torus=2};
+
 	int torus(int m, int k);
-	int* neighInic(int cellaszam_f, int ncol_f, Ca_layout layout, double neigh_tipus_f);
+	int* neighInic(Ca_layout layout, double neigh_tipus, Ca_edge edge);
 	int szomsz_meret(Ca_layout layout, double tipus_f);
 
 	
@@ -108,7 +109,19 @@ namespace cadv {
 			///gives back y pos of cell
 			
 			///finds cell in pos [x,y] and gives back a pointer to it
-			
+			inline celltype* get(int x, int y) {
+				if(layout == square){
+					return(matrix + y*ncol + x);
+				}
+				return(NULL);
+			}
+			///finds cell in pos [x,y] and gives back its number
+			inline int getN(int x, int y) {
+				if(layout == square){
+					return(y*ncol + x);
+				}
+				return(-1);
+			}
 			///gives back pointer to cell
 			inline celltype* get(int cell) {
 				return(matrix + cell);
