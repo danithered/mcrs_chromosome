@@ -11,10 +11,11 @@ namespace cadv {
 		std::vector<int> n_inic_x;
 		std::vector<int> n_inic_y;
 
+		//Create neighbourhood definition
 		if(layout == square) {
 			maxDist = std::log2(1- (int) neigh_tipus);
-			for(x=0; x <= maxDist; x++){ 
-				for(y=0; y <= maxDist; y++){ 
+			for(x = -maxDist; x <= maxDist; x++){ 
+				for(y = -maxDist; y <= maxDist; y++){ 
 					if(std::pow(2, x) + std::pow(2,y) <= neigh_tipus ) {
 						n_inic_x.push_back(x);
 						n_inic_y.push_back(y);
@@ -23,6 +24,16 @@ namespace cadv {
 			} //end for x
 		}
 		else if(layout == hex){
+			maxDist = std::log2(2- (int) neigh_tipus);
+			for(x=0; x <= maxDist; x++){ 
+				for(y=0; y <= maxDist; y++){ 
+					if(std::pow(2, x) + std::pow(2,y) + std::pow(2, 0-x-y) <= neigh_tipus ) {
+						n_inic_x.push_back(x);
+						n_inic_y.push_back(y);
+					}
+				} //end for y
+			} //end for x
+			
 		}
 
 		//iterate through grid
@@ -55,7 +66,7 @@ namespace cadv {
 				}
 			}
 		}
-		else if (edge == mirror){
+		else if (edge == mirror){ //does not work!!!
 				
 			for(int i=0; i < size; i++){ //iterate throught grid
 				matrix[i]->no_neigh = n_inic_x.size();

@@ -57,8 +57,6 @@ namespace cadv {
 			cadv::Ca_layout layout;
 			
 			celltype *matrix;
-			std::vector<int*> neighbourhoods;
-			std::vector<int> no_neighbours;
 			
 			//Constructor 1
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
@@ -104,10 +102,51 @@ namespace cadv {
 			
 			//Positions
 			
-			///gives back x pos of cell
+			///gives back coordinates of nth cell
+			vector<int> getCoord(int n) {
+				vector<int> coords;
+				if (layout == square){
+					coords.push_back(n % ncol); //x coord
+					coords.push_back(n / ncol); //y coord
+				}
+				else if (layout == hex) {
+					//x=n %/% ncol
+					//y = n - x*ncol - x%/%2
+					//z = 0-x-y
+					coords.push_back( n / ncol); //x cubic coord
+					coords.push_back( n - x*ncol - x/2 ); //y cubic coord
+					coords.push_back(0 - x - y); //z cubic coord
+				}
+
+				return(coords);
+			}
 			
-			///gives back y pos of cell
-			
+			///gives back coordinates of nth cell
+			vector<int> getCoord(int n, int type = 0) {
+				vector<int> coords;
+				if (layout == square){
+					coords.push_back(n % ncol); //x coord
+					coords.push_back(n / ncol); //y coord
+				}
+				else if (layout == hex) {
+					if(type == 0){ //cube coordinates - axial coordinates are the choosen two from this three coords
+						coords.push_back( n / ncol); //x cubic coord
+						coords.push_back( n - x*ncol - x/2 ); //y cubic coord
+						coords.push_back(0 - x - y); //z cubic coord
+					}
+					else if (type == 1){ //axial coords 
+						coords.push_back( n / ncol); //x cubic coord
+						coords.push_back( n - x*ncol - x/2 ); //y cubic coord
+					}
+					else if (type == 2){ //offset coords 
+						coords.push_back(n % ncol); //x coord
+						coords.push_back(n / ncol); //y coord
+					}
+				}
+
+				return(coords);
+			}
+
 			///finds cell in pos [x,y] and gives back a pointer to it
 			inline celltype* get(int x, int y) {
 				if(layout == square){
@@ -138,47 +177,6 @@ namespace cadv {
 				for(i=0; i < size; i++) {
 					matrix[i] = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
 				}
-			}
-			
-			///adds neighbourhood matrix
-			int neighAdd(double type=1) {
-				int* new_neigh;
-				new_neigh = neighInic(size, ncol, layout, type);
-				if( !new_neigh ) {
-					std::cerr << "failed to create neighbourhood" << std::endl;
-					return(-1);
-				}
-				neighbourhoods.push_back( new_neigh );
-				no_neighbours.push_back( szomsz_meret(layout, type) );
-				return( neighbourhoods.size() - 1 );
-			}
-			
-			///gives back number of neighbours in a neighbourhood
-			inline int neighNo(int no_nm = 0) {
-				return no_neighbours[no_nm];
-			}
-			
-			///gives back pointer to neighbourhood matrix
-			inline int* neigh(int no_nm = 0) {
-				return neighbourhoods[no_nm];
-			}
-			
-			///gives back pointer to neighbours of a cell
-			inline int* neigh(int cell, int no_nm) {
-				return neighbourhoods[no_nm] + no_neighbours[no_nm]*cell;
-			}
-			
-			///gives back pos of neighbour no_neigh of cell
-			inline int neigh(int cell, int no_neigh, int no_nm) {
-				return *(neighbourhoods[no_nm] + no_neighbours[no_nm]*cell + no_neigh);
-			}
-			
-			///gives back pointer to a random neighbour except the cell itself
-			inline celltype* rneigh(int cell, int no_nm=0) {
-//				int pos = *(neighbourhoods[no_nm] + no_neighbours[no_nm]*cell + gsl_rng_uniform_int(r, no_neighbours[no_nm] - 1) + 1);
-//				std::cout << "search for random " << no_nm << " neighbour of cell " << cell << ": " << pos << std::endl;//				
-//				return (matrix + pos );
-				return (matrix + *(neighbourhoods[no_nm] + no_neighbours[no_nm]*cell + gsl_rng_uniform_int(r, no_neighbours[no_nm] - 1) + 1) );
 			}
 			
 			///swaps two cells in the matrix

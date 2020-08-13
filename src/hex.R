@@ -89,7 +89,8 @@ draw.hgrid <- function(x, ncol, colors){
   plot.new()
   plot.window(xlim=c(0, ncol+0.5), ylim=c(no %/% ncol +sqrt(1/3), -sqrt(1/3)), asp=1)
   for(n in 0:(no-1) ){
-    addh(n %% ncol, n %/% ncol, col=colors[round(n %/% scale +1)])
+    addh(n %% ncol, n %/% ncol, col=colors[round(x[n+1] %/% scale +1)])
+    #cat(x[n], colors[round(x[n] %/% scale +1)], "\n")
     #cat(n %/% scale +1, "\n")
   }
 }
@@ -139,19 +140,49 @@ k <- matrix(rep(0, ncol*nrow), ncol=ncol)
 
 #set neigh
 pos=019
-dy=c(-1, 0, 1, -1, 1, -1, 0, 1)
-dx=c(-1,-1,-1, 0, 0, 1, 1, 1)
-
+#dy=c(-1, 0, 1, -1, 1, -1, 0, 1)
+#dx=c(-1,-1,-1, 0, 0, 1, 1, 1)
+dx=-15
+dy=+1
+  
 #calc
 k[pos+1] <- 1
 for(q in 1:length(dx) ){
   w <-(( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q]) %% ncol
   k[w+1] <- 2
 }
-# 0,0 nem  lehet
+
+############################
+# 0,0 nem lehet !!!!!!!!
+############################
 
 #draw grid
 image(1:ncol, 1:nrow, k, ylim=c(nrow+1,0), asp=1, xlab="x", ylab="y",las=1) 
 abline(h=0:ncol+0.5, col="grey")
 abline(v=0:nrow+0.5, col="grey")
 
+### HEX TORUS
+{
+#setup
+ncol=10
+nrow=10
+k <- rep(0, ncol*nrow)
+
+#set neigh
+pos=25
+dx=c(0)
+dy=c(2)
+
+#calc
+k[pos+1] <- 1
+for(q in 1:length(dx) ){
+  #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] - ((pos%/%ncol) %/% 2)) %% ncol
+  #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] ) %% ncol
+  w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] - (dy[q] - bitwAnd(pos %/% ncol, 1))%/%2 ) %% ncol
+  #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] + dy[q] + bitwAnd(pos %/% ncol,1) -1 ) %% ncol
+  k[w+1] <- 2
+}
+
+#draw grid
+draw.hgrid(k, ncol, colors=c("white", "red", "green"))
+}
