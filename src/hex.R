@@ -170,15 +170,17 @@ k <- rep(0, ncol*nrow)
 
 #set neigh
 pos=25
-dx=c(0)
-dy=c(2)
+#dx=c(-1, -1, 0, 0, 1, 1)
+#dy=c(0, 1, -1, 1, -1, 0)
+dy=0
+dx=18
 
 #calc
 k[pos+1] <- 1
 for(q in 1:length(dx) ){
   #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] - ((pos%/%ncol) %/% 2)) %% ncol
   #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] ) %% ncol
-  w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] - (dy[q] - bitwAnd(pos %/% ncol, 1))%/%2 ) %% ncol
+  w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] + (dy[q] + bitwAnd(pos %/% ncol, 1))%/%2 ) %% ncol
   #w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] + dy[q] + bitwAnd(pos %/% ncol,1) -1 ) %% ncol
   k[w+1] <- 2
 }
