@@ -3,6 +3,36 @@
 #include "ca.h"
 
 namespace cadv {
+	int grid_init(Cell **plane, int size1=300, int size2=300, Ca_layout layout=square) {
+		int size = 0;
+		
+		if(size1 <=0 || size2 <= 0) {
+			size =0;
+			return(0);
+		} 
+		else if(size1 == 1 ) {
+			size = size2;
+		}
+		else if(size2 == 1){
+			size == size1;
+		}
+		else switch (layout) { //the matrix is definitely more than 1D based on sizes
+				case square:
+				case hex:
+					size = size1 * size2;
+		}
+		
+		if(layout == square) {
+			*plane = new Cell[size];
+			if(! *plane ) {
+				std::cerr << "ERROR: cadv::ca_init: plane could not be initialized!" << std::endl;
+				return(0);
+			}
+		}
+		
+		return(size);
+	}
+
 	int* CellAut::neighInic(double neigh_tipus, Ca_edge edge) {
 	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
 
@@ -72,6 +102,7 @@ namespace cadv {
 				    matrix[i].neigh = new int[matrix[i].no_neigh] ; //need to rewrite: pointers, not ints!!!
 				    for(int n = 0; n < matrix[i].no_neigh; n++) {
 					    matrix[i].neigh[n] = ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol + ( i % ncol + n_inic_x[n] ) % ncol;
+/**/					    std::cout << "for cell " << i << " the x" << n_inic_y[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << std::endl;
 				    } 
 			    } //end itarate thru grid
 			}

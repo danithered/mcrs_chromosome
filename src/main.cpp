@@ -1,5 +1,6 @@
 #include <iostream>
 #include "randomgen.h"
+#include "ca.h"
 
 using namespace std;
 
@@ -11,14 +12,10 @@ int main(int argc, char *argv[]) {
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
 
+    cadv::CellAut automata(5,5);
 
-
-
-    cout << "Hello World";
-  
-
-
-
+    automata.neighInic(VON_NEUMANN_NEIGH, cadv::torus);
+    //automata.rUpdate(1);
 
     //close rng
     gsl_rng_free(r);

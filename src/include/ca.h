@@ -37,35 +37,7 @@ namespace cadv {
 	
 	};
 
-	int grid_init(Cell **plane, int size1=300, int size2=300, Ca_layout layout=square) {
-		int size = 0;
-		
-		if(size1 <=0 || size2 <= 0) {
-			size =0;
-			return(0);
-		} 
-		else if(size1 == 1 ) {
-			size = size2;
-		}
-		else if(size2 == 1){
-			size == size1;
-		}
-		else switch (layout) { //the matrix is definitely more than 1D based on sizes
-				case square:
-				case hex:
-					size = size1 * size2;
-		}
-		
-		if(layout == square) {
-			*plane = new Cell[size];
-			if(! *plane ) {
-				std::cerr << "ERROR: cadv::ca_init: plane could not be initialized!" << std::endl;
-				return(0);
-			}
-		}
-		
-		return(size);
-	}
+	int grid_init(Cell **plane, int size1, int size2, Ca_layout layout) ;
 	
 	class CellAut {
 		public:
