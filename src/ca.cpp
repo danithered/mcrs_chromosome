@@ -2,108 +2,130 @@
 #include <cmath>
 #include "ca.h"
 
+#define SINGLESQ 2.0
+#define SINGLEHEX 3.0
+#define MOORE_NEIGH 4.0
+#define VON_NEUMANN_NEIGH 3.0
+#define MARGOLUS_NEIGH -1.0
+#define 5X5 8.0
+#define HEX1 4.0
+
 namespace cadv {
+	int* neighInic(double neigh_tipus, Ca_edge edge) {
+	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
 
-	//feltolti a szomszedsagmatrixot: sajat pozicio, N, W, E, S
-	int* neighInic(int cellaszam_f, int ncol_f, Ca_layout layout, double neigh_tipus_f) {
-		/*
-		* cellaszam_f: az alapmatrix cellaszama
-		* neigh_tipus_f: a szomsz. merete: ha 0 -> von Neumann; ha több -> Moore szomsz
-		* */
-		
-		//Valtozok deklaralasa
-		int metNeigh_matrixmeret_f=0, alapMCellaszamlalo_f=0, colszamlalo_f=0, rowszamlalo_f=0, vonN_f = 0, szomsz_f=0, szomszedszam_f=0;
-		static int *matrix_f;
-		/*
-		* metNeigh_matrixmeret_f: a szomsz. matrix cellaszama
-		* alapMCellaszamlalo_f: szamlalo: hanyadik alapmatrix cellanal jarunk a feltoltesben
-		* ncol_f: alapmatrix oszlopainak szama =sqrt(cellaszam_f)
-		* colszamlalo_f: hanyadik oszlopban tartunk
-		* rowszamlalo_f: hanyadik sorban tartunk
-		* szomsz_f: egy cella szomszedsagaba hany cella tartozik pl.: 2es szomsz eseten (2*2+1)^2=25
-		* *matrix_f: a szomsz. matrix
-		* */
+		std::vector<int> n_inic_x;
+		std::vector<int> n_inic_y;
 
-		//initialise neighbourhood matrix
-		szomsz_f = szomsz_meret(layout, neigh_tipus_f);
-		metNeigh_matrixmeret_f=cellaszam_f* szomsz_f; //szomsz. matrix cellameretenek meghatarozasa
-		matrix_f=(int *) calloc(metNeigh_matrixmeret_f, sizeof(int)); //szomsz. matrix lefoglalasa
-		if(!matrix_f) {
-			std::cerr << "cadv::neighInic: ERROR: could not initialise neighbourhood matrix!" << std::endl;
-			return(NULL);
-		}		
-		
-		//create neighbourhood matrix
-		switch(layout) {
-			case square:
-				if(neigh_tipus_f >= 0) { //vonNeumann, Moore and hybrid neighs
-					if(neigh_tipus_f==0 || ( neigh_tipus_f - (int)neigh_tipus_f )){
-						vonN_f = 1;
-						neigh_tipus_f = (double)(int)neigh_tipus_f;
-					}
-						
-					for(alapMCellaszamlalo_f=0; alapMCellaszamlalo_f<cellaszam_f; alapMCellaszamlalo_f++) {
-						szomszedszam_f=0;					
-						for(rowszamlalo_f = 0 - neigh_tipus_f; rowszamlalo_f <= 0 + neigh_tipus_f; rowszamlalo_f++) {
-							for(colszamlalo_f = 0 - neigh_tipus_f; colszamlalo_f <= 0 + neigh_tipus_f; colszamlalo_f++) {
-								//szomszedszam_f++;
-								if(!colszamlalo_f && !rowszamlalo_f) *(matrix_f+ alapMCellaszamlalo_f*szomsz_f)=torus(cellaszam_f, alapMCellaszamlalo_f+rowszamlalo_f*ncol_f+colszamlalo_f);
-								else {
-									*(matrix_f+ alapMCellaszamlalo_f*szomsz_f+szomszedszam_f+1)=torus(cellaszam_f, alapMCellaszamlalo_f+rowszamlalo_f*ncol_f+colszamlalo_f);
-									szomszedszam_f++;
-								}
-							}
-						}
-						if(vonN_f) {
-							*(matrix_f + alapMCellaszamlalo_f*szomsz_f + szomszedszam_f + 1) = torus(cellaszam_f, alapMCellaszamlalo_f - (1 + neigh_tipus_f)*ncol_f); //1: N
-							*(matrix_f + alapMCellaszamlalo_f*szomsz_f + szomszedszam_f + 2) = torus(cellaszam_f, alapMCellaszamlalo_f - (1 + neigh_tipus_f)); //2: W
-							*(matrix_f + alapMCellaszamlalo_f*szomsz_f + szomszedszam_f + 3) = torus(cellaszam_f, alapMCellaszamlalo_f + (1 + neigh_tipus_f)); //3: E
-							*(matrix_f + alapMCellaszamlalo_f*szomsz_f + szomszedszam_f + 4) = torus(cellaszam_f, alapMCellaszamlalo_f + (1 + neigh_tipus_f)*ncol_f); //4: S
-						}
-					}
-				}
-				else { //Margolus type neighs (only 2x2)
-					for(alapMCellaszamlalo_f=0; alapMCellaszamlalo_f<cellaszam_f; alapMCellaszamlalo_f++) {
-						*(matrix_f + alapMCellaszamlalo_f*szomsz_f) = alapMCellaszamlalo_f;
-						*(matrix_f + alapMCellaszamlalo_f*szomsz_f + 1) = torus(cellaszam_f, alapMCellaszamlalo_f + 1); //jobbra
-						*(matrix_f + alapMCellaszamlalo_f*szomsz_f + 2) = torus(cellaszam_f, alapMCellaszamlalo_f + ncol_f); //lent
-						*(matrix_f + alapMCellaszamlalo_f*szomsz_f + 3) = torus(cellaszam_f, alapMCellaszamlalo_f + ncol_f + 1); //jobbra le
-					}	
-				}
-				break;
-			default:
-				std::cerr << "cadv::neighInic: ERROR: did not recognize layout" << std::endl;
-		} //switch (layout)
-		
-		return (matrix_f);
-	}
+		//Create neighbourhood definition
+		if(neigh_tipus == MARGOLUS_NEIGH) {
+		    n_inic_x.push_back(0);
+		    n_inic_y.push_back(0);
 
-	int szomsz_meret(Ca_layout layout, double tipus_f) {
-		switch(layout) {
-			case square:
-				if(tipus_f == 0) return(5); //vonNeumann
-				else if(tipus_f < 0) return(tipus_f * tipus_f);
-				else {
-					if(tipus_f - (int)tipus_f ) return(szomsz_meret(layout, (double)(int)tipus_f) + 4);
-					else return (std::pow(((int)tipus_f*2+1), 2)); //Moore szomszedsag: pl.: 2es szomsz eseten (2*2+1)^2=25 
-				}
-				break;
-			default:
-				std::cerr << "cadv::szomsz_meret: ERROR: could not recognize layout" << std::endl;
+		    n_inic_x.push_back(1);
+		    n_inic_y.push_back(0);
+
+		    n_inic_x.push_back(0);
+		    n_inic_y.push_back(1);
+
+		    n_inic_x.push_back(1);
+		    n_inic_y.push_back(1);
 		}
-				return(0);
-	}
-	
-	int torus(int m, int k)	{
-		/*torus*/
-		/** *******************************************************
-		k: it is a grid point that is determined by torus()
-		m: size of matrix 
+
+		else{
+		    if(layout == square) {
+			    if(2 <= neigh_tipus ) {
+			    	//self
+				n_inic_x.push_back(0);
+				n_inic_y.push_back(0);
+			    
+				//other cells
+				maxDist = (int) std::log2((int) neigh_tipus - 1);
+				for(x = -maxDist; x <= maxDist; x++){ 
+					for(y = -maxDist; y <= maxDist; y++){ 
+						if( (x || y) && (std::pow(2, x) + std::pow(2,y) <= neigh_tipus ) ) {
+							n_inic_x.push_back(x);
+							n_inic_y.push_back(y);
+						}
+					} //end for y
+				} //end for x
+			    }
+		    }
+		    else if(layout == hex){
+			    if(3 <= neigh_tipus ) {
+			    	//self
+				n_inic_x.push_back(0);
+				n_inic_y.push_back(0);
+
+				//other cells
+				maxDist = (int) std::log2((int) neigh_tipus - 2);
+				for(x=-maxDist; x <= maxDist; x++){ 
+					for(y=-maxDist; y <= maxDist; y++){ 
+						if( (x || y) && (std::pow(2, x) + std::pow(2,y) + std::pow(2, 0-x-y) <= neigh_tipus ) ) {
+							n_inic_x.push_back(x);
+							n_inic_y.push_back(y);
+						}
+					} //end for y
+				} //end for x
+			    }
+			    
+		    }
+		}
+
+		//iterate through grid
+		if(edge == torus){
+			if(layout == square){
+			    for(int i=0; i < size; i++){ //iterate throught grid
+				    matrix[i]->no_neigh = n_inic_x.size();
+				    matrix[i]->neigh = new int[matrix[i]->no_neigh] ; //need to rewrite: pointers, not ints!!!
+				    for(int n = 0; n < matrix[i]->no_neigh; n++) {
+					    matrix[i]->neigh[n] = ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol + ( i % ncol + n_inic_x[n] ) % ncol;
+				    } 
+			    } //end itarate thru grid
+			}
+			else if(layout == hex){
+			    for(int i=0; i < size; i++){ //iterate throught grid
+				    matrix[i]->no_neigh = n_inic_x.size();
+				    matrix[i]->neigh = new int[matrix[i]->no_neigh] ; //need to rewrite: pointers, not ints!!!
+				    for(int n = 0; n < matrix[i]->no_neigh; n++) {
+					    matrix[i]->neigh[n] = ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol + ( i % ncol + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 ) % ncol; 
+				    } 
+			    } //end itarate thru grid
+			}
+
+		}
+		else if (edge == wall){
+			for(int i=0; i < size; i++){ //iterate throught grid
+				//count number of neighbours	
+				x = (int) i / ncol; 
+				y = i % ncol;
+				noNei = 0;
+				for(int n = 0; n < matrix[i]->no_neigh; n++) {
+					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) noNei++;
+				}
+				matrix[i]->no_neigh = noNei;
+				matrix[i]->neigh = new int[noNei] ; //need to rewrite: pointers, not ints!!!
+				//assign neighbours
+				for(int n = 0; n < matrix[i]->no_neigh; n++) {	
+					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) {
+						matrix[i]->neigh[n] = i + n_inic_x[n] * ncol + n_inic_y[n]; 
+						
+					}
+				}
+			}
+		}
+		else if (edge == mirror){ //does not work!!!
+				
+			for(int i=0; i < size; i++){ //iterate throught grid
+				matrix[i]->no_neigh = n_inic_x.size();
+				matrix[i]->neigh = new int[matrix[i]->no_neigh] ; //need to rewrite: pointers, not ints!!!
+				for(int n = 0; n < matrix[i]->no_neigh; n++) {
+				}
+			}
+		}
 		
-		by: Tamas Czaran
-		***********************************************************/
-		return ((m-((m-k)%m)))%m;
-	}/*torus*/
+		
+	} //end neighInic
+	
+}
 
-
-} //namespace

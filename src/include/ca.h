@@ -13,13 +13,7 @@ namespace cadv {
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
 	enum Ca_edge {wall = 0, mirror = 1, torus=2};
 
-	int torus(int m, int k);
-	int* neighInic(Ca_layout layout, double neigh_tipus, Ca_edge edge);
-	int szomsz_meret(Ca_layout layout, double tipus_f);
-
-	
-	template <typename matrix_type>
-	int grid_init(matrix_type **plane, int size1=300, int size2=300, Ca_layout layout=square) {
+	int grid_init(Cell **plane, int size1=300, int size2=300, Ca_layout layout=square) {
 		int size = 0;
 		
 		if(size1 <=0 || size2 <= 0) {
@@ -34,11 +28,12 @@ namespace cadv {
 		}
 		else switch (layout) { //the matrix is definitely more than 1D based on sizes
 				case square:
+				case hex:
 					size = size1 * size2;
 		}
 		
 		if(layout == square) {
-			*plane = new matrix_type[size];
+			*plane = new Cell[size];
 			if(! *plane ) {
 				std::cerr << "ERROR: cadv::ca_init: plane could not be initialized!" << std::endl;
 				return(0);
@@ -48,7 +43,15 @@ namespace cadv {
 		return(size);
 	}
 	
-	template <class celltype>
+	class Cell{
+		public:
+			double value1;
+			int no_neigh;
+			int neigh;
+
+	
+	}
+
 	class CellAut {
 		public:
 			int nrow;
@@ -56,7 +59,7 @@ namespace cadv {
 			int size;
 			cadv::Ca_layout layout;
 			
-			celltype *matrix;
+			Cell *matrix;
 			
 			//Constructor 1
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
@@ -81,7 +84,7 @@ namespace cadv {
 			}
 			
 			//Constructor 2
-			CellAut(int size1, int size2, cadv::Ca_layout layout_type, celltype* pool, double* probs, int no_choices){
+			CellAut(int size1, int size2, cadv::Ca_layout layout_type, Cell* pool, double* probs, int no_choices){
 				CellAut(size1, size2, layout_type);
 				init(pool, probs, no_choices);
 			}
@@ -148,7 +151,7 @@ namespace cadv {
 			}
 
 			///finds cell in pos [x,y] and gives back a pointer to it
-			inline celltype* get(int x, int y) {
+			inline Cell* get(int x, int y) {
 				if(layout == square){
 					return(matrix + y*ncol + x);
 				}
@@ -159,15 +162,19 @@ namespace cadv {
 				if(layout == square){
 					return(y*ncol + x);
 				}
+				else if (layout == hex){
+					return(y + x*ncol + x/2);
+				}
 				return(-1);
 			}
+
 			///gives back pointer to cell
-			inline celltype* get(int cell) {
+			inline Cell* get(int cell) {
 				return(matrix + cell);
 			}
 			
 			///initialises matrix with predefined values, randomly
-			void init(celltype* pool, double* probs, int no_choices) {
+			void init(Cell* pool, double* probs, int no_choices) {
 				int i = 0;
 				double sum = 0.0;
 				
@@ -201,6 +208,10 @@ namespace cadv {
 			///TM async updorder
 			
 			///TM classic
+
+			///Initialise neighbourhood
+			int* neighInic(double neigh_tipus, Ca_edge edge);
+
 	};
 	
 }
