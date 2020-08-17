@@ -1,18 +1,19 @@
-IDIR =.src/include
-CC=g++
-CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl`
-
 PROGNAME=simulation
 
-ODIR=src/obj
-SRCDIR=src
+IDIR =./src/include
+ODIR=./src/obj
+SRCDIR=./src
 
-LIBS=-lm
+CC=g++
 
-_DEPS = 
+CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl`
+
+LIBS=-lm `pkg-config --libs gsl`
+
+_DEPS = ca.h randomgen.h dv_tools.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o 
+_OBJ = main.o ca.o dv_tools.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _OBJ_test = main.o 
