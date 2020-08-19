@@ -33,7 +33,7 @@ namespace cadv {
 		return(size);
 	}
 
-	int* CellAut::neighInic(double neigh_tipus, Ca_edge edge) {
+	void CellAut::neighInic(double neigh_tipus, Ca_edge edge) {
 	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
 
 		std::vector<int> n_inic_x;

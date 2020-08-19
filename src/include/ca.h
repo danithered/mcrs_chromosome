@@ -196,6 +196,7 @@ namespace cadv {
 						updateStep( gsl_rng_uniform_int(r, size) );
 					}
 				}
+				return(0);
 			}
 
 			//Diffusions
@@ -218,7 +219,7 @@ namespace cadv {
 			///TM classic
 
 			///Initialise neighbourhood
-			int* neighInic(double neigh_tipus, Ca_edge edge);
+			void neighInic(double neigh_tipus, Ca_edge edge);
 
 	};
 	
