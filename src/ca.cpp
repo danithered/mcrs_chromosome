@@ -1,5 +1,3 @@
-#include <iostream>
-#include <cmath>
 #include "ca.h"
 
 namespace cadv {
@@ -65,7 +63,8 @@ namespace cadv {
 				maxDist = (int) std::log2((int) neigh_tipus - 1);
 				for(x = -maxDist; x <= maxDist; x++){ 
 					for(y = -maxDist; y <= maxDist; y++){ 
-						if( (x || y) && (std::pow(2, x) + std::pow(2,y) <= neigh_tipus ) ) {
+//						std::cout << "std::pow(2, " << x << ") + std::pow(2," << y << ") <= " << neigh_tipus << "\t" << std::pow(2, std::abs(x)) << " " << std::pow(2, std::abs(y)) << std::endl; 
+						if( (x || y) && (std::pow(2, std::abs(x)) + std::pow(2, std::abs(y)) <= neigh_tipus ) ) {
 							n_inic_x.push_back(x);
 							n_inic_y.push_back(y);
 						}
@@ -83,7 +82,7 @@ namespace cadv {
 				maxDist = (int) std::log2((int) neigh_tipus - 2);
 				for(x=-maxDist; x <= maxDist; x++){ 
 					for(y=-maxDist; y <= maxDist; y++){ 
-						if( (x || y) && (std::pow(2, x) + std::pow(2,y) + std::pow(2, 0-x-y) <= neigh_tipus ) ) {
+						if( (x || y) && (std::pow(2, std::abs(x)) + std::pow(2, std::abs(y)) + std::pow(2, std::abs(0-x-y)) <= neigh_tipus ) ) {
 							n_inic_x.push_back(x);
 							n_inic_y.push_back(y);
 						}
@@ -97,12 +96,13 @@ namespace cadv {
 		//iterate through grid
 		if(edge == torus){
 			if(layout == square){
+//				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
 			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
 				    matrix[i].no_neigh = n_inic_x.size();
 				    matrix[i].neigh = new int[matrix[i].no_neigh] ; //need to rewrite: pointers, not ints!!!
 				    for(int n = 0; n < matrix[i].no_neigh; n++) {
-					    matrix[i].neigh[n] = ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol + ( i % ncol + n_inic_x[n] ) % ncol;
-/**/					    std::cout << "for cell " << i << " the x" << n_inic_y[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << std::endl;
+					    matrix[i].neigh[n] = ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol);
+/**/					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
 				    } 
 			    } //end itarate thru grid
 			}

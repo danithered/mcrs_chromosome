@@ -4,6 +4,8 @@
 #include <vector>
 #include "randomgen.h"
 #include "dv_tools.h"
+#include <cmath>
+#include <iostream>
 
 #define SINGLESQ 2.0
 #define SINGLEHEX 3.0
