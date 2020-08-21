@@ -111,7 +111,7 @@ namespace cadv {
 				    matrix[i].no_neigh = n_inic_x.size();
 				    matrix[i].neigh = new int[matrix[i].no_neigh] ; //need to rewrite: pointers, not ints!!!
 				    for(int n = 0; n < matrix[i].no_neigh; n++) {
-					    matrix[i].neigh[n] = ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol + ( i % ncol + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 ) % ncol; 
+					    matrix[i].neigh[n] = ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol); 
 				    } 
 			    } //end itarate thru grid
 			}
