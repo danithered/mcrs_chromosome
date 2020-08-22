@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     cadv::CellAut automata(5,5);
 
     automata.neighInic(VON_NEUMANN_NEIGH, cadv::torus);
-    //automata.rUpdate(1);
+    automata.rUpdate(1);
 
     //close rng
     gsl_rng_free(r);
