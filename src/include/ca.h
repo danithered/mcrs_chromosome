@@ -23,18 +23,26 @@ namespace cadv {
 		public:
 			double value1;
 			int no_neigh;
-			int *neigh;
+			//int *neigh;
+			class Cell **neigh;
 
-			void printN(){
-				for(int p = 0; p < no_neigh; p++){
+			int who(Cell * ref){
+				return( int (this - ref) );
+			}
+
+			void printN(Cell * ref){
+				/*for(int p = 0; p < no_neigh; p++){
 				    std::cout << "\t" << neigh[p];
 				}
-				std::cout << std::endl;
+				std::cout << std::endl;*/
+
+				std::cout << "I am number " << who(ref) << " and my 1st neighbour is number " << neigh[1]->who(ref) << std::endl;
+
 				return;
 			}
 
 			~Cell(){
-				delete [] (neigh);
+				if (no_neigh) delete [] (neigh);
 			}
 	
 	};
@@ -51,12 +59,15 @@ namespace cadv {
 			
 			Cell *matrix;
 			
+
+			//FUNCTIONS
+
 			//Constructor 1
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
 				time=0;
 				nrow=size1;
 				ncol=size2;
-				
+
 				size = cadv::grid_init(&matrix, size1, size2, layout_type);
 				
 				if(!size) layout = empty;
@@ -185,7 +196,7 @@ namespace cadv {
 
 			///One update step - DOES NOT WORK
 			int updateStep(int cell){
-				matrix[cell].printN();
+				matrix[cell].printN(matrix);
 				return(0);
 			}
 
