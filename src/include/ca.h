@@ -21,11 +21,16 @@ namespace cadv {
 
 	class Cell{
 		public:
+			//Cell content
 			double value1;
-			int no_neigh;
-			//int *neigh;
-			class Cell **neigh;
 
+			//Cell topology
+			int no_neigh;
+			class Cell **neigh;
+			class Cell **diff_neigh;
+			class CellAut *parent;
+
+			//Functions
 			int who(Cell * ref){
 				return( int (this - ref) );
 			}
@@ -41,13 +46,37 @@ namespace cadv {
 				return;
 			}
 
+
+			//Cell base functions
+			Cell(){
+				//parent = pp;
+				value1 = 1;
+			}
+
 			~Cell(){
 				if (no_neigh) delete [] (neigh);
+				delete [] (diff_neigh);
+
+			}
+
+			///copies over its value to another
+			void operator >( Cell& target){
+				target.value1 = value1;
+				return;
+			}
+
+			///diffusion
+			void diff(){
+				
+
+				if(gsl_rng_uniform(r) < 0.5) {
+					//this
+				} else {
+				}
 			}
 	
 	};
 
-	int grid_init(Cell **plane, int size1, int size2, Ca_layout layout) ;
 	
 	class CellAut {
 		public:
@@ -62,14 +91,17 @@ namespace cadv {
 
 			//FUNCTIONS
 
+			int grid_init() ;
+
 			//Constructor 1
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
 				time=0;
 				nrow=size1;
 				ncol=size2;
+				layout = layout_type;
 
-				size = cadv::grid_init(&matrix, size1, size2, layout_type);
-				
+				grid_init();
+
 				if(!size) layout = empty;
 				if(size1==1 || size2==1){
 					if(size1==size2) {
@@ -80,8 +112,6 @@ namespace cadv {
 					}
 				}
 				
-				layout=square;
-			
 //				std::cout << "Basic Constructor Called" << std::endl;
 			}
 			
@@ -186,11 +216,7 @@ namespace cadv {
 				for(i=0; i < size; i++) {
 					matrix[i] = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
 				}
-			}
-			
-			///swaps two cells in the matrix
-			
-			///copies over a value on an other
+			}	
 			
 			//Updates
 
@@ -233,6 +259,10 @@ namespace cadv {
 
 			///Initialise neighbourhood
 			void neighInic(double neigh_tipus, Ca_edge edge);
+
+			///Initialise diffusion neighbourhood
+			void diffNeighInic(double neigh_tipus, Ca_edge edge);
+
 
 	};
 	

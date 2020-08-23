@@ -6,7 +6,7 @@ SRCDIR=./src
 
 CC=g++
 
-CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl`
+CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl` -ggdb
 
 LIBS=-lm `pkg-config --libs gsl`
 

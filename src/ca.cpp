@@ -1,33 +1,40 @@
 #include "ca.h"
 
 namespace cadv {
-	int grid_init(Cell **plane, int size1=300, int size2=300, Ca_layout layout=square) {
-		int size = 0;
+	int CellAut::grid_init() {
+		size = 0;
 		
-		if(size1 <=0 || size2 <= 0) {
+		if(nrow <=0 || ncol <= 0) {
 			size =0;
+//			std::cout << "grid_init: size is 0" << std::endl;
 			return(0);
 		} 
-		else if(size1 == 1 ) {
-			size = size2;
+		else if(nrow == 1 ) {
+//			std::cout << "grid_init: nrow = 1" << std::endl;
+			size = ncol;
 		}
-		else if(size2 == 1){
-			size == size1;
+		else if(ncol == 1){
+//			std::cout << "grid_init: ncol = 1" << std::endl;
+			size == nrow;
 		}
-		else switch (layout) { //the matrix is definitely more than 1D based on sizes
+		else {
+//			std::cout << "grid_init: matrix is more than 1D" << std::endl;
+			switch (layout) { //the matrix is definitely more than 1D based on sizes
 				case square:
 				case hex:
-					size = size1 * size2;
+					size = nrow * ncol;
+			}
 		}
+//		std::cout << "grid_init: here2: ncol: " << ncol << ", nrow: " << nrow << ", size: " << size << std::endl;
 		
 		if(layout == square) {
-			*plane = new Cell[size];
-			if(! *plane ) {
-				std::cerr << "ERROR: cadv::ca_init: plane could not be initialized!" << std::endl;
+			matrix = new Cell[size];
+			if(! matrix ) {
+				std::cerr << "ERROR: cadv::ca_init: matrix could not be initialized!" << std::endl;
 				return(0);
 			}
 		}
-		
+//		std::cout << "grid_init: ncol: " << ncol << ", nrow: " << nrow << ", size " << size << std::endl;
 		return(size);
 	}
 
@@ -96,14 +103,14 @@ namespace cadv {
 		//iterate through grid
 		if(edge == torus){
 			if(layout == square){
-//				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
+/**/				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
 			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
 				    matrix[i].no_neigh = n_inic_x.size();
 				    //matrix[i].neigh = new int[matrix[i].no_neigh] ; 
 				    matrix[i].neigh = new Cell* [matrix[i].no_neigh] ; 
 				    for(int n = 0; n < matrix[i].no_neigh; n++) {
 					    matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol));
-//					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
+/**/					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
 				    } 
 			    } //end itarate thru grid
 			}
