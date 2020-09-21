@@ -14,6 +14,7 @@ int par_output_interval = 0;
 
 char par_ID[255] = "test\0";
 
+double par_init_grid = 0.5;
 double par_death = 0.5;
 double par_diffusion_rate = 0;
 
@@ -34,6 +35,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_ID " << par_ID << std::endl;
 	paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
+	paramfile << "par_init_grid " << par_init_grid << std::endl;
 	
 
 	paramfile.close();
@@ -59,6 +61,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_nrow")) option = 'r';
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
+			else if(!strcmp(argv[i], "--par_init_grid")) option = 's';
 		}
 		switch(option){
 			// k - par_death
@@ -108,6 +111,15 @@ int Args(int argc, char **argv)
 				par_output_interval = atoi(argv[i]);
 				if(par_output_interval < 0) {
 					std::cerr << "ERROR at reading argoments: option " << option << ": cant be negative!" << std::endl;
+					return(-1);
+				}
+				continue;
+			
+			case 's':
+				if (++i == argc) return 1;
+				par_output_interval = atof(argv[i]);
+				if(par_init_grid < 0 || par_init_grid > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
 					return(-1);
 				}
 				continue;

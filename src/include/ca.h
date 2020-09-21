@@ -21,7 +21,16 @@ namespace cadv {
 
 	class CellContent{
 		public:
-			double value1;
+			double value1; //temporary, just for testing
+
+			std::string seq; //sequence of replicator
+			double k; // replication rate
+			std::vector<double> E; //enzymatic activities
+			int fold; // which fold is it currently
+			bool empty; // is this cell empty or not
+
+			//initialiser
+			
 
 	};
 

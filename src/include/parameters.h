@@ -16,6 +16,7 @@ extern int par_output_interval;
 
 extern char par_ID[255];
 
+extern double par_init_grid;
 extern double par_death;
 extern double par_diffusion_rate;
 
