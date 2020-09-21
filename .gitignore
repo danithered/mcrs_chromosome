@@ -1,0 +1,7 @@
+src/obj/*
+*.swp
+.directory
+modell_leiras.docx
+simulation
+*~
+src/.Rhistory
