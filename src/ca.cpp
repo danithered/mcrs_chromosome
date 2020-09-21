@@ -4,6 +4,7 @@ namespace cadv {
 	int CellAut::grid_init() {
 		size = 0;
 		
+		//calculating sizes
 		if(nrow <=0 || ncol <= 0) {
 			size =0;
 //			std::cout << "grid_init: size is 0" << std::endl;
@@ -27,7 +28,8 @@ namespace cadv {
 		}
 //		std::cout << "grid_init: here2: ncol: " << ncol << ", nrow: " << nrow << ", size: " << size << std::endl;
 		
-		if(layout == square) {
+		//initialising grid
+		if(layout == square || layout == hex) {
 			matrix = new Cell[size];
 			if(! matrix ) {
 				std::cerr << "ERROR: cadv::ca_init: matrix could not be initialized!" << std::endl;
@@ -35,10 +37,16 @@ namespace cadv {
 			}
 		}
 //		std::cout << "grid_init: ncol: " << ncol << ", nrow: " << nrow << ", size " << size << std::endl;
+		
+		//setting parent
+		for(int i=0; i < size; i++){
+			matrix[i].parent = this;
+		}
+
 		return(size);
 	}
 
-	void CellAut::neighInic(double neigh_tipus, Ca_edge edge) {
+	void CellAut::neighInic(double neigh_tipus, Ca_edge edge, int neigh_no = 1) {
 	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
 
 		std::vector<int> n_inic_x;
@@ -105,21 +113,25 @@ namespace cadv {
 			if(layout == square){
 /**/				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
 			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
-				    matrix[i].no_neigh = n_inic_x.size();
+				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
+				    //matrix[i].no_neigh = n_inic_x.size();
 				    //matrix[i].neigh = new int[matrix[i].no_neigh] ; 
-				    matrix[i].neigh = new Cell* [matrix[i].no_neigh] ; 
-				    for(int n = 0; n < matrix[i].no_neigh; n++) {
-					    matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol));
-/**/					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
+				    //matrix[i].neigh = new Cell* [matrix[i].no_neigh] ; 
+				    for(int n = 0; n < n_inic_x.size(); n++) {
+					    //matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol));
+					    matrix[i].setNeigh( matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol)), n, neigh_no );
+//					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
 				    } 
 			    } //end itarate thru grid
 			}
 			else if(layout == hex){
 			    for(int i=0; i < size; i++){ //iterate throught grid
-				    matrix[i].no_neigh = n_inic_x.size();
-				    matrix[i].neigh = new Cell*[matrix[i].no_neigh] ;
-				    for(int n = 0; n < matrix[i].no_neigh; n++) {
-					    matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)) ; 
+				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
+				    //matrix[i].no_neigh = n_inic_x.size();
+				    //matrix[i].neigh = new Cell*[matrix[i].no_neigh] ;
+				    for(int n = 0; n < n_inic_x.size(); n++) {
+					    //matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)) ; 
+					    matrix[i].setNeigh( matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)), n, neigh_no ); 
 				    } 
 			    } //end itarate thru grid
 			}
@@ -131,15 +143,18 @@ namespace cadv {
 				x = (int) i / ncol; 
 				y = i % ncol;
 				noNei = 0;
-				for(int n = 0; n < matrix[i].no_neigh; n++) {
+				for(int n = 0; n < n_inic_x.size(); n++) {
 					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) noNei++;
 				}
-				matrix[i].no_neigh = noNei;
-				matrix[i].neigh = new Cell* [noNei] ; 
+				matrix[i].inicNeigh(noNei, neigh_no);
+				//matrix[i].no_neigh = noNei;
+				//matrix[i].neigh = new Cell* [noNei] ; 
+				
 				//assign neighbours
-				for(int n = 0; n < matrix[i].no_neigh; n++) {	
+				for(int n = 0; n < noNei; n++) {	
 					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) {
-						matrix[i].neigh[n] = matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]); 
+						//matrix[i].neigh[n] = matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]); 
+						matrix[i].setNeigh( matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]), n, neigh_no ); 
 						
 					}
 				}
@@ -148,9 +163,10 @@ namespace cadv {
 		else if (edge == mirror){ //does not work!!!
 				
 			for(int i=0; i < size; i++){ //iterate throught grid
-				matrix[i].no_neigh = n_inic_x.size();
-				matrix[i].neigh = new Cell* [matrix[i].no_neigh] ;
-				for(int n = 0; n < matrix[i].no_neigh; n++) {
+				matrix[i].inicNeigh(n_inic_x.size(), neigh_no);
+				//matrix[i].no_neigh = n_inic_x.size();
+				//matrix[i].neigh = new Cell* [matrix[i].no_neigh] ;
+				for(int n = 0; n < n_inic_x.size(); n++) {
 				}
 			}
 		}

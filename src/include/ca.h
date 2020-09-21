@@ -19,15 +19,31 @@ namespace cadv {
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
 	enum Ca_edge {wall = 0, mirror = 1, torus=2};
 
+	class CellContent{
+		public:
+			double value1;
+
+	};
+
 	class Cell{
 		public:
 			//Cell content
-			double value1;
+			class CellContent *vals;
+			static class CellContent *temp_vals;
 
 			//Cell topology
-			int no_neigh;
-			class Cell **neigh;
+			int no_met_neigh;
+			int no_repl_neigh;
+			int no_diff_neigh;
+			
+			class Cell **met_neigh;
+			class Cell **repl_neigh;
 			class Cell **diff_neigh;
+			
+			/*
+			remember: first pointer in neighbourhood array is always "self". So the first pinter to a different cell is neigh[1] 
+			*/
+
 			class CellAut *parent;
 
 			//Functions
@@ -41,7 +57,7 @@ namespace cadv {
 				}
 				std::cout << std::endl;*/
 
-				std::cout << "I am number " << who(ref) << " and my 1st neighbour is number " << neigh[1]->who(ref) << std::endl;
+				std::cout << "I am number " << who(ref) << " and my 1st neighbour is number " << met_neigh[1]->who(ref) << std::endl;
 
 				return;
 			}
@@ -49,29 +65,75 @@ namespace cadv {
 
 			//Cell base functions
 			Cell(){
-				//parent = pp;
-				value1 = 1;
+				vals = new CellContent; //creating place for cell content values
+
+				no_met_neigh = no_repl_neigh = no_diff_neigh = 0; //no inic
+
+				vals->value1 = 1; //TEMPORARY!!
 			}
 
 			~Cell(){
-				if (no_neigh) delete [] (neigh);
-				delete [] (diff_neigh);
+				if (no_met_neigh) delete [] (met_neigh);
+				if (no_diff_neigh) delete [] (diff_neigh);
+				if (no_repl_neigh) delete [] (repl_neigh);
 
+				delete vals;
+			}
+
+			///inic neighbours
+			void inicNeigh(int n, int type = 1){
+				switch(type){
+					case 0:
+						no_diff_neigh = n;
+						diff_neigh = new Cell* [n] ; 
+						break;
+					case 1:
+						no_met_neigh = n;
+						met_neigh = new Cell* [n] ; 
+						break;
+					case 2:
+						no_repl_neigh = n;
+						repl_neigh = new Cell* [n] ; 
+						break;
+				}
+			}
+
+			///set neighbours
+			void setNeigh(class Cell *np, int which_neigh, int type = 1){
+				switch(type){
+					case 0:
+						diff_neigh[which_neigh] = np;
+						break;
+					case 1:
+						met_neigh[which_neigh] = np;
+						break;
+					case 2:
+						repl_neigh[which_neigh] = np;
+						break;
+				}
 			}
 
 			///copies over its value to another
 			void operator >( Cell& target){
-				target.value1 = value1;
+				target.vals = vals;
 				return;
 			}
 
 			///diffusion
-			void diff(){
-				
+			void diff(){ // ONE Toffoli-Margoulus step
 
-				if(gsl_rng_uniform(r) < 0.5) {
-					//this
-				} else {
+				temp_vals = vals; // 0 -> S
+				if(gsl_rng_uniform(r) < 0.5) { //counterclockwise
+					vals = diff_neigh[1]->vals; // 1 -> 0
+					diff_neigh[1]->vals = diff_neigh[3]->vals; // 3 -> 1
+					diff_neigh[3]->vals = diff_neigh[2]->vals; // 2 -> 3
+					diff_neigh[2]->vals = temp_vals; // S -> 2
+
+				} else { //cloclwise
+					vals = diff_neigh[2]->vals; // 2 -> 0
+					diff_neigh[2]->vals = diff_neigh[3]->vals; // 3 -> 2
+					diff_neigh[3]->vals = diff_neigh[1]->vals; // 1 -> 3
+					diff_neigh[1]->vals = temp_vals; // S -> 1
 				}
 			}
 	
@@ -258,7 +320,7 @@ namespace cadv {
 			///TM classic
 
 			///Initialise neighbourhood
-			void neighInic(double neigh_tipus, Ca_edge edge);
+			void neighInic(double neigh_tipus, Ca_edge edge, int neigh_no);
 
 			///Initialise diffusion neighbourhood
 			void diffNeighInic(double neigh_tipus, Ca_edge edge);

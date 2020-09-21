@@ -10,10 +10,10 @@ CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl` -ggdb
 
 LIBS=-lm `pkg-config --libs gsl`
 
-_DEPS = ca.h randomgen.h dv_tools.h
+_DEPS = ca.h randomgen.h dv_tools.h parameters.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o ca.o dv_tools.o
+_OBJ = main.o ca.o dv_tools.o parameters.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _OBJ_test = main.o 
