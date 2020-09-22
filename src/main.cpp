@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
 
+    //start to do stuff
     cadv::CellAut automata(par_nrow, par_ncol);
 
     automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0);

@@ -4,8 +4,10 @@
 #include <vector>
 #include "randomgen.h"
 #include "dv_tools.h"
+#include "rnarep.h"
 #include <cmath>
 #include <iostream>
+#include <cstring>
 
 #define SINGLESQ 2.0
 #define SINGLEHEX 3.0
@@ -19,26 +21,39 @@ namespace cadv {
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
 	enum Ca_edge {wall = 0, mirror = 1, torus=2};
 
-	class CellContent{
+
+/*	class CellContent{
 		public:
 			double value1; //temporary, just for testing
 
-			std::string seq; //sequence of replicator
+			char *seq; //sequence of replicator
 			double k; // replication rate
 			std::vector<double> E; //enzymatic activities
 			int fold; // which fold is it currently
+			int length; //length of the seq
 			bool empty; // is this cell empty or not
 
 			//initialiser
-			
+			CellContent(){	
+				//initialise array for seq
+				if ( !(seq = new char [100]) ) std::cerr << "ERROR: could not allocate space for seq" << std::endl;
+				std::memset(seq, '\0', 100);
+
+				//add random values for seq
+
+			}
+
+			~CellContent(){
+				delete [] (seq);
+			}
 
 	};
-
+*/
 	class Cell{
 		public:
 			//Cell content
-			class CellContent *vals;
-			static class CellContent *temp_vals;
+			class rnarep::CellContent *vals;
+			static class rnarep::CellContent *temp_vals;
 
 			//Cell topology
 			int no_met_neigh;
@@ -74,7 +89,7 @@ namespace cadv {
 
 			//Cell base functions
 			Cell(){
-				vals = new CellContent; //creating place for cell content values
+				vals = new rnarep::CellContent; //creating place for cell content values
 
 				no_met_neigh = no_repl_neigh = no_diff_neigh = 0; //no inic
 
@@ -331,8 +346,6 @@ namespace cadv {
 			///Initialise neighbourhood
 			void neighInic(double neigh_tipus, Ca_edge edge, int neigh_no);
 
-			///Initialise diffusion neighbourhood
-			void diffNeighInic(double neigh_tipus, Ca_edge edge);
 
 
 	};

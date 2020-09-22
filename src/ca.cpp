@@ -111,7 +111,7 @@ namespace cadv {
 		//iterate through grid
 		if(edge == torus){
 			if(layout == square){
-/**/				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
+//				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
 			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
 				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
 				    //matrix[i].no_neigh = n_inic_x.size();
