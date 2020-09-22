@@ -46,6 +46,8 @@ namespace rnarep {
 					empty = true;
 				}
 
+				// allocate memory for MFE structure (length + 1)
+				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
 			}
 
 			CellContent(std::string input_str){
@@ -56,29 +58,35 @@ namespace rnarep {
 				else {
 					empty = true;
 				}
+
+				// allocate memory for MFE structure (length + 1)
+				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
 			}
 
 			~CellContent(){
 				//delete [] (seq);
+				//cleanup memory
+				free(str);
 			}
 
 			//FUNCTIONS
 			void annotate() {
-				// allocate memory for MFE structure (length + 1)
-				char *structure = (char *) vrna_alloc(sizeof(char) * (seq.length() + 1));
 				
 				// predict Minmum Free Energy and corresponding secondary structure
-				float mfe = vrna_fold(seq.data(), structure);
+				mfe = vrna_fold(seq.data(), str);
 					  
 				// print sequence, structure and MFE
-				std::cout << seq << std::endl;
-				std::cout << structure << mfe << std::endl;
-
-				//cleanup memory
-				free(structure);
-				
+				//std::cout << seq << std::endl;
+				//std::cout << str << mfe << std::endl;
 									
+				//calculate Pdeath
+				//calculate k
+				//find stucture
 			} 
+
+		private:
+			char *str;
+			float mfe;
 	};	
 }
 
