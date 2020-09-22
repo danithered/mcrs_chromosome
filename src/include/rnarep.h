@@ -48,6 +48,16 @@ namespace rnarep {
 
 			}
 
+			CellContent(std::string input_str){
+				seq = input_str;
+				if(seq.length()){
+					empty = false;
+				}
+				else {
+					empty = true;
+				}
+			}
+
 			~CellContent(){
 				//delete [] (seq);
 			}

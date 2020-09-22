@@ -6,9 +6,9 @@ SRCDIR=./src
 
 CC=g++
 
-CFLAGS=-I$(IDIR) `pkg-config --cflags --libs gsl` -ggdb
+CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb
 
-LIBS=-lm `pkg-config --libs gsl`
+LIBS=-lm `pkg-config --libs gsl` `pkg-config --libs RNAlib2`
 
 _DEPS = ca.h randomgen.h dv_tools.h parameters.h rnarep.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
