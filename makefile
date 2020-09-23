@@ -16,8 +16,8 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = main.o ca.o dv_tools.o parameters.o rnarep.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-_OBJ_test = main.o 
-OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ))
+_OBJ_test = test.o 
+OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 
 
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
