@@ -1,6 +1,8 @@
 #ifndef _SEQANNOT_
 #define _SEQANNOT_
 
+#include <fstream>
+
 namespace dv_annot{
 
 	class Subrule {
@@ -30,6 +32,9 @@ namespace dv_annot{
 				base = new char[no_bases];
 				pos = new int[no_bases];
 			}
+
+			//Function to add all the bases at once
+			addBases(int _no_bases, char *_base, int *_pos) : no_bases{_no_bases}, base{_base}, pos{_pos} {}
 
 			//Function to add base
 			void setBase (int number, int pos, char base){
