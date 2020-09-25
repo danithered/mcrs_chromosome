@@ -13,6 +13,7 @@ int par_nrow = 5;
 int par_output_interval = 0;
 
 char par_ID[255] = "test\0";
+char par_str_pool[255] = "IN/mapping.txt";
 
 double par_init_grid = 0.5;
 double par_death = 0.5;

@@ -4,6 +4,8 @@
 #include <sstream>
 #include <boost/multiprecision/cpp_int.hpp>
 
+#include "annot.h"
+
 using namespace std;
 
 
@@ -40,12 +42,23 @@ int main(int argc, char *argv[]) {
 		while(linestream >> word) std::cout << word << std::endl;
 	} 
 */	
-
+/*
 	std::string p = "string";
 	char ch[] = "ez nem egy string\0";
 
 	std::strcpy(ch, p.c_str() );
 	std::cout << ch << std::endl;
+*/
+
+
+
+	dv_annot::PatternPool pool;
+	std::cout << "Created pool" << std::endl;
+	pool.readFile(par_str_pool);
+	std::cout << "So far so good..." << std::endl;
+
+
+
 
 
 	return 0;
