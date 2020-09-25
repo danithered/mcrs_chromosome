@@ -3,6 +3,7 @@ src/obj/*
 .directory
 modell_leiras.docx
 simulation
+test
 *~
 src/.Rhistory
 old/*

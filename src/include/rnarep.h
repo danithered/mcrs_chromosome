@@ -73,7 +73,7 @@ namespace rnarep {
 			void annotate() {
 				
 				// predict Minmum Free Energy and corresponding secondary structure
-				mfe = vrna_fold(seq.data(), str);
+				mfe = vrna_fold(seq.c_str(), str);
 					  
 				// print sequence, structure and MFE
 				//std::cout << seq << std::endl;
