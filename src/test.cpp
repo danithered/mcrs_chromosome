@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Created pool" << std::endl;
 	pool.readFile(par_str_pool);
 	std::cout << "So far so good..." << std::endl;
-
+	std::cout << pool.rules.size() << std::endl;
 
 
 
