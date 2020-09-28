@@ -263,7 +263,13 @@ namespace dv_annot{
 
 			//searching pattern
 			double * search(char *str){
-				//std::strstr();
+				char *templ;
+				
+				for(int search = 0; search < rules.size(); search++){
+					for(templ = std::strstr(str, rules[search].pattern) ; templ != 0; templ = std::strstr(templ, rules[search].pattern)){
+
+					}
+				}
 				return(a);
 			}
 
