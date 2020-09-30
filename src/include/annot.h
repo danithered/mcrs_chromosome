@@ -110,7 +110,7 @@ namespace dv_annot{
 			//Constructor
 			Rule(int _no_subrules) : no_subrules{_no_subrules} {
 //				std::cout << "Rule init started" << std::endl;
-				subrules = new class Subrule [no_subrules];
+				if(no_subrules) subrules = new class Subrule [no_subrules];
 				pattern_length = 0;
 //				std::cout << "Initialised Rule" << std::endl;
 			}
@@ -141,7 +141,7 @@ namespace dv_annot{
 			//Destructor
 			~Rule(){
 //				std::cout << "Rule (" << no_subrules << ") destructor called" << std::endl;
-				delete [] (subrules);
+				if(no_subrules) delete [] (subrules);
 //				std::cout << "Rule destructor halfway" << std::endl;
 				if (pattern_length) delete [] (pattern);
 //				std::cout << "Rule destructor ended" << std::endl;
@@ -223,7 +223,7 @@ namespace dv_annot{
 
 			//file input
 			void readFile(char *filename){
-				int no = 0; //number of ea, subrules
+				int no = 0, min = 0, order = 0; //number of ea, subrules
 				std::string word;
 				
 				std::ifstream file;
@@ -254,6 +254,30 @@ namespace dv_annot{
 				//closing file
 				file.close();
 
+				//sorting rules by pattern_length 
+				if(rules.size() > 1) {
+					class Rule memory(0);
+					for( no = 0; no < (rules.size() - 1); no++){
+						for(order = no + 1, min = no; order < rules.size(); order++){
+							if(rules[order].pattern_length < rules[min].pattern_length ) min = order;
+						}
+						if(min != no) {
+//							std::cout << sizeof(memory) << " " << sizeof(rules[min]) << " " << sizeof(rules[no]) << std::endl;
+							/*
+							memcpy(&memory, &rules[min], sizeof(rules[min]) ); //save min to memory
+							memcpy(&rules[min], &rules[no], sizeof(rules[no]) ); //copy no to min
+							memcpy(&rules[no], &memory, sizeof(memory) ); //copy memory to no 
+							*/
+							memory = rules[min]; //save min to memory
+							rules[min] = rules[no]; //copy no to min
+							rules[no] = memory; //copy memory to no
+						}
+
+					}
+					memory.pattern_length = 0; //to ensure no double free will happen
+					memory.no_subrules = 0; //detto
+				}
+		
 			}
 			
 			//clearing activities
@@ -262,14 +286,38 @@ namespace dv_annot{
 			}
 
 			//searching pattern
-			double * search(char *str){
-				char *templ;
+			double * search(char *seq, char *str){
+				char *templ, *templ_seq;
+				int templ_length = std::strlen(seq);
 				
-				for(int search = 0; search < rules.size(); search++){
-					for(templ = std::strstr(str, rules[search].pattern) ; templ != 0; templ = std::strstr(templ, rules[search].pattern)){
+				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){
+/**/					std::cout << "search = " << search << std::endl;
+					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(templ, rules[search].pattern)){
+/**/						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
+						//templ is a pointer to the start of the pattern
+						//look for the subrules
+						for(int sr = 0, sr_max = rules[search].no_subrules; sr < sr_max; sr++){
+/**/							std::cout << "sr = " << sr << std::endl;
+							//looking tru the subrules
+							char *base = rules[search].subrules[sr].base;
+							int *pos = rules[search].subrules[sr].pos;
+							int *pos_max = pos + rules[search].subrules[sr].no_bases;
 
-					}
-				}
+							templ_seq = seq + (templ - str);
+							for(; templ_seq[*pos] == *base && pos != pos_max; base++, pos++){}
+
+							if (pos == pos_max){
+								for(int v = 0; v < par_noEA; v++){
+									for(int act = 0; act < par_noEA; act++) a[act] += rules[search].subrules[sr].value[act];
+								}
+								break;
+							}
+						} //sr in subrules
+					} // pattern search in sequence
+				} // search in rules
+
+
+
 				return(a);
 			}
 

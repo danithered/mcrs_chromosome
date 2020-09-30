@@ -58,6 +58,8 @@ int main(int argc, char *argv[]) {
 	std::cout << "So far so good..." << std::endl;
 	std::cout << pool.rules.size() << std::endl;
 
+	char seq[]="AAAAAAAAAAAAAAAAAAAAAAAA\0", str[]="((((((.........)))))))))\0";
+	pool.search(seq, str);
 
 
 
