@@ -5,6 +5,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include "annot.h"
+#include "dv_tools.h"
 
 using namespace std;
 
@@ -17,6 +18,10 @@ unsigned long long int strToInt(char *str, int length){
 		}
 	} 
 	return(res);
+}
+
+double vmi(int y){
+	return(y+10);
 }
 
 int main(int argc, char *argv[]) {
@@ -52,7 +57,7 @@ int main(int argc, char *argv[]) {
 
 
 
-	dv_annot::PatternPool pool;
+/*	dv_annot::PatternPool pool;
 	std::cout << "Created pool" << std::endl;
 	pool.readFile(par_str_pool);
 	std::cout << "So far so good..." << std::endl;
@@ -66,6 +71,15 @@ int main(int argc, char *argv[]) {
 
 
 	//pool.printRules();
+*/
+
+
+
+	dvtools::quickPosVals v(5, &vmi);
+	//v.f = &vmi;
+
+
+
 
 	return 0;
 }
