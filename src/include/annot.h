@@ -174,8 +174,8 @@ namespace dv_annot{
 					std::istringstream linestream(line);
 
 //					std::cout << "Line read: " << line << std::endl;
-					chars.empty();
-					positions.empty();
+					chars.clear();
+					positions.clear();
 
 					while(linestream >> p) { //read in position
 						linestream >> c; //read in character
@@ -203,10 +203,12 @@ namespace dv_annot{
 			//extern int par_noEA;
 			std::vector<class Rule> rules;	//pointer for rules
 			double *a;		//enzim activities for a search
+			int sites;
 
 			//Constructor
 			PatternPool(){
 //				std::cout << "Pattern pool init started" << std::endl;
+				sites = 0;
 				if (par_noEA) a = new double [par_noEA];
 				for(int i=0; i < par_noEA; i++) a[i] = 0.0;
 				//std::memset(a, 0, sizeof(double) * par_noEA); //remember: use memset only for 0 in case of int!!
@@ -283,32 +285,38 @@ namespace dv_annot{
 			//clearing activities
 			void clear(){
 				if(a) for(int i=0; i < par_noEA; i++) a[i] = 0.0;
+				sites = 0;
 			}
 
 			//searching pattern
-			double * search(char *seq, char *str){
+			int search(char *seq, char *str){
 				char *templ, *templ_seq;
 				int templ_length = std::strlen(seq);
+
+				clear();
 				
 				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){
-/**/					std::cout << "search = " << search << std::endl;
+//					std::cout << "search = " << search << std::endl;
 					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){
-/**/						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
+//						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
 						//templ is a pointer to the start of the pattern
 						//look for the subrules
 						for(int sr = 0, sr_max = rules[search].no_subrules; sr < sr_max; sr++){
-/**/							std::cout << "sr = " << sr << std::endl;
+//							std::cout << "sr = " << sr << std::endl;
 							//looking tru the subrules
 							char *base = rules[search].subrules[sr].base;
 							int *pos = rules[search].subrules[sr].pos;
 							int *pos_max = pos + rules[search].subrules[sr].no_bases;
 
-							templ_seq = seq + (templ - str);
-							for(; templ_seq[*pos] == *base && pos != pos_max; base++, pos++){}
+//							std::cout << "compare " << *(seq + (templ - str + *pos)) << "and" << *base << " (from " << rules[search].subrules[sr].no_bases << " bases)" << std::endl;
+							for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){}
 
+//							std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 							if (pos == pos_max){
-								for(int v = 0; v < par_noEA; v++){
-									for(int act = 0; act < par_noEA; act++) a[act] += rules[search].subrules[sr].value[act];
+								sites++;
+								for(int act = 0; act < par_noEA; act++){
+//									std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
+									a[act] += rules[search].subrules[sr].value[act];
 								}
 								break;
 							}
@@ -318,7 +326,30 @@ namespace dv_annot{
 
 
 
-				return(a);
+				return(sites);
+			}
+
+			//print out rules   DONT FORGET TO COMMENT IT OUT!!!
+			void printRules(){
+				for(int r = 0; r < rules.size(); r++){
+					std::cout << "############################" << std::endl;
+					std::cout << "RULE no " << r+1 << std::endl << std::endl;
+					std::cout << "pattern: " <<  rules[r].pattern << std::endl << std::endl;
+					std::cout << "SUBRULES:" << std::endl;
+					for(int sr = 0; sr < rules[r].no_subrules; sr++){
+						std::cout << "\t" << "Subrule no " << sr+1 << " from " << rules[r].no_subrules << std::endl;
+
+						std::cout << "\t";
+						for(int b =0; b < rules[r].subrules[sr].no_bases; b++){
+							std::cout << "\t" << rules[r].subrules[sr].pos[b] << " " << rules[r].subrules[sr].base[b];
+						}
+						std::cout << std::endl << "\tvalues: ";
+						for(int v = 0; v < par_noEA; v++){
+							std::cout << rules[r].subrules[sr].value[v] << " ";
+						}
+						std::cout << std::endl << std::endl;
+					}
+				}
 			}
 
 	}; //PatternPool
