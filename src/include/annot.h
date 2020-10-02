@@ -292,7 +292,7 @@ namespace dv_annot{
 				
 				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){
 /**/					std::cout << "search = " << search << std::endl;
-					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(templ, rules[search].pattern)){
+					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){
 /**/						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
 						//templ is a pointer to the start of the pattern
 						//look for the subrules
