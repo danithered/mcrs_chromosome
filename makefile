@@ -16,7 +16,7 @@ DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 _OBJ = main.o ca.o dv_tools.o parameters.o rnarep.o annot.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
-_OBJ_test = test.o annot.o parameters.o 
+_OBJ_test = test.o annot.o parameters.o dv_tools.o 
 OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 
 

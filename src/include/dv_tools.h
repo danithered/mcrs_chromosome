@@ -12,61 +12,34 @@ namespace dvtools {
 
 	class quickPosVals {
 		public:
-			double *vals;
-			int max;
-			double (*f)(int);
+			double last;
 
 			//Constructor
-			quickPosVals(int _max, double (*_f)(int)) : max{_max}, f{_f}{
-				if(max > -1) {
-					vals = new double [max + 1];
-					for(int i = 0; i <= max; i++){
-						vals[i] = f(i);
-					}
-				}
-
-			}
+			quickPosVals(int _max, double (*_f)(int));
 
 			//Copy Constructor
-			quickPosVals(const quickPosVals &obj){
-				max = obj.max;
-				f = obj.f;
-
-				if(max > -1) {
-					vals = new double [max + 1];
-					for(int i = 0; i <= max; i++){
-						vals[i] = obj.vals[i];
-					}
-				}
-			}
+			quickPosVals(const quickPosVals &obj);
 
 			//Destructor
-			~quickPosVals(){
-				if(max > -1) delete [] (vals);
-			}
+			~quickPosVals();
 
+			//indexing
 			double &operator[](int i){
-				if(i <= max) return(vals[i]);
-				else return (0.0);
+				if(i <= max) last = vals[i];
+				else last = f(i);
+				return last;
 			}
 
 			//calculate for the given range
-			void setMax(int newmax){
-				if(max != newmax){
-					if(max > -1) delete [] (vals);
-					max = newmax;
-					if (max > -1) {
-						vals = new double (max + 1);
-						for(int i = 0; i <= max; i++){
-							vals[i] = f(i);
-						}
-					}
-				}
-			}
+			void setMax(int newmax);
 
 			//get max
-			int getMax() {return max;}
+			int getMax();
 
+		private:
+			double *vals;
+			int max;
+			double (*f)(int);
 			
 	};
 

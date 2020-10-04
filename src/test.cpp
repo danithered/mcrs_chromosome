@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
 
 
 	dvtools::quickPosVals v(5, &vmi);
+	std::cout << v[89] << std::endl;
 	//v.f = &vmi;
 
 
