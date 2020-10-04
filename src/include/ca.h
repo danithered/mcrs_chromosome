@@ -174,6 +174,8 @@ namespace cadv {
 			
 			Cell *matrix;
 			
+			double diff;
+			double saving_freq;
 
 			//FUNCTIONS
 
@@ -182,6 +184,8 @@ namespace cadv {
 			//Constructor 1
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
 				time=0;
+				diff = 0;
+				saving_freq = 0;
 				nrow=size1;
 				ncol=size2;
 				layout = layout_type;
@@ -318,9 +322,43 @@ namespace cadv {
 
 				for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
 					for(iter = 0; iter < size; iter++){
+						//UPDATING
 						updateStep( gsl_rng_uniform_int(r, size) );
+						//DIFFUSION
+						while()
 					}
 				}
+				return(0);
+			}
+
+			//Update according to a random order (in every generation all cells will be updated)
+			int oUpdate(int gens){
+				int *order;
+				int iter=0, temp = 0, target = 0;
+
+				order = new int[size];
+				for(iter = 0; iter < size; iter++){
+					order[iter] = iter;
+				}
+
+				for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+					for(iter = 0; iter < size; iter++){
+						target = gsl_rng_uniform_int(r, size - iter);
+						if (target) {
+							target += iter;
+							temp = order[target];
+							order[ target ] = order[ iter ];
+							order[ iter ] = temp;
+							updateStep( temp );
+						}
+						else {
+							updateStep( order[iter] );
+						}
+					}
+				}
+
+				delete [] (order);
+
 				return(0);
 			}
 
