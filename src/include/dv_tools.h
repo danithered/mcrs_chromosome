@@ -8,6 +8,10 @@ namespace dvtools {
 		return r >= 0 ? r : r + b;
 	}
 
+	inline double fracpart(double x){
+		return x - (int) x;
+	}
+
 	int brokenStickVals(double *values, int noChoices, double sum, double random); 
 
 	class quickPosVals {

@@ -94,7 +94,10 @@ int main(int argc, char *argv[]) {
 //    std::cout << 5.8%1 << std::endl;
 
 
-    std::cout << std::modf(1.56, &NULL) << std::endl;
+    double w = 5.1, frac;
+    frac =  w - (int) w;
+    std::cout << frac << std::endl;
+//    std::cout << std::modf(1.56, &NULL) << std::endl;
 
 
 
