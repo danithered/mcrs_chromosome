@@ -3,9 +3,11 @@
 #include <string.h>
 #include <sstream>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <cmath>
 
 #include "annot.h"
 #include "dv_tools.h"
+#include "randomgen.h"
 
 using namespace std;
 
@@ -24,7 +26,15 @@ double vmi(int y){
 	return(y+10);
 }
 
+
+gsl_rng * r;
+
 int main(int argc, char *argv[]) {
+
+    //initialise rng
+    time_t timer;
+    r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
+    gsl_rng_set(r, time(&timer));
 /*
 	char str[] = "..(...).\0", str2[] = "(...)\0";
 	cout << strToInt(str, strlen(str)) << endl;
@@ -74,12 +84,29 @@ int main(int argc, char *argv[]) {
 */
 
 
-
+/*
 	dvtools::quickPosVals v(5, &vmi);
 	std::cout << v[89] << std::endl;
 	//v.f = &vmi;
+*/
+
+//   	 std::cout << gsl_rng_uniform_int(r,1 ) << std::endl;
+//    std::cout << 5.8%1 << std::endl;
 
 
+    std::cout << std::modf(1.56, &NULL) << std::endl;
+
+
+
+
+
+
+
+
+
+
+    //close rng
+    gsl_rng_free(r);
 
 
 	return 0;

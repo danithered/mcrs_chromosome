@@ -318,10 +318,10 @@ namespace cadv {
 
 			///Random update
 			int rUpdate(int gens){
-				int iter=0;
+				int iter=0, diff_untill = diff * size * time;
 
 				for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
-					for(iter = 0; iter < size; iter++){
+					for(iter = 0; iter < size; iter++, diff_untill += diff){
 						//UPDATING
 						updateStep( gsl_rng_uniform_int(r, size) );
 						//DIFFUSION
