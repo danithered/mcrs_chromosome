@@ -80,14 +80,16 @@ namespace cadv {
 
 	///Random update
 	int CellAut::rUpdate(int gens){
-		int iter=0, diff_untill = diff * size * time;
+		int iter=0, diff_until = dvtools::fracpart(diff * size * time);
 
 		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
-			for(iter = 0; iter < size; iter++, diff_untill += diff){
+			for(iter = 0; iter < size; iter++){
 				//UPDATING
 				updateStep( gsl_rng_uniform_int(r, size) );
 				//DIFFUSION
-				//while()
+				for(diff_until += diff; diff_until >= 1; diff_until--){
+					matrix[ gsl_rng_uniform_int(r, size) ].diff();
+				}
 			}
 		}
 		return(0);
@@ -96,7 +98,7 @@ namespace cadv {
 	//Update according to a random order (in every generation all cells will be updated)
 	int CellAut::oUpdate(int gens){
 		int *order;
-		int iter=0, temp = 0, target = 0;
+		int iter=0, temp = 0, target = 0, diff_until = dvtools::fracpart(diff * time);
 
 		order = new int[size];
 		for(iter = 0; iter < size; iter++){
@@ -104,6 +106,7 @@ namespace cadv {
 		}
 
 		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+			//UPDATING
 			for(iter = 0; iter < size; iter++){
 				target = gsl_rng_uniform_int(r, size - iter);
 				if (target) {
@@ -115,6 +118,22 @@ namespace cadv {
 				}
 				else {
 					updateStep( order[iter] );
+				}
+			}
+			//DIFFUSION
+			for(diff_until += diff; diff_until >= 1; diff_until--){
+				for(iter = 0; iter < size; iter++){
+					target = gsl_rng_uniform_int(r, size - iter);
+					if (target) {
+						target += iter;
+						temp = order[target];
+						order[ target ] = order[ iter ];
+						order[ iter ] = temp;
+						matrix[ temp ].diff();
+					}
+					else {
+						matrix[ order[iter] ].diff();
+					}
 				}
 			}
 		}

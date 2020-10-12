@@ -53,7 +53,6 @@ namespace cadv {
 		public:
 			//Cell content
 			class rnarep::CellContent *vals;
-			static class rnarep::CellContent *temp_vals;
 
 			//Cell topology
 			int no_met_neigh;
@@ -145,6 +144,7 @@ namespace cadv {
 
 			///diffusion
 			void diff(){ // ONE Toffoli-Margoulus step
+				static class rnarep::CellContent *temp_vals;
 
 				temp_vals = vals; // 0 -> S
 				if(gsl_rng_uniform(r) < 0.5) { //counterclockwise
