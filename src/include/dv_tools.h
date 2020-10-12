@@ -20,6 +20,7 @@ namespace dvtools {
 
 			//Constructor
 			quickPosVals(int _max, double (*_f)(int));
+			quickPosVals();
 
 			//Copy Constructor
 			quickPosVals(const quickPosVals &obj);
@@ -33,6 +34,9 @@ namespace dvtools {
 				else last = f(i);
 				return last;
 			}
+
+			//give a new function
+			void setFunc(double (*_f)(int) );
 
 			//calculate for the given range
 			void setMax(int newmax);

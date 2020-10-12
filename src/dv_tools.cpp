@@ -44,6 +44,10 @@ namespace dvtools {
  
 
 	//Constructor for quickPosVals
+	quickPosVals::quickPosVals(){
+		max=-1;
+	}
+
 	quickPosVals::quickPosVals(int _max, double (*_f)(int)) : max{_max}, f{_f}{
 		if(max > -1) {
 			vals = new double [max + 1];
@@ -86,6 +90,10 @@ namespace dvtools {
 				}
 			}
 		}
+	}
+
+	void quickPosVals::setFunc( double (*_f)(int) ){
+		f = _f;
 	}
 
 	//get max

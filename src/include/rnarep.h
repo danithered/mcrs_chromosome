@@ -20,8 +20,13 @@ namespace rnarep {
 			double value1; //temporary, just for testing
 
 			std::string seq; //sequence of replicator
-			double k; // replication rate
-			std::vector<double> E; //enzymatic activities
+			double Pdeg;
+			double R; // replication rate
+			double *a; //enzymatic activities
+
+			static dvtools::quickPosVals Eopt;
+
+
 			int fold; // which fold is it currently
 			bool empty; // is this cell empty or not
 
@@ -48,7 +53,10 @@ namespace rnarep {
 
 				// allocate memory for MFE structure (length + 1)
 				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
-			}
+
+				// allocate memory for enzymaitc activities
+				a = new double [par_noEA];
+			 }
 
 			CellContent(std::string input_str){
 				seq = input_str;
@@ -61,12 +69,16 @@ namespace rnarep {
 
 				// allocate memory for MFE structure (length + 1)
 				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+
+				// allocate memory for enzymaitc activities
+				a = new double [par_noEA];
 			}
 
 			~CellContent(){
 				//delete [] (seq);
 				//cleanup memory
 				free(str);
+				delete [] (a);
 			}
 
 			//FUNCTIONS
@@ -75,18 +87,30 @@ namespace rnarep {
 				// predict Minmum Free Energy and corresponding secondary structure
 				mfe = vrna_fold(seq.c_str(), str);
 					  
-				// print sequence, structure and MFE
-				//std::cout << seq << std::endl;
-				//std::cout << str << mfe << std::endl;
-									
-				//calculate Pdeath
-				//calculate k
-				//find stucture
+				//calculate Pdeg
+				Pdeg = 0.9 - 0.8 * mfe / Eopt[seq.length()];
+ 
 			} 
+
+			void annotate2() {
+				//calculate Pfold
+				Pfold = 1/( 1 - std::exp( -cval[seq.length()] * mfe) );
+				
+				//calculate R
+				//R = g / (b1 + b2*L) * (l + (1 - Pfold)) , where L and Pfold are variables
+				//if W(L) = g / (b1 + b2*L) , and W[L] is precalculated (L is int)
+				//and ll = l + 1
+				//R = W(L) * ( ll - Pfold )
+				R = length_dep[ seq.length() ] * (par_ll - Pfold) ;
+
+				//annotata
+				//
+			}
 
 		private:
 			char *str;
 			float mfe;
+			double Pfold;
 	};	
 }
 
