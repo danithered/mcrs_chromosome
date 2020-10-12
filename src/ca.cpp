@@ -46,6 +46,110 @@ namespace cadv {
 		return(size);
 	}
 
+	///gives back coordinates of nth cell
+	std::vector<int> CellAut::getCoord(int n) {
+		std::vector<int> coords;
+		if (layout == square){
+			coords.push_back(n % ncol); //x coord
+			coords.push_back(n / ncol); //y coord
+		}
+		else if (layout == hex) {
+			//x=n %/% ncol
+			//y = n - x*ncol - x%/%2
+			//z = 0-x-y
+			coords.push_back( n / ncol); //x cubic coord
+			coords.push_back( n - coords[0]*ncol - coords[0]/2 ); //y cubic coord
+			coords.push_back(0 - coords[0] - coords[1]); //z cubic coord
+		}
+
+		return(coords);
+	}
+
+	///initialises matrix with predefined values, randomly
+	void CellAut::init(Cell* pool, double* probs, int no_choices) {
+		int i = 0;
+		double sum = 0.0;
+		
+		for(i=0; i < no_choices; i++) {
+			sum += probs[i];
+		}
+		for(i=0; i < size; i++) {
+			matrix[i] = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
+		}
+	}	
+
+	///Random update
+	int CellAut::rUpdate(int gens){
+		int iter=0, diff_untill = diff * size * time;
+
+		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+			for(iter = 0; iter < size; iter++, diff_untill += diff){
+				//UPDATING
+				updateStep( gsl_rng_uniform_int(r, size) );
+				//DIFFUSION
+				//while()
+			}
+		}
+		return(0);
+	}
+
+	//Update according to a random order (in every generation all cells will be updated)
+	int CellAut::oUpdate(int gens){
+		int *order;
+		int iter=0, temp = 0, target = 0;
+
+		order = new int[size];
+		for(iter = 0; iter < size; iter++){
+			order[iter] = iter;
+		}
+
+		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+			for(iter = 0; iter < size; iter++){
+				target = gsl_rng_uniform_int(r, size - iter);
+				if (target) {
+					target += iter;
+					temp = order[target];
+					order[ target ] = order[ iter ];
+					order[ iter ] = temp;
+					updateStep( temp );
+				}
+				else {
+					updateStep( order[iter] );
+				}
+			}
+		}
+
+		delete [] (order);
+
+		return(0);
+	}
+
+	//gives back coordinates of nth cell
+	std::vector<int> CellAut::getCoord(int n, int type = 0) {
+		std::vector<int> coords;
+		if (layout == square){
+			coords.push_back(n % ncol); //x coord
+			coords.push_back(n / ncol); //y coord
+		}
+		else if (layout == hex) {
+			if(type == 0){ //cube coordinates - axial coordinates are the choosen two from this three coords
+				coords.push_back( n / ncol); //x cubic coord
+				coords.push_back( n - coords[0]*ncol - coords[0]/2 ); //y cubic coord
+				coords.push_back(0 - coords[0] - coords[1]); //z cubic coord
+			}
+			else if (type == 1){ //axial coords 
+				coords.push_back( n / ncol); //x cubic coord
+				coords.push_back( n - coords[0]*ncol - coords[0]/2 ); //y cubic coord
+			}
+			else if (type == 2){ //offset coords 
+				coords.push_back(n % ncol); //x coord
+				coords.push_back(n / ncol); //y coord
+			}
+		}
+
+		return(coords);
+	}
+
 	void CellAut::neighInic(double neigh_tipus, Ca_edge edge, int neigh_no = 1) {
 	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
 
