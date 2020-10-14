@@ -26,19 +26,13 @@ namespace rnarep {
 		public:
 			double value1; //temporary, just for testing
 
-			std::string seq; //sequence of replicator
-			double Pdeg;
-			double R; // replication rate
-			double *a; //enzymatic activities
+			double Pdeg; //degradation rate
+			bool empty; // is this cell empty or not
 
 			static dvtools::quickPosVals Eopt;
 			static dvtools::quickPosVals cval;
 			static dvtools::quickPosVals length_dep;
 			static dv_annot::PatternPool patterns;
-
-
-			int fold; // which fold is it currently
-			bool empty; // is this cell empty or not
 
 			//initialiser
 			CellContent(){	
@@ -55,10 +49,10 @@ namespace rnarep {
 					for(int b=0; b < len; b++){
 						seq.push_back( rnarep::bases[gsl_rng_uniform_int(r,4)] );
 					}
-					empty = false;
+					annotate();
 				}
 				else { //empty
-					empty = true;
+					die();
 				}
 
 				// allocate memory for MFE structure (length + 1)
@@ -70,18 +64,19 @@ namespace rnarep {
 
 			CellContent(std::string input_str){
 				seq = input_str;
-				if(seq.length()){
-					empty = false;
-				}
-				else {
-					empty = true;
-				}
 
 				// allocate memory for MFE structure (length + 1)
 				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
+
+				if(seq.length()){
+					annotate();
+				}
+				else {
+					die();
+				}
 			}
 
 			~CellContent(){
@@ -91,21 +86,80 @@ namespace rnarep {
 				delete [] (a);
 			}
 
+			void die(){
+				if (!empty) {
+					empty = true;
+					seq.clear();
+					Pdeg = 0;
+					//R = 0;
+					annot_level = 0;
+					//for (int act = 0; act < par_noEA; act++) a[act] = 0;
+				}
+			}
+
+			double* geta(){
+				if (annot_level < 2){
+					if (annot_level) annotate2();
+					else return NULL;
+				}
+				
+				return a;
+			}
+
+			double getR(){
+				if(annot_level < 3) { 
+					if (annot_level < 2){
+						if (annot_level) annotate2();
+						else return -1.0 ;
+					}
+					annotate3();
+				}
+
+				return R;
+
+			}
+
+		private:
+			char *str;
+			float mfe;
+			double Pfold;
+			int no_sites;
+			std::string seq; //sequence of replicator
+			double R; // replication rate
+			double *a; //enzymatic activities
+
+			int annot_level;
+
 			//FUNCTIONS
 			void annotate() {
+				empty = false;
+				annot_level = 1;
 				
 				// predict Minmum Free Energy and corresponding secondary structure
 				mfe = vrna_fold(seq.c_str(), str);
 					  
 				//calculate Pdeg
 				Pdeg = 0.9 - 0.8 * mfe / Eopt[seq.length()];
- 
 			} 
 
 			void annotate2() {
+				annot_level = 2;
+
 				//calculate Pfold
 				Pfold = 1/( 1 - std::exp( -cval[seq.length()] * mfe) );
 				
+				//annotata
+			 	no_sites = patterns.search((char*) seq.c_str(), str, a);
+
+				//compute a from alpha
+				for(int act = 0; act < par_noEA; act++) {
+					a[act] = a[act] / (double) no_sites; //not actual equation, need to review!!!!
+				}
+
+			}
+
+			void annotate3(){
+				annot_level = 3;
 				//calculate R
 				//R = g / (b1 + b2*L) * (l + (1 - Pfold)) , where L and Pfold are variables
 				//if W(L) = g / (b1 + b2*L) , and W[L] is precalculated (L is int)
@@ -113,14 +167,8 @@ namespace rnarep {
 				//R = W(L) * ( ll - Pfold )
 				R = length_dep[ seq.length() ] * (par_ll - Pfold) ;
 
-				//annotata
-				//
 			}
 
-		private:
-			char *str;
-			float mfe;
-			double Pfold;
 	};	
 }
 

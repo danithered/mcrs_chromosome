@@ -202,15 +202,15 @@ namespace dv_annot{
 		public:
 			//extern int par_noEA;
 			std::vector<class Rule> rules;	//pointer for rules
-			double *a;		//enzim activities for a search
-			int sites;
+			//double *a;		//enzim activities for a search
+			//int sites;
 
 			//Constructor
 			PatternPool(){
 //				std::cout << "Pattern pool init started" << std::endl;
-				sites = 0;
-				if (par_noEA) a = new double [par_noEA];
-				for(int i=0; i < par_noEA; i++) a[i] = 0.0;
+				//sites = 0;
+				//if (par_noEA) a = new double [par_noEA];
+				//for(int i=0; i < par_noEA; i++) a[i] = 0.0;
 				//std::memset(a, 0, sizeof(double) * par_noEA); //remember: use memset only for 0 in case of int!!
 //				std::cout << "Pattern pool init ended" << std::endl;
 			}
@@ -218,7 +218,7 @@ namespace dv_annot{
 			//Destructor
 			~PatternPool(){
 //				std::cout << "PatternPool destructor called" << std::endl;
-				if (par_noEA) delete [] (a);
+				//if (par_noEA) delete [] (a);
 				rules.clear();
 //				std::cout << "PatternPool destructor ended" << std::endl;
 			}
@@ -236,10 +236,10 @@ namespace dv_annot{
 				//read first word which is number of enzymatic activities
 				file >> no;
 				if( no != par_noEA){
-					if (par_noEA) delete [] (a);
+					//if (par_noEA) delete [] (a);
 					par_noEA = no;
-					if (par_noEA) a = new double [par_noEA];
-					for(int i=0; i < par_noEA; i++) a[i] = 0.0;
+					//if (par_noEA) a = new double [par_noEA];
+					//for(int i=0; i < par_noEA; i++) a[i] = 0.0;
 				}
 				no = 0;
 
@@ -283,17 +283,18 @@ namespace dv_annot{
 			}
 			
 			//clearing activities
-			void clear(){
-				if(a) for(int i=0; i < par_noEA; i++) a[i] = 0.0;
-				sites = 0;
-			}
+			//void clear(){
+			//	//if(a) for(int i=0; i < par_noEA; i++) a[i] = 0.0;
+			//	sites = 0;
+			//}
 
 			//searching pattern
-			int search(char *seq, char *str){
+			int search(char *seq, char *str, double *acts){
 				char *templ, *templ_seq;
 				int templ_length = std::strlen(seq);
 
-				clear();
+				//clear();
+				int sites=0;
 				
 				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){
 //					std::cout << "search = " << search << std::endl;
@@ -316,7 +317,7 @@ namespace dv_annot{
 								sites++;
 								for(int act = 0; act < par_noEA; act++){
 //									std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
-									a[act] += rules[search].subrules[sr].value[act];
+									acts[act] += rules[search].subrules[sr].value[act];
 								}
 								break;
 							}
