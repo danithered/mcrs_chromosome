@@ -18,6 +18,7 @@ char par_str_pool[255] = "IN/mapping.txt";
 double par_init_grid = 0.5;
 double par_death = 0.5;
 double par_diffusion_rate = 0;
+double par_ll = 1.1; // l + 1 in equation Rs
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -37,6 +38,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
+	paramfile << "par_ll" << par_ll << std::endl;
 	
 
 	paramfile.close();
@@ -63,6 +65,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 's';
+			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
 		}
 		switch(option){
 			// k - par_death
@@ -75,6 +78,15 @@ int Args(int argc, char **argv)
 				}
 				continue;
 
+			case 'l':
+				if (++i == argc) return 1;
+				par_ll = atof(argv[i]);
+				if(par_ll < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_ll cant be negative!" << std::endl;
+					return(-1);
+				}
+				continue;
+			
 			case 'D':
 				if (++i == argc) return 1;
 				par_diffusion_rate = atof(argv[i]);

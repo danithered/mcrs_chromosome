@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <vector>
+#include <cmath>
 
 extern "C" {
 #include <ViennaRNA/fold.h>
@@ -11,9 +12,14 @@ extern "C" {
 
 #include "randomgen.h"
 #include "parameters.h"
+#include "dv_tools.h"
 
 namespace rnarep {
 	extern char bases[6];
+
+	double EoptCalc(int n);
+	double cvalCalc(int n);
+	double length_depCalc(int n);
 
 	class CellContent{
 		public:
@@ -25,6 +31,8 @@ namespace rnarep {
 			double *a; //enzymatic activities
 
 			static dvtools::quickPosVals Eopt;
+			static dvtools::quickPosVals cval;
+			static dvtools::quickPosVals length_dep;
 
 
 			int fold; // which fold is it currently
@@ -56,6 +64,9 @@ namespace rnarep {
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
+
+				//inic
+				inicVals();
 			 }
 
 			CellContent(std::string input_str){
@@ -72,6 +83,9 @@ namespace rnarep {
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
+
+				//inic
+				inicVals();
 			}
 
 			~CellContent(){
@@ -82,6 +96,18 @@ namespace rnarep {
 			}
 
 			//FUNCTIONS
+			void inicVals(){
+				/*Eopt.setFunc(&EoptCalc);
+				Eopt.setMax(100);
+
+				cval.setFunc(&cvalCalc);
+				cval.setMax(100);
+				
+				length_dep.setFunc(&length_depCalc);
+				length_dep.setMax(100);
+				*/
+			}
+
 			void annotate() {
 				
 				// predict Minmum Free Energy and corresponding secondary structure
