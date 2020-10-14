@@ -137,10 +137,10 @@ namespace cadv {
 			}
 
 			///copies over its value to another
-			void operator >( Cell& target){
-				target.vals = vals;
-				return;
-			}
+			//void operator >( Cell& target){
+			//	target.vals = vals;
+			//	return;
+			//}
 
 			///diffusion
 			void diff(){ // ONE Toffoli-Margoulus step
@@ -158,6 +158,29 @@ namespace cadv {
 					diff_neigh[2]->vals = diff_neigh[3]->vals; // 3 -> 2
 					diff_neigh[3]->vals = diff_neigh[1]->vals; // 1 -> 3
 					diff_neigh[1]->vals = temp_vals; // S -> 1
+				}
+			}
+
+			double M(){
+				for(int met = 0; met < no_met_neigh; met++){
+					// M(x) = prod(sum (a_i))
+					;
+				}
+			}
+
+			int update(){
+				if (vals.empty) {
+					//REPLICATION
+					for(int rep = 1; rep < no_repl_neigh; rep++) { // 0. neighbour is self, but it is empty
+						if(!repl_neigh[rep]->vals.empty){
+							repl_neigh[rep]->vals.R() * repl_neigh[rep]->M();
+							;
+						}
+					}
+				}
+				else {
+					//DEGRADATION
+					if(vals.Pdeg < gsl_rng_uniform(r) ) vals.die();
 				}
 			}
 	
