@@ -35,10 +35,11 @@ int paramsToFile(char* filename){
 	paramfile << "par_nrow " << par_nrow << std::endl;
 	paramfile << "par_output_interval " << par_output_interval << std::endl;
 	paramfile << "par_ID " << par_ID << std::endl;
+	paramfile << "par_str_pool " << par_ID << std::endl;
 	paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
-	paramfile << "par_ll" << par_ll << std::endl;
+	paramfile << "par_ll " << par_ll << std::endl;
 	
 
 	paramfile.close();
@@ -64,6 +65,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_nrow")) option = 'r';
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
+			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 's';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
 		}
@@ -146,8 +148,17 @@ int Args(int argc, char **argv)
 					return -1;
 				}
 				continue;
-			
 				
+			case 'P':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 1 ) 
+					strcpy(par_str_pool, argv[i]);
+				else {
+					std::cerr << "ERROR at reading argoments: option " << option << ": ID should be more than 1 char long!" << std::endl;
+					return -1;
+				}
+				continue;
+			
 			default:
 				std::cerr << "ERROR at reading argoments: not valid argoment!" << std::endl;
 				return -1;

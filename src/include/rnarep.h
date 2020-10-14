@@ -13,6 +13,7 @@ extern "C" {
 #include "randomgen.h"
 #include "parameters.h"
 #include "dv_tools.h"
+#include "annot.h"
 
 namespace rnarep {
 	extern char bases[6];
@@ -33,6 +34,7 @@ namespace rnarep {
 			static dvtools::quickPosVals Eopt;
 			static dvtools::quickPosVals cval;
 			static dvtools::quickPosVals length_dep;
+			static dv_annot::PatternPool patterns;
 
 
 			int fold; // which fold is it currently
@@ -64,9 +66,6 @@ namespace rnarep {
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
-
-				//inic
-				inicVals();
 			 }
 
 			CellContent(std::string input_str){
@@ -83,9 +82,6 @@ namespace rnarep {
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
-
-				//inic
-				inicVals();
 			}
 
 			~CellContent(){
@@ -96,18 +92,6 @@ namespace rnarep {
 			}
 
 			//FUNCTIONS
-			void inicVals(){
-				/*Eopt.setFunc(&EoptCalc);
-				Eopt.setMax(100);
-
-				cval.setFunc(&cvalCalc);
-				cval.setMax(100);
-				
-				length_dep.setFunc(&length_depCalc);
-				length_dep.setMax(100);
-				*/
-			}
-
 			void annotate() {
 				
 				// predict Minmum Free Energy and corresponding secondary structure

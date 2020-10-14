@@ -9,7 +9,7 @@ using namespace std;
 gsl_rng * r;
 
 int main(int argc, char *argv[]) {
-//Argoments
+	//Argoments
 	if ( Args(argc, argv) ) {
 		return(-1);
 	}
@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
 
 	//start to do stuff
 	cadv::CellAut automata(par_nrow, par_ncol);
+
+	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 
 	automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0);
 	automata.neighInic(VON_NEUMANN_NEIGH, cadv::torus, 1);
