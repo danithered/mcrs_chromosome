@@ -19,6 +19,8 @@ double par_init_grid = 0.5;
 double par_death = 0.5;
 double par_diffusion_rate = 0;
 double par_ll = 1.1; // l + 1 in equation Rs
+double par_sigma = 1.1;
+
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -40,6 +42,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
 	paramfile << "par_ll " << par_ll << std::endl;
+	paramfile << "par_sigma " << par_sigma << std::endl;
 	
 
 	paramfile.close();
@@ -68,6 +71,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 's';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
+			else if(!strcmp(argv[i], "--par_sigma")) option = 'g';
 		}
 		switch(option){
 			// k - par_death
@@ -89,6 +93,15 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
+			case 'g':
+				if (++i == argc) return 1;
+				par_sigma = atof(argv[i]);
+				if(par_sigma <= 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_sigma have to be higher than 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+
 			case 'D':
 				if (++i == argc) return 1;
 				par_diffusion_rate = atof(argv[i]);

@@ -32,6 +32,7 @@ namespace rnarep {
 			static dvtools::quickPosVals Eopt;
 			static dvtools::quickPosVals cval;
 			static dvtools::quickPosVals length_dep;
+			static dvtools::quickPosVals m_sigma;
 			static dv_annot::PatternPool patterns;
 
 			//initialiser
@@ -153,7 +154,7 @@ namespace rnarep {
 
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
-					a[act] = a[act] / (double) no_sites; //not actual equation, need to review!!!!
+					a[act] = Pfold * a[act] / m_sigma[no_sites]; 
 				}
 
 			}
