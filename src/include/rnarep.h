@@ -98,6 +98,19 @@ namespace rnarep {
 				}
 			}
 
+			void copy(const CellContent &templ){
+				;
+			}
+
+			double* geta(int no){
+				if (annot_level < 2){
+					if (annot_level) annotate2();
+					else return NULL;
+				}
+				
+				return a[no];
+			}
+
 			double* geta(){
 				if (annot_level < 2){
 					if (annot_level) annotate2();

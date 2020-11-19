@@ -20,6 +20,7 @@ double par_death = 0.5;
 double par_diffusion_rate = 0;
 double par_ll = 1.1; // l + 1 in equation Rs
 double par_sigma = 1.1;
+double par_claimEmpty = 1.1;
 
 
 //output parameters to file

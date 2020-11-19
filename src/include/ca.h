@@ -92,13 +92,18 @@ namespace cadv {
 
 				no_met_neigh = no_repl_neigh = no_diff_neigh = 0; //no inic
 
+				claims = NULL;
+
 				vals->value1 = 1; //TEMPORARY!!
 			}
 
 			~Cell(){
 				if (no_met_neigh) delete [] (met_neigh);
 				if (no_diff_neigh) delete [] (diff_neigh);
-				if (no_repl_neigh) delete [] (repl_neigh);
+				if (no_repl_neigh) {
+					delete [] (repl_neigh);
+					delete [] (claims);
+				}
 
 				delete vals;
 			}
@@ -117,6 +122,8 @@ namespace cadv {
 					case 2:
 						no_repl_neigh = n;
 						repl_neigh = new Cell* [n] ; 
+						claims = new double [n+1];
+						claims[0] = par_claimEmpty;
 						break;
 				}
 			}
@@ -162,20 +169,36 @@ namespace cadv {
 			}
 
 			double M(){
-				for(int met = 0; met < no_met_neigh; met++){
-					// M(x) = prod(sum (a_i))
-					;
+				double M = 1, akt = 0;
+
+				for(int a = 0; a < par_noEA; a++){
+					akt = 0;
+					for(int met = 0; met < no_met_neigh; met++){
+						// M(x) = prod(sum (a_i))
+						akt += met_neigh[met]->vals->geta(a) ;
+					}
+					M *= akt;
 				}
+
+				return M;
 			}
 
 			int update(){
-				if (vals.empty) {
+				double sum = 0.0;
+				int decision = 0;
+
+				if (vals->empty) {
 					//REPLICATION
 					for(int rep = 1; rep < no_repl_neigh; rep++) { // 0. neighbour is self, but it is empty
 						if(!repl_neigh[rep]->vals.empty){
-							repl_neigh[rep]->vals.R() * repl_neigh[rep]->M();
-							;
+							sum += (claims[rep] = repl_neigh[rep]->vals.R() * repl_neigh[rep]->M() );
 						}
+						else claims[rep] = 0.0;
+					}
+					//decision
+					decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
+					if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)!
+						;
 					}
 				}
 				else {
@@ -183,6 +206,9 @@ namespace cadv {
 					if(vals.Pdeg < gsl_rng_uniform(r) ) vals.die();
 				}
 			}
+
+		private:
+			double *claims;
 	
 	};
 
