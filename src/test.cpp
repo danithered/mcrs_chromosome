@@ -93,16 +93,27 @@ int main(int argc, char *argv[]) {
 //   	 std::cout << gsl_rng_uniform_int(r,1 ) << std::endl;
 //    std::cout << 5.8%1 << std::endl;
 
-
+/*
     double w = 5.1, frac;
     frac =  w - (int) w;
     std::cout << frac << std::endl;
 //    std::cout << std::modf(1.56, &NULL) << std::endl;
+*/
 
 
+	std::string x("ABCD");
 
+	std::cout << x.capacity() << std::endl;
+	x.resize(3);
+	x.reserve(200);
+	x[3] = 'D';
+	std::cout << x.capacity() << std::endl;
+	x.resize(4);
+	//x.fit
 
+	std::cout << x << std::endl;
 
+	std::cout << x.capacity() << std::endl;
 
 
 

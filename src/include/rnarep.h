@@ -22,6 +22,25 @@ namespace rnarep {
 	double cvalCalc(int n);
 	double length_depCalc(int n);
 
+	char RNAc2cc(char rna){
+		/* Function by: Enrico Sandro Colizzi */
+		switch (rna) {
+			case 'A':
+				return 'U';
+			case 'C':
+			  	return 'G';
+			case 'G':
+				return 'C';
+			case 'U':
+				return 'A';
+		      	default:
+			        //fprintf(stderr,"RNAc2cc: I got a non RNA character (%c)\n", rna);
+				std::cerr << "RNAc2cc: I got a non RNA character (" << rna <<")" << std::endl;
+				return '\0';
+		}
+			
+	}
+
 	class CellContent{
 		public:
 			double value1; //temporary, just for testing
@@ -56,6 +75,8 @@ namespace rnarep {
 					die();
 				}
 
+				seq.reserve(MAXLEN);
+				
 				// allocate memory for MFE structure (length + 1)
 				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
 
@@ -98,8 +119,49 @@ namespace rnarep {
 				}
 			}
 
-			void copy(const CellContent &templ){
-				;
+			void replicate(const CellContent &templ){
+				int tsize = templ.seq.size();
+				int tsizeminus = tsize - 1;
+				
+				seq.resize(tsize);
+				for(int base = 0; base < tsize; base++){
+					seq[base] = RNAc2cc ( templ.seq[tsizeminus - base] );
+				}
+
+
+
+
+/*
+				for(pos_original=length-1, pos_copy=0; pos_original >= 0; pos_original--){
+					//is there a deletion
+					if(genrand_real2() < par_deletion) {
+						if(genrand_real2() < par_insertion) { //deletion and insertion
+							if(pos_copy >= MAXSTRING) {printf("ERROR (nonPerfectReplication): reached max length!\n"); break;} //check if copy is too long
+							copy[pos_copy++] = RNAi2c( (int) floor(genrand_real2()*4.0) );
+						}
+						else {} //length decreases: only deletion
+					}
+					else {
+						if(genrand_real2() < par_insertion) { //length increases: only insertion...
+							if(pos_copy + 1 >= MAXSTRING) {printf("ERROR (nonPerfectReplication): reached max length!!\n"); break;} //check if copy is too long
+							if(genrand_real2() < 0.5) { // ...to the right
+								copy[pos_copy++] = RNAc2cc(original[pos_original]);
+
+								copy[pos_copy++] = RNAi2c( (int) floor(genrand_real2()*4.0) );
+							}
+							else { // ...to the left
+								copy[pos_copy++] = RNAi2c( (int) floor(genrand_real2()*4.0) );
+								copy[pos_copy++] = RNAc2cc(original[pos_original]);
+
+							}
+						} else { //basic copying
+							if(pos_copy >= MAXSTRING) {printf("ERROR (nonPerfectReplication): reached max length!!!\n"); break;} //check if copy is too long
+							copy[pos_copy++] = RNAc2cc(original[pos_original]);
+						}
+					}
+				}
+				copy[pos_copy] = '\0';
+*/
 			}
 
 			double* geta(int no){
