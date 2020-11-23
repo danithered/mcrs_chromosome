@@ -2,7 +2,7 @@
 
 
 namespace rnarep {
-	char bases[6] = "GCUAN";
+	char bases[5] = "GCUAN";
 
 	double EoptCalc(int n){  //fogalmam sincs ezt hogy kalkulaljam ki :(
 		return (double) n;

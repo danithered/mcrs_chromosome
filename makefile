@@ -38,5 +38,5 @@ run:
 
 test: $(OBJ_test)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
-	#./test
+	./test
 

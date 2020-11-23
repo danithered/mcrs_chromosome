@@ -103,7 +103,10 @@ int main(int argc, char *argv[]) {
 
 	std::string x("ABCD");
 
-	std::cout << x.capacity() << std::endl;
+//	std::cout << x.capacity() << std::endl;
+
+//	x = "ABCD";
+/*	std::cout << x.capacity() << std::endl;
 	x.resize(3);
 	x.reserve(200);
 	x[3] = 'D';
@@ -114,7 +117,11 @@ int main(int argc, char *argv[]) {
 	std::cout << x << std::endl;
 
 	std::cout << x.capacity() << std::endl;
+*/
+	std::string::reverse_iterator xp = x.rbegin();
 
+	std::cout << *(xp++) << std::endl;
+	std::cout << *xp << std::endl;
 
 
 
