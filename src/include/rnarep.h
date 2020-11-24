@@ -2,6 +2,7 @@
 #define _RNAREP_
 
 #include <string.h>
+//#include <iostream>
 #include <vector>
 #include <cmath>
 
@@ -16,47 +17,17 @@ extern "C" {
 #include "annot.h"
 
 namespace rnarep {
-	extern char bases[5];
+	//values
+	extern char bases[6];
 
+	//functions
 	double EoptCalc(int n);
 	double cvalCalc(int n);
 	double length_depCalc(int n);
+	char RNAc2cc(char rna);
+	int RNAc2i(char rnachar);
 
-	char RNAc2cc(char rna){
-		/* Function by: Enrico Sandro Colizzi */
-		switch (rna) {
-			case 'A':
-				return 'U';
-			case 'C':
-			  	return 'G';
-			case 'G':
-				return 'C';
-			case 'U':
-				return 'A';
-		      	default:
-			        //fprintf(stderr,"RNAc2cc: I got a non RNA character (%c)\n", rna);
-				std::cerr << "RNAc2cc: I got a non RNA character (" << rna <<")" << std::endl;
-				return '\0';
-		}
-			
-	}
-
-	int RNAc2i(char rnachar){
-		switch (rnachar) {
-			case 'G':
-			        return 0;
-			case 'C':
-				return 1;
-			case 'U':
-				return 2;
-			case 'A':
-				return 3;
-			default:
-				std::cerr << "RNAc2i: I got a non RNA character (" << rnachar << ")" << std::endl;
-				return -1;
-		}
-	}
-
+	//classes
 	class CellContent{
 		public:
 			double value1; //temporary, just for testing
@@ -81,7 +52,7 @@ namespace rnarep {
 
 				//add random values for seq
 				if(gsl_rng_uniform(r) < par_init_grid) {
-					len = gsl_rng_uniform_int(r, 10) + 1; //initiate with n bases, n is [1,11] equal distribution
+					len = gsl_rng_uniform_int(r, 10) + 1; //initiate with n bases, n is [1,10] equal distribution
 					for(int b=0; b < len; b++){
 						seq.push_back( rnarep::bases[gsl_rng_uniform_int(r,4)] );
 					}
@@ -146,9 +117,9 @@ namespace rnarep {
 
 			void replicate(const CellContent &templ){
 				int tsize = templ.seq.size();
-				int tsizeminus = tsize - 1;
+				//int tsizeminus = tsize - 1;
 				
-				seq.resize(tsize);
+				//seq.resize(tsize);
 /*				
 				//ins, dels
 				dels.clear();
@@ -174,20 +145,21 @@ namespace rnarep {
 						}
 						ins.push_back(pos_of_mut);
 					}
-*/				}
-
+				}
+*/
 				//repl
 				//seq.clear(); //in theory no need for it...
+
 				
-				for(std::string::reverse_iterator old_it = templ.seq.rbegin(); old_it != templ.seq.rend(); old_it++){
-					if( gsl_rng_uniform(r) < par_insertion ) seq.push_back( bases[gsl_rng_uniform_int(r, 3)] ); //if there is an insertion add random base
+				for(auto old_it = templ.seq.rbegin(); old_it != templ.seq.rend(); old_it++){
+					if( gsl_rng_uniform(r) < par_insertion ) seq.push_back( bases[gsl_rng_uniform_int(r, 4)] ); //if there is an insertion add random base
 					if( gsl_rng_uniform(r) > par_deletion ) { //if there is no deletion copy template
-						if( gsl_rng_uniform(r) < par_substitution ) seq.push_back( bases[( RNAc2i( RNAc2cc( (char) *old_it) ) + gsl_rng_uniform_int(r, 2) + 1) % 4] ); //wrong (substitution)
+						if( gsl_rng_uniform(r) < par_substitution ) seq.push_back( bases[( RNAc2i( RNAc2cc( (char) *old_it) ) + gsl_rng_uniform_int(r, 3) + 1) % 4] ); //wrong (substitution)
 						else seq.push_back( RNAc2cc( (char) *old_it) ); //good (correct copying)
 					}
 				}
-				if( gsl_rng_uniform(r) < par_insertion ) seq.push_back(something); //if there is an insertion add random base to its end
-
+				if( gsl_rng_uniform(r) < par_insertion ) seq.push_back( bases[gsl_rng_uniform_int(r, 4)] ); //if there is an insertion add random base to its end
+				
 
 
 /*
@@ -221,12 +193,19 @@ namespace rnarep {
 				}
 				copy[pos_copy] = '\0';
 */
+				//for now it is seq is added -> need to annotate!!
+				if(seq.length()){
+					annotate();
+				}
+				else {
+					die();
+				}
 			}
 
-			double* geta(int no){
+			double geta(int no){
 				if (annot_level < 2){
 					if (annot_level) annotate2();
-					else return NULL;
+					else return 0;
 				}
 				
 				return a[no];

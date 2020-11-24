@@ -118,12 +118,21 @@ int main(int argc, char *argv[]) {
 
 	std::cout << x.capacity() << std::endl;
 */
-	std::string::reverse_iterator xp = x.rbegin();
+/*	std::string::reverse_iterator xp = x.rbegin();
 
 	std::cout << *(xp++) << std::endl;
 	std::cout << *xp << std::endl;
+*/
 
-
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 
 
     //close rng

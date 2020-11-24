@@ -187,23 +187,23 @@ namespace cadv {
 				double sum = 0.0;
 				int decision = 0;
 
-				if (vals->empty) {
+				if (vals->empty) { // if focal cell is empty (it can be filled with a copy)
 					//REPLICATION
 					for(int rep = 1; rep < no_repl_neigh; rep++) { // 0. neighbour is self, but it is empty
-						if(!repl_neigh[rep]->vals.empty){
-							sum += (claims[rep] = repl_neigh[rep]->vals.R() * repl_neigh[rep]->M() );
+						if(!repl_neigh[rep]->vals->empty){
+							sum += (claims[rep] = repl_neigh[rep]->vals->getR() * repl_neigh[rep]->M() );
 						}
 						else claims[rep] = 0.0;
 					}
 					//decision
 					decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
 					if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)!
-						;
+						vals->replicate( *(repl_neigh[decision]->vals) );
 					}
 				}
-				else {
+				else { //if focal cell is occupied (it can die)
 					//DEGRADATION
-					if(vals.Pdeg < gsl_rng_uniform(r) ) vals.die();
+					if(vals->Pdeg < gsl_rng_uniform(r) ) vals->die();
 				}
 			}
 

@@ -23,6 +23,12 @@ extern double par_diffusion_rate;
 extern double par_ll;
 extern double par_sigma;
 extern double par_claimEmpty;
+extern double par_substitution;
+extern double par_insertion;
+extern double par_deletion;
+extern double par_g;
+extern double par_b1;
+extern double par_b2;
 
 
 //Functions 

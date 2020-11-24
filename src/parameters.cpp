@@ -21,7 +21,12 @@ double par_diffusion_rate = 0;
 double par_ll = 1.1; // l + 1 in equation Rs
 double par_sigma = 1.1;
 double par_claimEmpty = 1.1;
-
+double par_substitution = 0.1;
+double par_insertion = 0.05;
+double par_deletion = 0.05;
+double par_g = 0.05;
+double par_b1 = 0.05;
+double par_b2 = 0.05;
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -33,6 +38,7 @@ int paramsToFile(char* filename){
 //	std::cout << "Printing parameters to file: " << filename << std::endl;	
 	
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
+	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;
 	paramfile << "par_ncol " << par_ncol << std::endl;
 	paramfile << "par_nrow " << par_nrow << std::endl;
@@ -44,6 +50,13 @@ int paramsToFile(char* filename){
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
 	paramfile << "par_ll " << par_ll << std::endl;
 	paramfile << "par_sigma " << par_sigma << std::endl;
+	paramfile << "par_claimEmpty " << par_claimEmpty << std::endl;
+	paramfile << "par_substitution " << par_substitution << std::endl;
+	paramfile << "par_insertion " << par_insertion << std::endl;
+	paramfile << "par_deletion " << par_deletion << std::endl;
+	paramfile << "par_g " << par_g << std::endl;
+	paramfile << "par_b1 " << par_b1 << std::endl;
+	paramfile << "par_b2 " << par_b2 << std::endl;
 	
 
 	paramfile.close();
@@ -62,7 +75,7 @@ int Args(int argc, char **argv)
 	if(argv[i][0] == '-'){
 		option = argv[i][1];
 		if( option == '-'){ //long expression
-			if(!strcmp(argv[i], "--par_death")) option = 'd';
+			if(!strcmp(argv[i], "--par_death")) option = 'k';
 			else if(!strcmp(argv[i], "--par_diffusion_rate")) option = 'D';
 			else if(!strcmp(argv[i], "--par_maxtime")) option = 'T';
 			else if(!strcmp(argv[i], "--par_ncol")) option = 'c';
@@ -70,13 +83,83 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
-			else if(!strcmp(argv[i], "--par_init_grid")) option = 's';
+			else if(!strcmp(argv[i], "--par_init_grid")) option = 'S';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
-			else if(!strcmp(argv[i], "--par_sigma")) option = 'g';
+			else if(!strcmp(argv[i], "--par_sigma")) option = 'G';
+			else if(!strcmp(argv[i], "--par_claimEmpty")) option = 'E';
+			else if(!strcmp(argv[i], "--par_substitution")) option = 's';
+			else if(!strcmp(argv[i], "--par_insertion")) option = 'i';
+			else if(!strcmp(argv[i], "--par_deletion")) option = 'd';
+			else if(!strcmp(argv[i], "--par_g")) option = 'g';
+			else if(!strcmp(argv[i], "--par_b1")) option = '1';
+			else if(!strcmp(argv[i], "--par_b2")) option = '2';
 		}
 		switch(option){
-			// k - par_death
+			// double
+			case '2':
+				if (++i == argc) return 1;
+				par_b2 = atof(argv[i]);
+				if(par_b2 < 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_b2 have to be positive!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case '1':
+				if (++i == argc) return 1;
+				par_b1 = atof(argv[i]);
+				if(par_b1 < 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_b1 have to be positive!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 'g':
+				if (++i == argc) return 1;
+				par_g = atof(argv[i]);
+				if(par_g < 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_g have to be larger than 0!" << std::endl;
+					return(-1);
+				}
+				continue;
+
 			case 'd':
+				if (++i == argc) return 1;
+				par_deletion = atof(argv[i]);
+				if(par_deletion < 0 || par_deletion > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_deletion have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 'i':
+				if (++i == argc) return 1;
+				par_insertion = atof(argv[i]);
+				if(par_insertion < 0 || par_insertion > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_insertion have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 's':
+				if (++i == argc) return 1;
+				par_substitution = atof(argv[i]);
+				if(par_substitution < 0 || par_substitution > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_substitution have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 'E':
+				if (++i == argc) return 1;
+				par_claimEmpty = atof(argv[i]);
+				if(par_claimEmpty < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_claimEmpty have to be positive!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 'k':
 				if (++i == argc) return 1;
 				par_death = atof(argv[i]);
 				if(par_death < 0) {
@@ -94,7 +177,7 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
-			case 'g':
+			case 'G':
 				if (++i == argc) return 1;
 				par_sigma = atof(argv[i]);
 				if(par_sigma <= 1) {
@@ -112,6 +195,16 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
+			case 'S':
+				if (++i == argc) return 1;
+				par_output_interval = atof(argv[i]);
+				if(par_init_grid < 0 || par_init_grid > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+			
+			// int
 			case 'T':
 				if (++i == argc) return 1;
 				par_maxtime = atoi(argv[i]);
@@ -143,16 +236,8 @@ int Args(int argc, char **argv)
 					return(-1);
 				}
 				continue;
-			
-			case 's':
-				if (++i == argc) return 1;
-				par_output_interval = atof(argv[i]);
-				if(par_init_grid < 0 || par_init_grid > 1) {
-					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
-					return(-1);
-				}
-				continue;
-			
+
+			// char
 			case 'I':
 				if (++i == argc) return 1;
 				if ( strlen(argv[i]) > 1 ) 
