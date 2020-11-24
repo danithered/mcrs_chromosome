@@ -263,7 +263,7 @@ namespace rnarep {
 				annot_level = 2;
 
 				//calculate Pfold
-				Pfold = 1/( 1 - std::exp( -cval[seq.length()] * mfe) );
+				Pfold = 1/( 1 + std::exp( -cval[seq.length()] * mfe) );
 				
 				//annotata
 			 	no_sites = patterns.search((char*) seq.c_str(), str, a);
