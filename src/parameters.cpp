@@ -27,6 +27,8 @@ double par_deletion = 0.05;
 double par_g = 0.05;
 double par_b1 = 0.05;
 double par_b2 = 0.05;
+double par_c = -0.3; //minus c!!!
+double par_Emin = -25.0; 
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -57,6 +59,8 @@ int paramsToFile(char* filename){
 	paramfile << "par_g " << par_g << std::endl;
 	paramfile << "par_b1 " << par_b1 << std::endl;
 	paramfile << "par_b2 " << par_b2 << std::endl;
+	paramfile << "par_c " << par_c << std::endl;
+	paramfile << "par_Emin " << par_c << std::endl;
 	
 
 	paramfile.close();
@@ -78,8 +82,8 @@ int Args(int argc, char **argv)
 			if(!strcmp(argv[i], "--par_death")) option = 'k';
 			else if(!strcmp(argv[i], "--par_diffusion_rate")) option = 'D';
 			else if(!strcmp(argv[i], "--par_maxtime")) option = 'T';
-			else if(!strcmp(argv[i], "--par_ncol")) option = 'c';
-			else if(!strcmp(argv[i], "--par_nrow")) option = 'r';
+			else if(!strcmp(argv[i], "--par_ncol")) option = 'C';
+			else if(!strcmp(argv[i], "--par_nrow")) option = 'R';
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
@@ -93,9 +97,29 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_g")) option = 'g';
 			else if(!strcmp(argv[i], "--par_b1")) option = '1';
 			else if(!strcmp(argv[i], "--par_b2")) option = '2';
+			else if(!strcmp(argv[i], "--par_c")) option = 'c';
+			else if(!strcmp(argv[i], "--par_Emin")) option = 'm';
 		}
 		switch(option){
 			// double
+			case 'm':
+				if (++i == argc) return 1;
+				par_Emin = atof(argv[i]);
+				if(par_Emin > 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_Emin have to be negative!" << std::endl;
+					return(-1);
+				}
+				continue;
+
+			case 'c':
+				if (++i == argc) return 1;
+				par_c = atof(argv[i]);
+				if(par_c > 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_c have to be negative (it is the negative of scaling factor c)!" << std::endl;
+					return(-1);
+				}
+				continue;
+
 			case '2':
 				if (++i == argc) return 1;
 				par_b2 = atof(argv[i]);
@@ -210,7 +234,7 @@ int Args(int argc, char **argv)
 				par_maxtime = atoi(argv[i]);
 				continue;
 			
-			case 'c':
+			case 'C':
 				if (++i == argc) return 1;
 				par_ncol = atoi(argv[i]);
 				if(par_ncol <= 0) {
@@ -219,7 +243,7 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
-			case 'r':
+			case 'R':
 				if (++i == argc) return 1;
 				par_nrow = atoi(argv[i]);
 				if(par_nrow <= 0) {

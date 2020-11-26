@@ -21,9 +21,9 @@ namespace rnarep {
 	extern char bases[6];
 
 	//functions
-	double EoptCalc(int n);
-	double cvalCalc(int n);
 	double length_depCalc(int n);
+	double m_sigmaCalc(int m);
+	
 	char RNAc2cc(char rna);
 	int RNAc2i(char rnachar);
 
@@ -35,8 +35,6 @@ namespace rnarep {
 			double Pdeg; //degradation rate
 			bool empty; // is this cell empty or not
 
-			static dvtools::quickPosVals Eopt;
-			static dvtools::quickPosVals cval;
 			static dvtools::quickPosVals length_dep;
 			static dvtools::quickPosVals m_sigma;
 			static dv_annot::PatternPool patterns;
@@ -256,14 +254,15 @@ namespace rnarep {
 				mfe = vrna_fold(seq.c_str(), str);
 					  
 				//calculate Pdeg
-				Pdeg = 0.9 - 0.8 * mfe / Eopt[seq.length()];
+				Pdeg = 0.9 - 0.8 * mfe / par_Emin ;
 			} 
 
 			void annotate2() {
 				annot_level = 2;
 
 				//calculate Pfold
-				Pfold = 1/( 1 + std::exp( -cval[seq.length()] * mfe) );
+				// exp(-cE) / (1 + exp(-ce)) = 1 - 1 / (1 + exp(-cE)) , E = MFE, c = parameter
+				Pfold = 1 - 1/( 1 + std::exp( par_c * mfe) );
 				
 				//annotata
 			 	no_sites = patterns.search((char*) seq.c_str(), str, a);

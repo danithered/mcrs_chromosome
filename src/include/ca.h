@@ -183,7 +183,7 @@ namespace cadv {
 				return M;
 			}
 
-			int update(){
+			void update(){
 				double sum = 0.0;
 				int decision = 0;
 

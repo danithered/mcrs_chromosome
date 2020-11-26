@@ -207,6 +207,7 @@ namespace dv_annot{
 
 			//Constructor
 			PatternPool(){
+				no_sites = new int[par_noEA];
 //				std::cout << "Pattern pool init started" << std::endl;
 				//sites = 0;
 				//if (par_noEA) a = new double [par_noEA];
@@ -220,6 +221,7 @@ namespace dv_annot{
 //				std::cout << "PatternPool destructor called" << std::endl;
 				//if (par_noEA) delete [] (a);
 				rules.clear();
+				delete [] (no_sites);
 //				std::cout << "PatternPool destructor ended" << std::endl;
 			}
 
@@ -295,14 +297,18 @@ namespace dv_annot{
 
 				//clear();
 				int sites=0;
+				for(int act = 0; act < par_noEA; act++) {
+					no_sites[act] = 0;
+					acts[act] = 0;
+				}
 				
-				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){
+				if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){ // goes tru rules
 //					std::cout << "search = " << search << std::endl;
-					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){
+					for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){ // finds rule's patterns
 //						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
 						//templ is a pointer to the start of the pattern
 						//look for the subrules
-						for(int sr = 0, sr_max = rules[search].no_subrules; sr < sr_max; sr++){
+						for(int sr = 0, sr_max = rules[search].no_subrules; sr < sr_max; sr++){ // if pattern found goes tru subrules
 //							std::cout << "sr = " << sr << std::endl;
 							//looking tru the subrules
 							char *base = rules[search].subrules[sr].base;
@@ -310,22 +316,29 @@ namespace dv_annot{
 							int *pos_max = pos + rules[search].subrules[sr].no_bases;
 
 //							std::cout << "compare " << *(seq + (templ - str + *pos)) << "and" << *base << " (from " << rules[search].subrules[sr].no_bases << " bases)" << std::endl;
-							for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){}
+							for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){} //checks subrule
 
 //							std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
-							if (pos == pos_max){
-								sites++;
+							if (pos == pos_max){ //subrule applies
+								//sites++;
 								for(int act = 0; act < par_noEA; act++){
 //									std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
 									acts[act] += rules[search].subrules[sr].value[act];
+									no_sites[act]++;
 								}
-								break;
+								break; // if subrule applies, doesnt checks for other subrules in this pattern -> goes to find next pattern
 							}
 						} //sr in subrules
 					} // pattern search in sequence
 				} // search in rules
 
-
+				//calculating average activity values and number of activities
+				for(int act = 0; act < par_noEA; act++){
+					if(no_sites[act]){
+						sites++;
+						acts[act] = acts[act] / no_sites[act]; // average of all the same activities (DV strongly disagrees with this)
+					}
+				}
 
 				return(sites);
 			}
@@ -352,6 +365,9 @@ namespace dv_annot{
 					}
 				}
 			}
+		private:
+			int *no_sites;
+
 
 	}; //PatternPool
 
