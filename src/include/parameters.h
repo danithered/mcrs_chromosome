@@ -31,6 +31,8 @@ extern double par_b1;
 extern double par_b2;
 extern double par_c;
 extern double par_Emin;
+extern double par_Nmet;
+extern double par_Nrep;
 
 
 //Functions 

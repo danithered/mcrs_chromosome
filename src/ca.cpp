@@ -199,7 +199,7 @@ namespace cadv {
 
 	//a singel update step <- this is called by rUpdate and oUpdate
 	int CellAut::updateStep(int cell){
-		matrix[cell].printN(matrix);
+		matrix[cell].update();
 		return(0);
 	}
 
@@ -210,7 +210,7 @@ namespace cadv {
 		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
 			for(iter = 0; iter < size; iter++){
 				//UPDATING
-				updateStep( gsl_rng_uniform_int(r, size) );
+				matrix[ gsl_rng_uniform_int(r, size) ].update();
 				//DIFFUSION
 				for(diff_until += diff; diff_until >= 1; diff_until--){
 					matrix[ gsl_rng_uniform_int(r, size) ].diff();
@@ -239,10 +239,12 @@ namespace cadv {
 					temp = order[target];
 					order[ target ] = order[ iter ];
 					order[ iter ] = temp;
-					updateStep( temp );
+					//updateStep( temp );
+					matrix[ temp ].update();
 				}
 				else {
-					updateStep( order[iter] );
+					//updateStep( order[iter] );
+					matrix[ order[iter] ].update();
 				}
 			}
 			//DIFFUSION

@@ -20,14 +20,16 @@ int main(int argc, char *argv[]) {
 	gsl_rng_set(r, time(&timer));
 
 	//start to do stuff
-	cadv::CellAut automata(par_nrow, par_ncol);
+	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata
 
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 
-	automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0);
-	automata.neighInic(VON_NEUMANN_NEIGH, cadv::torus, 1);
-	automata.neighInic(VON_NEUMANN_NEIGH, cadv::torus, 2);
-	automata.rUpdate(1);
+	automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0); //init diffusional neighbourhood for Toffoli-Margoulus algorithm
+	automata.neighInic(par_Nmet, cadv::torus, 1); //init metabolic neighbourhood 
+	automata.neighInic(par_Nrep, cadv::torus, 2); //init replication neighbourhood
+
+	//Running simulation
+	automata.rUpdate(par_maxtime);
 
 	//close rng
 	gsl_rng_free(r);

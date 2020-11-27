@@ -29,6 +29,8 @@ double par_b1 = 0.05;
 double par_b2 = 0.05;
 double par_c = -0.3; //minus c!!!
 double par_Emin = -25.0; 
+double par_Nmet = 3; // 3 -> vonNeumann 
+double par_Nrep = 3; 
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -61,6 +63,8 @@ int paramsToFile(char* filename){
 	paramfile << "par_b2 " << par_b2 << std::endl;
 	paramfile << "par_c " << par_c << std::endl;
 	paramfile << "par_Emin " << par_c << std::endl;
+	paramfile << "par_Nmet " << par_Nmet << std::endl;
+	paramfile << "par_Nrep " << par_Nrep << std::endl;
 	
 
 	paramfile.close();
@@ -98,11 +102,31 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_b1")) option = '1';
 			else if(!strcmp(argv[i], "--par_b2")) option = '2';
 			else if(!strcmp(argv[i], "--par_c")) option = 'c';
-			else if(!strcmp(argv[i], "--par_Emin")) option = 'm';
+			else if(!strcmp(argv[i], "--par_Emin")) option = 'e';
+			else if(!strcmp(argv[i], "--par_Nmet")) option = 'm';
+			else if(!strcmp(argv[i], "--par_Nrep")) option = 'r';
 		}
 		switch(option){
 			// double
+			case 'r':
+				if (++i == argc) return 1;
+				par_Nrep = atof(argv[i]);
+				//if(par_Nrep > 0 ) {
+				//	std::cerr << "ERROR at reading argoments: option " << option << ": par_Nrep have to be ve!" << std::endl;
+				//	return(-1);
+				//}
+				continue;
+
 			case 'm':
+				if (++i == argc) return 1;
+				par_Nmet = atof(argv[i]);
+				//if(par_Nmet > 0 ) {
+				//	std::cerr << "ERROR at reading argoments: option " << option << ": par_Nmet have to be negative!" << std::endl;
+				//	return(-1);
+				//}
+				continue;
+
+			case 'e':
 				if (++i == argc) return 1;
 				par_Emin = atof(argv[i]);
 				if(par_Emin > 0 ) {
