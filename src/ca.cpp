@@ -1,6 +1,102 @@
 #include "ca.h"
 
 namespace cadv {
+	//FUNCTIONS FOR Cell
+	void Cell::inicNeigh(int n, int type){
+		switch(type){
+			case 0:
+				no_diff_neigh = n;
+				diff_neigh = new Cell* [n] ; 
+				break;
+			case 1:
+				no_met_neigh = n;
+				met_neigh = new Cell* [n] ; 
+				break;
+			case 2:
+				no_repl_neigh = n;
+				repl_neigh = new Cell* [n] ; 
+				claims = new double [n+1];
+				claims[0] = par_claimEmpty;
+				break;
+		}
+	}
+
+	void Cell::setNeigh(class Cell *np, int which_neigh, int type){
+		switch(type){
+			case 0:
+				diff_neigh[which_neigh] = np;
+				break;
+			case 1:
+				met_neigh[which_neigh] = np;
+				break;
+			case 2:
+				repl_neigh[which_neigh] = np;
+				break;
+		}
+	}
+
+	void Cell::diff(){ // ONE Toffoli-Margoulus step
+		static class rnarep::CellContent *temp_vals;
+
+		temp_vals = vals; // 0 -> S
+		if(gsl_rng_uniform(r) < 0.5) { //counterclockwise
+			vals = diff_neigh[1]->vals; // 1 -> 0
+			diff_neigh[1]->vals = diff_neigh[3]->vals; // 3 -> 1
+			diff_neigh[3]->vals = diff_neigh[2]->vals; // 2 -> 3
+			diff_neigh[2]->vals = temp_vals; // S -> 2
+
+		} else { //cloclwise
+			vals = diff_neigh[2]->vals; // 2 -> 0
+			diff_neigh[2]->vals = diff_neigh[3]->vals; // 3 -> 2
+			diff_neigh[3]->vals = diff_neigh[1]->vals; // 1 -> 3
+			diff_neigh[1]->vals = temp_vals; // S -> 1
+		}
+	}
+
+	double Cell::M(){
+		double M = 1, akt = 0;
+
+		for(int a = 0; a < par_noEA; a++){
+			akt = 0;
+			for(int met = 0; met < no_met_neigh; met++){
+				// M(x) = prod(sum (a_i))
+				akt += met_neigh[met]->vals->geta(a) ;
+			}
+			M *= akt;
+		}
+
+		return M;
+	}
+
+	void Cell::update(){
+		double sum = 0.0;
+		int decision = 0;
+
+		if (vals->empty) { // if focal cell is empty (it can be filled with a copy)
+			//REPLICATION
+			for(int rep = 1; rep < no_repl_neigh; rep++) { // 0. neighbour is self, but it is empty
+				if(!repl_neigh[rep]->vals->empty){
+					sum += (claims[rep] = repl_neigh[rep]->vals->getR() * repl_neigh[rep]->M() );
+				}
+				else claims[rep] = 0.0;
+			}
+			//decision
+			decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
+			if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)!
+				vals->replicate( *(repl_neigh[decision]->vals) );
+			}
+		}
+		else { //if focal cell is occupied (it can die)
+			//DEGRADATION
+			if(vals->Pdeg < gsl_rng_uniform(r) ) vals->die();
+		}
+	}
+
+
+
+
+
+	//FUNCTIONS FOR CellAut
 	int CellAut::grid_init() {
 		size = 0;
 		
@@ -77,6 +173,35 @@ namespace cadv {
 			matrix[i] = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
 		}
 	}	
+
+
+	inline Cell* CellAut::get(int x, int y) {
+		if(layout == square){
+			return(matrix + y*ncol + x);
+		}
+		return(NULL);
+	}
+	///finds cell in pos [x,y] and gives back its number
+	inline int CellAut::getN(int x, int y) {
+		if(layout == square){
+			return(y*ncol + x);
+		}
+		else if (layout == hex){
+			return(y + x*ncol + x/2);
+		}
+		return(-1);
+	}
+
+	///gives back pointer to cell
+	inline Cell* CellAut::get(int cell) {
+		return(matrix + cell);
+	}
+
+	//a singel update step <- this is called by rUpdate and oUpdate
+	int CellAut::updateStep(int cell){
+		matrix[cell].printN(matrix);
+		return(0);
+	}
 
 	///Random update
 	int CellAut::rUpdate(int gens){
