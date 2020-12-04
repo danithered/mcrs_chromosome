@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 		if(!system(command.c_str())){ //exists already
 			//try a new directory name
 			name += "_";
-			name += std::to_string(gsl_rng_uniform_int(r, 1000);
+			name += std::to_string(gsl_rng_uniform_int(r, 1000));
 			command.clear();
 			command += "test -d ";
 			command += name;
