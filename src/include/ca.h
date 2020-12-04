@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstring>
+#include <sys/stat.h>
 
 #define SINGLESQ 2.0
 #define SINGLEHEX 3.0
@@ -146,7 +147,11 @@ namespace cadv {
 			Cell *matrix;
 			
 			double diff;
-			double saving_freq;
+			//double saving_freq;
+
+			//OUTPUTS
+			std::ofstream output;
+			std::ofstream saving;
 
 			//FUNCTIONS
 
@@ -156,7 +161,7 @@ namespace cadv {
 			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
 				time=0;
 				diff = 0;
-				saving_freq = 0;
+				//saving_freq = 0;
 				nrow=size1;
 				ncol=size2;
 				layout = layout_type;
@@ -249,6 +254,8 @@ namespace cadv {
 			void neighInic(double neigh_tipus, Ca_edge edge, int neigh_no);
 
 
+			// Outputs
+			int openOutputs(char* savedir);
 
 	};
 	

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <cmath>
+#include <sys/stat.h>
 
 #include "annot.h"
 #include "dv_tools.h"
@@ -124,6 +125,7 @@ int main(int argc, char *argv[]) {
 	std::cout << *xp << std::endl;
 */
 
+/*	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
@@ -132,7 +134,101 @@ int main(int argc, char *argv[]) {
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
-	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
+*/
+	
+	char par_outdir[] = "blabla", par_ID[] ="testfile\0", par_output_filename[] = "file.txt", par_savedir[] = "SAVE";
+	std::ofstream output, saving;
+
+
+	//strats here
+	std::string name, command;
+	 
+	name += par_outdir;
+	
+	//create directory output if it does not exist (Linux only!!)
+	command += "mkdir -p ";
+	command += par_outdir;
+/**/	std::cout << command << std::endl;
+	system(command.c_str());
+
+	//create directory for output
+	name += "/";
+	name += par_ID;
+
+	command.clear();
+	command += "test -d ";
+	command += name;
+	
+/**/	std::cout << command << std::endl;
+
+	if(system(command.c_str())) { //directory does not exist
+/**/		std::cout << "not exists" << std::endl;
+
+		command.clear();
+		command += "mkdir ";
+		command += name;
+		
+/**/		std::cout << command << std::endl;
+		system(command.c_str());
+	}
+	else{ //directory already exist
+/**/		std::cerr << "exists" << std::endl;
+		//check if files already exists
+		command.clear();
+		command += "test -f ";
+		command += name;
+		command += "/";
+		command += par_output_filename;
+/**/		std::cout << command << std::endl;
+		if(!system(command.c_str())){ //exists already
+			//try a new directory name
+			name += "_";
+			name += std::to_string(gsl_rng_uniform_int(r, 1000);
+			command.clear();
+			command += "test -d ";
+			command += name;
+/**/			std::cout << command << std::endl;
+			if(!system(command.c_str())) { //already exzist
+				std::cerr << "ERROR: conflicting simulations with identical IDs. Quitting..." << std::endl;
+				//return (1);
+			}
+			else{ // new dir does not exist
+				//std::cerr << "WARNING: directory already existed with output files! Tried a new name: " << name << std::endl;
+				command.clear();
+				command += "mkdir ";
+				command += name;
+				
+/**/				std::cout << command << std::endl;
+				system(command.c_str());
+			}
+		} //files exist
+	} //directory exists
+
+	name += "/";
+	//output directory exists and its path is in name
+
+	//creating output file
+	command.clear();
+	command += name;
+	command += par_output_filename;
+
+	output.open(command);
+	if(!output.is_open()) {
+		std::cerr << "ERROR: output file (" << name << par_output_filename << ") cant be opened" << std::endl;
+		//return (2);
+	}
+
+	//creating SAVE directory
+	command.clear();
+	command += "mkdir -p ";
+	
+	name += par_savedir;
+
+	command += name;
+/**/	std::cout << command << std::endl;
+	system(command.c_str());
+
+	//return 0;
 
 
     //close rng

@@ -424,5 +424,17 @@ namespace cadv {
 		
 	} //end neighInic
 	
+	int openOutputs(char* savedir){
+		struct stat buffer; 
+		std::string name, command;
+		int isDir = 0; 
+		 
+		name << par_outdir;
+		command << "mkdir -p ";
+		command << par_outdir;
+		
+		//create directory output if it does not exist (Linux only!!)
+		system(command.c_str());
+	}
 }
 
