@@ -502,6 +502,19 @@ namespace cadv {
 			return (2);
 		}
 
+		//adding header to output
+		output << "time;replicators;";
+		output << "no_par;mean_R_par;mean_length_par;mean_a_par;mean_mfe_par;" ;
+		for(int e = 0; e < par_noEA; e++){
+			output << "no_enz" << e << ";mean_R_enz" << e << ";mean_length_enz" << e << ";mean_a_enz" << e << ";mean_mfe_enz" << e << ";" ;
+		}
+
+		for(int a = 0; a <= par_noEA; a++) {
+			output << "no_A" << a << ";" ;
+		}
+
+		output.flush();
+
 		//creating SAVE directory
 		command.clear();
 		command += "mkdir -p ";
@@ -520,6 +533,10 @@ namespace cadv {
 
 	void CellAut::do_output(){
 		std::cout << "output" << std::endl;
+		/* what i need:
+			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
+
+		*/
 	}
 
 }
