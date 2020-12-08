@@ -149,9 +149,10 @@ namespace cadv {
 			double diff;
 			//double saving_freq;
 
+			std::string savedir;
+
 			//OUTPUTS
 			std::ofstream output;
-			std::ofstream saving;
 
 			//FUNCTIONS
 
@@ -253,10 +254,11 @@ namespace cadv {
 			///Initialise neighbourhood
 			void neighInic(double neigh_tipus, Ca_edge edge, int neigh_no);
 
-
 			// Outputs
-			int openOutputs(char* savedir);
+			// return values: 0 (OK), 1 (could not find a new directory, most likely more than one simulations run with the same ID and seed), 2 (cant open output file)
+			int openOutputs();
 
+			void do_output();
 	};
 	
 }

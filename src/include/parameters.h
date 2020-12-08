@@ -17,6 +17,10 @@ extern int par_output_interval;
 extern char par_ID[255];
 extern char par_str_pool[255];
 
+extern char par_outdir[255];
+extern char par_output_filename[255];
+extern char par_savedir[255];
+
 extern double par_init_grid;
 extern double par_death;
 extern double par_diffusion_rate;

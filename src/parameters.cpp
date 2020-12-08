@@ -14,6 +14,9 @@ int par_output_interval = 0;
 
 char par_ID[255] = "test\0";
 char par_str_pool[255] = "IN/mapping.txt";
+char par_outdir[255] = "OUT";
+char par_output_filename[255] = "output.csv";
+char par_savedir[255] = "SAVE";
 
 double par_init_grid = 0.5;
 double par_death = 0.5;
@@ -49,6 +52,9 @@ int paramsToFile(char* filename){
 	paramfile << "par_output_interval " << par_output_interval << std::endl;
 	paramfile << "par_ID " << par_ID << std::endl;
 	paramfile << "par_str_pool " << par_ID << std::endl;
+	paramfile << "par_outdir " << par_outdir << std::endl;
+	paramfile << "par_output_filename " << par_output_filename << std::endl;
+	paramfile << "par_savedir " << par_savedir << std::endl;
 	paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
@@ -91,6 +97,9 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
+			else if(!strcmp(argv[i], "--par_outdir")) option = 'O';
+			else if(!strcmp(argv[i], "--par_output_filename")) option = 'F';
+			else if(!strcmp(argv[i], "--par_savedir")) option = 'A';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 'S';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
 			else if(!strcmp(argv[i], "--par_sigma")) option = 'G';
@@ -286,6 +295,36 @@ int Args(int argc, char **argv)
 				continue;
 
 			// char
+			case 'A':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 0 ) 
+					strcpy(par_savedir, argv[i]);
+				else {
+					std::cerr << "ERROR at reading argoments: option " << option << ": should be more than 0 char long!" << std::endl;
+					return -1;
+				}
+				continue;
+				
+			case 'F':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 0 ) 
+					strcpy(par_output_filename, argv[i]);
+				else {
+					std::cerr << "ERROR at reading argoments: option " << option << ": should be more than 0 char long!" << std::endl;
+					return -1;
+				}
+				continue;
+				
+			case 'O':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 0 ) 
+					strcpy(par_outdir, argv[i]);
+				else {
+					std::cerr << "ERROR at reading argoments: option " << option << ": par_outdir should be more than 0 char long!" << std::endl;
+					return -1;
+				}
+				continue;
+				
 			case 'I':
 				if (++i == argc) return 1;
 				if ( strlen(argv[i]) > 1 ) 

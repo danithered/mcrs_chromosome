@@ -424,7 +424,7 @@ namespace cadv {
 		
 	} //end neighInic
 	
-	int openOutputs(char* savedir){
+	int CellAut::openOutputs(){
 		std::string name, command;
 		 
 		name += par_outdir;
@@ -512,8 +512,15 @@ namespace cadv {
 //		std::cout << command << std::endl;
 		system(command.c_str());
 
+		savedir = name;
+
 		return 0;
 
 	}
+
+	void CellAut::do_output(){
+		std::cout << "output" << std::endl;
+	}
+
 }
 

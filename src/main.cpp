@@ -8,6 +8,12 @@ using namespace std;
 
 gsl_rng * r;
 
+/* return values:
+ 0: Ok
+ 1: died
+ -1: error in reading in argoments
+ -2: couldnt open output 
+*/
 int main(int argc, char *argv[]) {
 	//Argoments
 	if ( Args(argc, argv) ) {
@@ -27,6 +33,11 @@ int main(int argc, char *argv[]) {
 	automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0); //init diffusional neighbourhood for Toffoli-Margoulus algorithm
 	automata.neighInic(par_Nmet, cadv::torus, 1); //init metabolic neighbourhood 
 	automata.neighInic(par_Nrep, cadv::torus, 2); //init replication neighbourhood
+
+	if(automata.openOutputs()) { //open output
+		gsl_rng_free(r);
+		return -2;
+	}
 
 	//Running simulation
 	automata.rUpdate(par_maxtime);
