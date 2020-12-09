@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 	std::cout << gsl_rng_uniform_int(r, 2) << std::endl;
 */
-	
+/*	
 	char par_outdir[] = "blabla", par_ID[] ="testfile\0", par_output_filename[] = "file.txt", par_savedir[] = "SAVE";
 	std::ofstream output, saving;
 
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
 	//create directory output if it does not exist (Linux only!!)
 	command += "mkdir -p ";
 	command += par_outdir;
-/**/	std::cout << command << std::endl;
+	std::cout << command << std::endl;
 	system(command.c_str());
 
 	//create directory for output
@@ -159,27 +159,27 @@ int main(int argc, char *argv[]) {
 	command += "test -d ";
 	command += name;
 	
-/**/	std::cout << command << std::endl;
+	std::cout << command << std::endl;
 
 	if(system(command.c_str())) { //directory does not exist
-/**/		std::cout << "not exists" << std::endl;
+		std::cout << "not exists" << std::endl;
 
 		command.clear();
 		command += "mkdir ";
 		command += name;
 		
-/**/		std::cout << command << std::endl;
+		std::cout << command << std::endl;
 		system(command.c_str());
 	}
 	else{ //directory already exist
-/**/		std::cerr << "exists" << std::endl;
+		std::cerr << "exists" << std::endl;
 		//check if files already exists
 		command.clear();
 		command += "test -f ";
 		command += name;
 		command += "/";
 		command += par_output_filename;
-/**/		std::cout << command << std::endl;
+		std::cout << command << std::endl;
 		if(!system(command.c_str())){ //exists already
 			//try a new directory name
 			name += "_";
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
 			command.clear();
 			command += "test -d ";
 			command += name;
-/**/			std::cout << command << std::endl;
+			std::cout << command << std::endl;
 			if(!system(command.c_str())) { //already exzist
 				std::cerr << "ERROR: conflicting simulations with identical IDs. Quitting..." << std::endl;
 				//return (1);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 				command += "mkdir ";
 				command += name;
 				
-/**/				std::cout << command << std::endl;
+				std::cout << command << std::endl;
 				system(command.c_str());
 			}
 		} //files exist
@@ -225,11 +225,31 @@ int main(int argc, char *argv[]) {
 	name += par_savedir;
 
 	command += name;
-/**/	std::cout << command << std::endl;
+	std::cout << command << std::endl;
 	system(command.c_str());
 
 	//return 0;
+*/
+/*
+	std::vector<int> vec;
+	vec.reserve(3);
+	std::cout << vec[0] << std::endl;
+	std::cout << vec[1] << std::endl;
+	std::cout << vec[2] << std::endl;
+	std::cout << vec[3] << std::endl;
+	std::cout << vec[4] << std::endl;
+	std::cout << vec.capacity() << std::endl;
+*/
+	std::ifstream fi;
+	std::string line, word;
 
+	fi.open("bla.txt");
+	
+	while (std::getline(fi, line) ){
+		std::istringstream linestream(line);
+		linestream >> word;
+		std::cout << word << std::endl;
+	}
 
     //close rng
     gsl_rng_free(r);

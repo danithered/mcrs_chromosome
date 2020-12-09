@@ -51,6 +51,8 @@ namespace rnarep {
 	dvtools::quickPosVals CellContent::length_dep(100, &length_depCalc);
 	dvtools::quickPosVals CellContent::m_sigma(par_noEA, &m_sigmaCalc);
 
+	int CellContent::no_replicators;
+
 	dv_annot::PatternPool CellContent::patterns;
 
 	//Functions for CellContent
@@ -62,6 +64,7 @@ namespace rnarep {
 			Pdeg = 0;
 			//R = 0;
 			annot_level = 0;
+			no_replicators--;
 			//for (int act = 0; act < par_noEA; act++) a[act] = 0;
 		}
 	}

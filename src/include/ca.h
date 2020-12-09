@@ -167,6 +167,8 @@ namespace cadv {
 				ncol=size2;
 				layout = layout_type;
 
+				rnarep::CellContent::no_replicators = 0;
+
 				grid_init();
 
 				if(!size) layout = empty;
@@ -178,6 +180,7 @@ namespace cadv {
 						layout = line;
 					}
 				}
+
 				
 //				std::cout << "Basic Constructor Called" << std::endl;
 			}
@@ -185,7 +188,7 @@ namespace cadv {
 			//Constructor 2
 			CellAut(int size1, int size2, cadv::Ca_layout layout_type, Cell* pool, double* probs, int no_choices){
 				CellAut(size1, size2, layout_type);
-				init(pool, probs, no_choices);
+				//init(pool, probs, no_choices);
 			}
 			
 			//Deconstructor
@@ -219,7 +222,10 @@ namespace cadv {
 			inline Cell* get(int cell); 
 			
 			///initialises matrix with predefined values, randomly
-			void init(Cell* pool, double* probs, int no_choices); 
+			void init(std::string* pool, double* probs, int no_choices); 
+			
+			///initialises matrix from textfile
+			void init_fromfile(char * infile); 
 			
 			//Updates
 
@@ -259,6 +265,10 @@ namespace cadv {
 			int openOutputs();
 
 			void do_output();
+
+		private:
+			std::vector<int> out_no, out_noA;
+			std::vector<double> out_R, out_length, out_a, out_mfe;
 	};
 	
 }

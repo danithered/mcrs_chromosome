@@ -35,6 +35,8 @@ namespace rnarep {
 			double Pdeg; //degradation rate
 			bool empty; // is this cell empty or not
 
+			static int no_replicators; //number of replicators
+
 			static dvtools::quickPosVals length_dep;
 			static dvtools::quickPosVals m_sigma;
 			static dv_annot::PatternPool patterns;
@@ -102,6 +104,12 @@ namespace rnarep {
 				delete [] (a);
 			}
 
+			void operator =( std::string& templ){
+				if(! empty) die();
+				seq = templ;
+				if(seq.length()) annotate();
+			}
+
 			void die();
 
 			void replicate(const CellContent &templ);
@@ -136,6 +144,8 @@ namespace rnarep {
 					  
 				//calculate Pdeg
 				Pdeg = 0.9 - 0.8 * mfe / par_Emin ;
+				
+				no_replicators++;
 			} 
 
 			void annotate2() {

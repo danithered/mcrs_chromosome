@@ -162,7 +162,7 @@ namespace cadv {
 	}
 
 	///initialises matrix with predefined values, randomly
-	void CellAut::init(Cell* pool, double* probs, int no_choices) {
+	void CellAut::init(std::string *pool, double* probs, int no_choices) {
 		int i = 0;
 		double sum = 0.0;
 		
@@ -170,10 +170,27 @@ namespace cadv {
 			sum += probs[i];
 		}
 		for(i=0; i < size; i++) {
-			matrix[i] = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
+			*(matrix[i].vals) = pool[dvtools::brokenStickVals(probs, no_choices, sum, gsl_rng_uniform(r) )];
 		}
 	}	
 
+	void CellAut::init_fromfile(char *infile) {
+		std::string line, word;
+
+		std::ifstream file(infile);
+		Cell *cell = matrix;
+
+		if(!file.is_open()) std::cerr << "ERROR: init_fromfile: file can not be opened!" << std::endl;
+
+		while (std::getline(file, line) ){
+			std::istringstream linestream(line);
+			linestream >> word;
+			*(cell->vals) = word;
+			cell++;
+		}
+
+		if(cell != (Cell *) matrix + size) std::cerr << "WARNING: file length is not equal to gridsize!" << std::endl;
+	}
 
 	inline Cell* CellAut::get(int x, int y) {
 		if(layout == square){
@@ -504,7 +521,7 @@ namespace cadv {
 
 		//adding header to output
 		output << "time;replicators;";
-		output << "no_par;mean_R_par;mean_length_par;mean_a_par;mean_mfe_par;" ;
+		output << "no_par;mean_R_par;mean_length_par;mean_mfe_par;" ;
 		for(int e = 0; e < par_noEA; e++){
 			output << "no_enz" << e << ";mean_R_enz" << e << ";mean_length_enz" << e << ";mean_a_enz" << e << ";mean_mfe_enz" << e << ";" ;
 		}
@@ -514,6 +531,15 @@ namespace cadv {
 		}
 
 		output.flush();
+
+		//prepare vectors for output
+		
+		out_no.reserve(par_noEA + 1);
+		out_noA.reserve(par_noEA + 1);
+		out_R.reserve(par_noEA + 1);
+		out_length.reserve(par_noEA + 1);
+		out_a.reserve(par_noEA + 1);
+		out_mfe.reserve(par_noEA + 1);
 
 		//creating SAVE directory
 		command.clear();
@@ -537,6 +563,12 @@ namespace cadv {
 			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
 
 		*/
+		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
+/**/			std::cout << "examined cell" << std::endl;
+			if(!cell->vals->empty){ // if cell is not empty
+				//for(int ea = 0; ea < );
+			}
+		}
 	}
 
 }
