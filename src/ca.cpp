@@ -538,7 +538,7 @@ namespace cadv {
 		out_noA.reserve(par_noEA + 1);
 		out_R.reserve(par_noEA + 1);
 		out_length.reserve(par_noEA + 1);
-		out_a.reserve(par_noEA + 1);
+		out_a.reserve(par_noEA + 1); //parasites do not have activities, no need to calculate with 0th value!
 		out_mfe.reserve(par_noEA + 1);
 
 		//creating SAVE directory
@@ -558,26 +558,55 @@ namespace cadv {
 	}
 
 	void CellAut::do_output(){
+
 		std::cout << "output" << std::endl;
 		/* what i need:
 			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
 
 		*/
 		//clearing
-		out_no.assign(par_noEA + 1, 0);
+/*p*/		out_no.assign(par_noEA + 1, 0);
 		out_noA.assign(par_noEA + 1, 0);
-		out_R.assign(par_noEA + 1, 0);
-		out_length.assign(par_noEA + 1, 0);
-		out_a.assign(par_noEA + 1, 0);
-		out_mfe.assign(par_noEA + 1, 0);
+/*p*/		out_R.assign(par_noEA + 1, 0);
+/*p*/		out_length.assign(par_noEA + 1, 0);
+/*p*/		out_a.assign(par_noEA + 1, 0);
+/*p*/		out_mfe.assign(par_noEA + 1, 0);
 
 		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
 /**/			std::cout << "examined cell" << std::endl;
 			if(!cell->vals->empty){ // if cell is not empty
-				//for(int ea = 0; ea < );
-			}
-		}
+				//how much activities does it have?
+				int no_acts = cell->vals->get_no_sites;
+
+				out_noA[no_acts]++;
+
+				if(no_acts){ //it is not a parasite
+					for(int ea = 0; ea < par_noEA; ea++){
+						int activity = cell->vals->geta(ea);
+						if(activity) { //if it has activity ea
+							out_no[ea]++;
+							out_R[ea] += cell->vals->getR();
+							out_length[ea] += cell->vals->get_length();
+							out_mfe[ea] += cell->vals->get_mfe();
+							out_a[ea] += activity;
+						}
+					}
+				}
+				else { //it is a parasite
+					;
+				} 
+
+				//calculating means
+				for(int ea = 0; ea <= par_noEA; ea++){
+					out_R[ea] /= out_no[ea];
+					out_length[ea] /= out_no[ea];
+					out_a[ea] /= out_no[ea];
+					out_mfe[ea] /= out_no[ea];
+				}
+
+			} // cell not empty
+		} // tru cells in matrix
 	}
 
 }

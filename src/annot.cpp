@@ -187,7 +187,7 @@ namespace dv_annot{
 			}
 		}
 
-		return(sites);
+		return(sites); //currently it is number of activities!! It is used later too, mind if you change it!
 	}
 
 	void PatternPool::printRules(){

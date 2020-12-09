@@ -267,8 +267,12 @@ namespace cadv {
 			void do_output();
 
 		private:
-			std::vector<int> out_no, out_noA;
-			std::vector<double> out_R, out_length, out_a, out_mfe;
+			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
+			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities
+			std::vector<double> out_R; //mean R of replicators with no act, act0, act1, etc.
+			std::vector<double> out_length; //mean length of replicators with no act, act0, act1, etc.
+			std::vector<double> out_a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
+			std::vector<double> out_mfe; //mean mfe of replicators with no act, act0, act1, etc.
 	};
 	
 }

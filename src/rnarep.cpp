@@ -188,6 +188,15 @@ namespace rnarep {
 
 	}
 
+	int CellContent::get_no_sites(){
+		if (annot_level < 2){
+			if (annot_level) annotate2();
+			else return NULL;
+		}
+		
+		return no_sites;
+	}
+
 	int CellContent::get_type(){
 		if (annot_level < 2){
 			if (annot_level) annotate2();
@@ -198,5 +207,14 @@ namespace rnarep {
 
 	}
 
+	int CellContent::get_length(){
+		if (empty) return 0;
+		else return seq.length();
+	}
+
+	double CellContent::get_mfe(){
+		if(annot_level < 1) return NULL;
+		else return mfe;
+	}
 }
 

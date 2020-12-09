@@ -121,7 +121,13 @@ namespace rnarep {
 
 			double getR();
 
+			int get_no_sites();
+
 			int get_type();
+
+			int get_length();
+
+			double get_mfe();
 
 		private:
 			char *str;
