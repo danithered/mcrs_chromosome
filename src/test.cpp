@@ -9,6 +9,7 @@
 #include "annot.h"
 #include "dv_tools.h"
 #include "randomgen.h"
+#include "bitmuveletek.h"
 
 using namespace std;
 
@@ -240,7 +241,7 @@ int main(int argc, char *argv[]) {
 	std::cout << vec[4] << std::endl;
 	std::cout << vec.capacity() << std::endl;
 */
-	std::ifstream fi;
+/*	std::ifstream fi;
 	std::string line, word;
 
 	fi.open("bla.txt");
@@ -250,6 +251,28 @@ int main(int argc, char *argv[]) {
 		linestream >> word;
 		std::cout << word << std::endl;
 	}
+*/
+
+/*	std::vector<double> v;
+
+	v.reserve(4444);
+	v[3] = 5.7;
+	std::cout << v[3] << std::endl;
+*/
+
+	int type = 0, act ;
+
+	act = 0;
+	type += 1 << act;
+	act = 2;
+	type += 1 << act;
+	act = 3;
+	type += 1 << act;
+
+	//bit by bit
+	kiirbitP(&type, 5);
+
+	std::cout << type << std::endl;
 
     //close rng
     gsl_rng_free(r);

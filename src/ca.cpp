@@ -563,6 +563,15 @@ namespace cadv {
 			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
 
 		*/
+		//clearing
+		out_no.assign(par_noEA + 1, 0);
+		out_noA.assign(par_noEA + 1, 0);
+		out_R.assign(par_noEA + 1, 0);
+		out_length.assign(par_noEA + 1, 0);
+		out_a.assign(par_noEA + 1, 0);
+		out_mfe.assign(par_noEA + 1, 0);
+
+		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
 /**/			std::cout << "examined cell" << std::endl;
 			if(!cell->vals->empty){ // if cell is not empty

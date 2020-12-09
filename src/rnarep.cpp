@@ -60,6 +60,7 @@ namespace rnarep {
 	void CellContent::die(){
 		if (!empty) {
 			empty = true;
+			type = 0;
 			seq.clear();
 			Pdeg = 0;
 			//R = 0;
@@ -184,6 +185,16 @@ namespace rnarep {
 		}
 
 		return R;
+
+	}
+
+	int CellContent::get_type(){
+		if (annot_level < 2){
+			if (annot_level) annotate2();
+			else return NULL;
+		}
+		
+		return type;
 
 	}
 

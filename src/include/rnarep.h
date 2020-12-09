@@ -35,6 +35,7 @@ namespace rnarep {
 			double Pdeg; //degradation rate
 			bool empty; // is this cell empty or not
 
+
 			static int no_replicators; //number of replicators
 
 			static dvtools::quickPosVals length_dep;
@@ -120,6 +121,8 @@ namespace rnarep {
 
 			double getR();
 
+			int get_type();
+
 		private:
 			char *str;
 			float mfe;
@@ -128,6 +131,7 @@ namespace rnarep {
 			std::string seq; //sequence of replicator
 			double R; // replication rate
 			double *a; //enzymatic activities
+			unsigned int type; //an integer indicating the enzimatic activities that can be found in a replicator
 			//std::vector<int> ins;
 			//std::vector<int> subs;
 			//std::vector<int> dels;
@@ -135,7 +139,7 @@ namespace rnarep {
 			int annot_level;
 
 			//FUNCTIONS
-			void annotate() {
+			void annotate() { //getting mfe and Pdeg. Have to be called every time the sequence changes (and not for empty)
 				empty = false;
 				annot_level = 1;
 				
@@ -148,8 +152,10 @@ namespace rnarep {
 				no_replicators++;
 			} 
 
-			void annotate2() {
+			void annotate2() { //getting Pfold, activities and type
 				annot_level = 2;
+
+				type = 0;
 
 				//calculate Pfold
 				// exp(-cE) / (1 + exp(-ce)) = 1 - 1 / (1 + exp(-cE)) , E = MFE, c = parameter
@@ -160,12 +166,17 @@ namespace rnarep {
 
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
-					a[act] = Pfold * a[act] / m_sigma[no_sites]; 
+					if(a[act]){ //if there is such an ezymatic activity
+						a[act] = Pfold * a[act] / m_sigma[no_sites]; 
+						//adding to type
+						type += 1 << act;
+					}
+					else a[act] = 0.0; // if there is no such activity
 				}
 
 			}
 
-			void annotate3(){
+			void annotate3(){ //getting R
 				annot_level = 3;
 				//calculate R
 				//R = g / (b1 + b2*L) * (l + (1 - Pfold)) , where L and Pfold are variables
