@@ -24,10 +24,10 @@ OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$$(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
+$(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
 	$(C) -c -o $@ $< $(CFLAGS)
 
-(PROGNAME): $(OBJ)
+$(PROGNAME): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean

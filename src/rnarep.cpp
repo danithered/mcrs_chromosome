@@ -191,7 +191,7 @@ namespace rnarep {
 	int CellContent::get_no_sites(){
 		if (annot_level < 2){
 			if (annot_level) annotate2();
-			else return NULL;
+			else return -1;
 		}
 		
 		return no_sites;
@@ -200,7 +200,7 @@ namespace rnarep {
 	int CellContent::get_type(){
 		if (annot_level < 2){
 			if (annot_level) annotate2();
-			else return NULL;
+			else return -1;
 		}
 		
 		return type;
@@ -213,7 +213,7 @@ namespace rnarep {
 	}
 
 	double CellContent::get_mfe(){
-		if(annot_level < 1) return NULL;
+		if(annot_level < 1) return 0;
 		else return mfe;
 	}
 }

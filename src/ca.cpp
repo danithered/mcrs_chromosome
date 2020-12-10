@@ -579,7 +579,7 @@ namespace cadv {
 /**/			std::cout << "examined cell" << std::endl;
 			if(!cell->vals->empty){ // if cell is not empty
 				//how much activities does it have?
-				int no_acts = cell->vals->get_no_sites;
+				int no_acts = cell->vals->get_no_sites();
 
 				out_noA[no_acts]++;
 
@@ -596,10 +596,10 @@ namespace cadv {
 					}
 				}
 				else { //it is a parasite
-					*(out_no)++;
-					*(out_R) += cell->vals->getR();
-					*(out_length) += cell->vals->get_length();
-					*(out_mfe) += cell->vals->get_mfe();
+					out_no[0]++;
+					out_R[0] += cell->vals->getR();
+					out_length[0] += cell->vals->get_length();
+					out_mfe[0] += cell->vals->get_mfe();
 				} 
 
 				//calculating means
