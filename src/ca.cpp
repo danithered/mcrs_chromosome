@@ -523,12 +523,14 @@ namespace cadv {
 		output << "time;replicators;";
 		output << "no_par;mean_R_par;mean_length_par;mean_mfe_par;" ;
 		for(int e = 0; e < par_noEA; e++){
-			output << "no_enz" << e << ";mean_R_enz" << e << ";mean_length_enz" << e << ";mean_a_enz" << e << ";mean_mfe_enz" << e << ";" ;
+			output << "no_enz" << e << ";mean_R_enz" << e << ";mean_length_enz" << e << ";mean_mfe_enz" << e << ";mean_a_enz" << e << ";" ;
 		}
 
 		for(int a = 0; a <= par_noEA; a++) {
 			output << "no_A" << a << ";" ;
 		}
+
+		output << std::endl;
 
 		output.flush();
 
@@ -565,12 +567,12 @@ namespace cadv {
 
 		*/
 		//clearing
-/*p*/		out_no.assign(par_noEA + 1, 0);
+		out_no.assign(par_noEA + 1, 0);
 		out_noA.assign(par_noEA + 1, 0);
-/*p*/		out_R.assign(par_noEA + 1, 0);
-/*p*/		out_length.assign(par_noEA + 1, 0);
-/*p*/		out_a.assign(par_noEA + 1, 0);
-/*p*/		out_mfe.assign(par_noEA + 1, 0);
+		out_R.assign(par_noEA + 1, 0);
+		out_length.assign(par_noEA + 1, 0);
+		out_a.assign(par_noEA + 1, 0);
+		out_mfe.assign(par_noEA + 1, 0);
 
 		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
@@ -594,19 +596,40 @@ namespace cadv {
 					}
 				}
 				else { //it is a parasite
-					;
+					*(out_no)++;
+					*(out_R) += cell->vals->getR();
+					*(out_length) += cell->vals->get_length();
+					*(out_mfe) += cell->vals->get_mfe();
 				} 
 
 				//calculating means
-				for(int ea = 0; ea <= par_noEA; ea++){
+				/*for(int ea = 0; ea <= par_noEA; ea++){
 					out_R[ea] /= out_no[ea];
 					out_length[ea] /= out_no[ea];
 					out_a[ea] /= out_no[ea];
 					out_mfe[ea] /= out_no[ea];
-				}
+				}*/
 
 			} // cell not empty
 		} // tru cells in matrix
+
+		//outputting
+		output << time << ';' << rnarep::CellContent::no_replicators;
+		double no;
+		for(int ea = 0; ea <= par_noEA; ea++) {
+			no = (double) out_no[ea];
+			output << ';' << no << ';' << out_R[ea]/no << ';' << out_length[ea]/no << ';' << out_mfe[ea]/no;
+			if(ea) output << ';' << out_a[ea]/no;
+		}
+
+		for(int ea = 0; ea <= par_noEA; ea++) {
+			output << ';' << out_noA[ea] ;
+		}
+
+		output << std::endl;
+
+		output.flush();
+
 	}
 
 }
