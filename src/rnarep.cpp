@@ -216,5 +216,25 @@ namespace rnarep {
 		if(annot_level < 1) return 0;
 		else return mfe;
 	}
+
+	std::string * CellContent::get_seq(){
+		if(empty) return NULL;
+		else return &seq;
+	}
+
+	char * CellContent::get_str(){
+		if(empty) return NULL;
+		else return str;
+	}
+
+	double CellContent::getPfold(){
+		if (annot_level < 2){
+			if (annot_level) annotate2();
+			else return -1;
+		}
+		
+		return Pfold;
+
+	}
 }
 

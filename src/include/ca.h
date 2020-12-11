@@ -266,6 +266,9 @@ namespace cadv {
 
 			void do_output();
 
+			// return values: 0 (OK), 1 (no savedir specified), 2 (could not open file)
+			int save();
+
 		private:
 			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
 			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities

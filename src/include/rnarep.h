@@ -129,6 +129,12 @@ namespace rnarep {
 
 			double get_mfe();
 
+			std::string * get_seq();
+
+			char * get_str();
+
+			double getPfold();
+
 		private:
 			char *str;
 			float mfe;

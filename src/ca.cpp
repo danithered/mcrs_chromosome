@@ -632,5 +632,56 @@ namespace cadv {
 
 	}
 
+
+	int CellAut::save(){
+		std::string emptystring("N\tN\t0\t-1\t-1\t-1\t-1\t0");
+
+		//prepare string for empty cells
+		for(int ea = 0; ea < par_noEA; ea++) emptystring += "\t0";
+		emptystring += '\n';
+
+		//open outputs
+		if(!savedir.length()) {
+			std::cerr << "ERROR: No savedir inicialised! Please do run CellAut::openOutputs() before saving!" << std::endl;
+			return (1);
+		}
+		
+		std::ofstream out(savedir);
+		
+		if(!out.is_open()){
+			std::cerr << "ERROR: Could not open file for saving!" << std::endl;
+			return 2;
+		}
+
+		
+		//going throught grid
+		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
+			//output values:
+			// seq str mfe Pfold Pdeg no_sites R type [alphas]
+			if(cell->vals->empty) out << emptystring; 
+			else {
+				out << cell->vals->get_seq()
+					<< '\t' << cell->vals->get_str()
+					<< '\t' << cell->vals->get_mfe() 
+					<< '\t' << cell->vals->getPfold()
+					<< '\t' << cell->vals->Pdeg 
+					<< '\t' << cell->vals->get_no_sites()
+					<< '\t' << cell->vals->getR()
+					<< '\t' << cell->vals->get_type() ; 
+				for(double *a = cell->vals->geta(), *a_until = cell->vals->geta() + par_noEA; a != a_until; a++){
+					out << '\t' << *a;
+				}
+
+				out << '\n';
+			}
+
+			//out.flush();
+		}
+
+		out.close();
+
+		return 0;
+	}
+
 }
 
