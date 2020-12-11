@@ -635,6 +635,7 @@ namespace cadv {
 
 	int CellAut::save(){
 		std::string emptystring("N\tN\t0\t-1\t-1\t-1\t-1\t0");
+		std::string filename;
 
 		//prepare string for empty cells
 		for(int ea = 0; ea < par_noEA; ea++) emptystring += "\t0";
@@ -646,14 +647,17 @@ namespace cadv {
 			return (1);
 		}
 		
-		std::ofstream out(savedir);
+		filename = savedir; 
+		filename += '/'; 
+		filename += time;
+		filename += ".tsv";
+		std::ofstream out(filename);
 		
-		if(!out.is_open()){
-			std::cerr << "ERROR: Could not open file for saving!" << std::endl;
+		if(!out){
+			std::cerr << "ERROR: Could not open file for saving grid data!" << std::endl;
 			return 2;
 		}
 
-		
 		//going throught grid
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
 			//output values:
@@ -679,6 +683,19 @@ namespace cadv {
 		}
 
 		out.close();
+
+		//saving rng state
+		filename.clear();
+		filename = savedir;
+		filename += "/rngstate";
+		filename += time;
+		filename += ".bin";
+		//std::ofstream rngout(filename, std::ios::out | std::ios::binary);
+
+		if(randomszam_mentes(filename.c_str(), r)) {
+			std::cerr << "ERROR: Could not open file for saving random number generator state!" << std::endl;
+			return 3;
+		}
 
 		return 0;
 	}

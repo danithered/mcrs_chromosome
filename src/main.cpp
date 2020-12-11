@@ -6,7 +6,6 @@
 
 using namespace std;
 
-gsl_rng * r;
 
 /* return values:
  0: Ok
@@ -22,8 +21,7 @@ int main(int argc, char *argv[]) {
 
 	//initialise rng
 	time_t timer;
-	r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
-	gsl_rng_set(r, time(&timer));
+	randomszam_inic(time(&timer), r);
 
 	//start to do stuff
 	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata

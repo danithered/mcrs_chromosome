@@ -14,7 +14,7 @@ LIBS=-lm `pkg-config --libs gsl` `pkg-config --libs RNAlib2`
 _DEPS = ca.h randomgen.h dv_tools.h parameters.h rnarep.h annot.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = main.o ca.o dv_tools.o parameters.o rnarep.o annot.o
+_OBJ = main.o ca.o dv_tools.o parameters.o rnarep.o annot.o randomgen.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _OBJ_test = test.o annot.o parameters.o dv_tools.o bitmuveletek.o 
