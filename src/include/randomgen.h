@@ -1,9 +1,9 @@
 #ifndef _RANDOMSZAM_
 #define _RANDOMSZAM_
 
-extern "C" {
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
+extern "C" {
 #include <time.h>
 #include <stdio.h>
 }

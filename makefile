@@ -7,7 +7,7 @@ SRCDIR=./src
 CC=g++
 C=gcc
 
-CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb
+CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb -fexceptions
 
 LIBS=-lm `pkg-config --libs gsl` `pkg-config --libs RNAlib2`
 
