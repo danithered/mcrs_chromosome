@@ -11,6 +11,7 @@ int par_maxtime = 1;
 int par_ncol = 5;
 int par_nrow = 5;
 int par_output_interval = 0;
+int par_save_interval = 0;
 
 char par_ID[255] = "test\0";
 char par_str_pool[255] = "IN/mapping.txt";
@@ -44,12 +45,14 @@ int paramsToFile(char* filename){
 	
 //	std::cout << "Printing parameters to file: " << filename << std::endl;	
 	
+	paramfile << "RNAversion " << system("RNAfold -V") << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;
 	paramfile << "par_ncol " << par_ncol << std::endl;
 	paramfile << "par_nrow " << par_nrow << std::endl;
 	paramfile << "par_output_interval " << par_output_interval << std::endl;
+	paramfile << "par_save_interval " << par_save_interval << std::endl;
 	paramfile << "par_ID " << par_ID << std::endl;
 	paramfile << "par_str_pool " << par_ID << std::endl;
 	paramfile << "par_outdir " << par_outdir << std::endl;
@@ -95,6 +98,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_ncol")) option = 'C';
 			else if(!strcmp(argv[i], "--par_nrow")) option = 'R';
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
+			else if(!strcmp(argv[i], "--par_save_interval")) option = 'w';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
 			else if(!strcmp(argv[i], "--par_outdir")) option = 'O';
@@ -293,6 +297,16 @@ int Args(int argc, char **argv)
 					return(-1);
 				}
 				continue;
+
+			case 'w':
+				if (++i == argc) return 1;
+				par_save_interval = atoi(argv[i]);
+				if(par_save_interval < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": cant be negative!" << std::endl;
+					return(-1);
+				}
+				continue;
+
 
 			// char
 			case 'A':
