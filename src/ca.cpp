@@ -224,7 +224,23 @@ namespace cadv {
 	int CellAut::rUpdate(int gens){
 		int iter=0, diff_until = dvtools::fracpart(diff * size * time);
 
+		//check if output is open
+		if(par_output_interval && !output) {
+			std::cerr << "ERROR: output not open" << std::endl;
+			return(-1);
+		}
+
+		//output/save in case of not init from start
+		if(time){
+			if(par_output_interval && (time % par_output_interval)) do_output();
+			if(par_save_interval && (time % par_save_interval)) save();
+		}
+
 		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+			//outputs
+			if (par_output_interval && !(time % par_output_interval)) do_output();
+			if (par_save_interval && !(time % par_save_interval)) save();
+
 			for(iter = 0; iter < size; iter++){
 				//UPDATING
 				matrix[ gsl_rng_uniform_int(r, size) ].update();
@@ -234,6 +250,12 @@ namespace cadv {
 				}
 			}
 		}
+		
+		//saving/outputting
+		if(par_output_interval) do_output();
+		if(par_save_interval) save();
+
+
 		return(0);
 	}
 
@@ -242,12 +264,23 @@ namespace cadv {
 		int *order;
 		int iter=0, temp = 0, target = 0, diff_until = dvtools::fracpart(diff * time);
 
+		//check if output is open
+		if(par_output_interval && !output) {
+			std::cerr << "ERROR: output not open" << std::endl;
+			return(-1);
+		}
+
+		//init order
 		order = new int[size];
 		for(iter = 0; iter < size; iter++){
 			order[iter] = iter;
 		}
 
-		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+		for(int mtime = time + gens ; rnarep::CellContent::no_replicators && time < mtime ; time++){ //updating generations
+			//outputs
+			if (par_output_interval && !(time % par_output_interval)) do_output();
+			if (par_save_interval && !(time % par_save_interval)) save();
+
 			//UPDATING
 			for(iter = 0; iter < size; iter++){
 				target = gsl_rng_uniform_int(r, size - iter);
@@ -281,6 +314,9 @@ namespace cadv {
 				}
 			}
 		}
+
+		if(par_save_interval) save();
+		if(par_output_filename) do_output();
 
 		delete [] (order);
 

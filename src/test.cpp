@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
 	v[3] = 5.7;
 	std::cout << v[3] << std::endl;
 */
-
+/*
 	int type = 0, act ;
 
 	act = 0;
@@ -273,6 +273,27 @@ int main(int argc, char *argv[]) {
 	kiirbitP(&type, 5);
 
 	std::cout << type << std::endl;
+*/
+
+	for(int t =0 ; t <10; t++) std::cout << "t=" << t << "\t" << (t % 5) << std::endl; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //close rng
     gsl_rng_free(r);
