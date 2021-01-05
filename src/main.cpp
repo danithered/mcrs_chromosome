@@ -38,11 +38,17 @@ int main(int argc, char *argv[]) {
 	}
 
 	//Running simulation
-	automata.rUpdate(par_maxtime);
+	if (automata.rUpdate(par_maxtime)){
+		//close rng
+		gsl_rng_free(r);
 
-	//close rng
-	gsl_rng_free(r);
+		return 1; // it has died out
+	}
+	else{	// survived
+		//close rng
+		gsl_rng_free(r);
 
+		return 0;
+	}
 
-	return 0;
 } 

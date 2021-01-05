@@ -256,7 +256,7 @@ namespace cadv {
 		if(par_save_interval) save();
 
 
-		return(0);
+		return rnarep::CellContent::no_replicators;
 	}
 
 	//Update according to a random order (in every generation all cells will be updated)
