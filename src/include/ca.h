@@ -71,20 +71,20 @@ namespace cadv {
 			class CellAut *parent;
 
 			//Functions
-			int who(Cell * ref){
-				return( int (this - ref) );
-			}
+			//int who(Cell * ref){
+			//	return( int (this - ref) );
+			//}
 
-			void printN(Cell * ref){
-				/*for(int p = 0; p < no_neigh; p++){
-				    std::cout << "\t" << neigh[p];
-				}
-				std::cout << std::endl;*/
+			//void printN(Cell * ref){
+			//	/*for(int p = 0; p < no_neigh; p++){
+			//	    std::cout << "\t" << neigh[p];
+			//	}
+			//	std::cout << std::endl;*/
 
-				std::cout << "I am number " << who(ref) << " and my 1st neighbour is number " << met_neigh[1]->who(ref) << std::endl;
+			//	std::cout << "I am number " << who(ref) << " and my 1st neighbour is number " << met_neigh[1]->who(ref) << std::endl;
 
-				return;
-			}
+			//	return;
+			//}
 
 
 			//Cell base functions
@@ -95,7 +95,7 @@ namespace cadv {
 
 				claims = NULL;
 
-				vals->value1 = 1; //TEMPORARY!!
+				//vals->value1 = 1; //TEMPORARY!!
 			}
 
 			~Cell(){

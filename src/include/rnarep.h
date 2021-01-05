@@ -30,7 +30,7 @@ namespace rnarep {
 	//classes
 	class CellContent{
 		public:
-			double value1; //temporary, just for testing
+			//double value1; //temporary, just for testing
 
 			double Pdeg; //degradation rate
 			bool empty; // is this cell empty or not
@@ -107,8 +107,13 @@ namespace rnarep {
 
 			void operator =( std::string& templ){
 				if(! empty) die();
-				seq = templ;
-				if(seq.length()) annotate();
+
+				//check if new seq is ok
+				if(templ.length() && (templ != "N") && (templ != "0") ){ //length is not zero AND seq is not "N" or "0"
+					seq = templ;
+					//if(seq.length()) 
+					annotate();
+				}
 			}
 
 			void die();
@@ -159,7 +164,7 @@ namespace rnarep {
 				mfe = vrna_fold(seq.c_str(), str);
 					  
 				//calculate Pdeg
-				Pdeg = 0.9 - 0.8 * mfe / par_Emin ;
+				Pdeg = 0.9 - 0.8 * (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
 				
 				no_replicators++;
 			} 

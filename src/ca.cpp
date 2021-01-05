@@ -236,7 +236,7 @@ namespace cadv {
 			if(par_save_interval && (time % par_save_interval)) save();
 		}
 
-		for(int mtime = time + gens ; time < mtime ; time++){ //updating generations
+		for(int mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators; time++){ //updating generations
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();

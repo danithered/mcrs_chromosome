@@ -275,9 +275,11 @@ int main(int argc, char *argv[]) {
 	std::cout << type << std::endl;
 */
 
-	for(int t =0 ; t <10; t++) std::cout << "t=" << t << "\t" << (t % 5) << std::endl; 
+	//for(int t =0 ; t <10; t++) std::cout << "t=" << t << "\t" << (t % 5) << std::endl; 
 
+	std::string b("N");
 
+	if(b != "K") std::cout << "Ja\n";
 
 
 
