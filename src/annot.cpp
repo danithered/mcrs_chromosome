@@ -167,7 +167,7 @@ namespace dv_annot{
 
 //							std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 					if (pos == pos_max){ //subrule applies
-						//sites++;
+						sites++;
 						for(int act = 0; act < par_noEA; act++){
 //									std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
 							acts[act] += rules[search].subrules[sr].value[act];
@@ -179,15 +179,15 @@ namespace dv_annot{
 			} // pattern search in sequence
 		} // search in rules
 
-		//calculating average activity values and number of activities
+		/*//calculating average activity values and number of activities
 		for(int act = 0; act < par_noEA; act++){
 			if(no_sites[act]){
 				sites++;
 				acts[act] = acts[act] / no_sites[act]; // average of all the same activities (DV strongly disagrees with this)
 			}
-		}
+		}*/
 
-		return(sites); //currently it is number of activities!! It is used later too, mind if you change it!
+		return(sites); //currently it is number of motifs in the structure!! It is used later too, mind if you change it!
 	}
 
 	void PatternPool::printRules(){

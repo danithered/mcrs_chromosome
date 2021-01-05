@@ -184,7 +184,7 @@ namespace rnarep {
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
 					if(a[act]){ //if there is such an ezymatic activity
-						a[act] = Pfold * a[act] / m_sigma[no_sites]; 
+						a[act] = Pfold * a[act] * m_sigma[no_sites]; //mind that m_sigma in now reciproc of prev function! 
 						//adding to type
 						type += 1 << act;
 					}

@@ -45,11 +45,11 @@ namespace rnarep {
 	}
 
 	double m_sigmaCalc(int m){
-		return std::pow( (double) m, par_sigma);
+		return 1/(std::pow( (double) m, par_sigma));
 	}
 
 	dvtools::quickPosVals CellContent::length_dep(100, &length_depCalc);
-	dvtools::quickPosVals CellContent::m_sigma(par_noEA, &m_sigmaCalc);
+	dvtools::quickPosVals CellContent::m_sigma(par_noEA*3, &m_sigmaCalc);
 
 	int CellContent::no_replicators;
 
