@@ -4,38 +4,75 @@ using namespace std;
 
 
 //parameters harder to change
-int par_noEA=3;
+				int par_noEA=3;
 
 //parameters to change with Args()
-int par_maxtime = 1;
-int par_ncol = 5;
-int par_nrow = 5;
-int par_output_interval = 0;
-int par_save_interval = 0;
+//ca params
+				int par_maxtime = 2000000; //
+				int par_ncol = 300; //
+				int par_nrow = 300; //
 
-char par_ID[255] = "test\0";
-char par_str_pool[255] = "IN/mapping.txt";
-char par_outdir[255] = "OUT";
-char par_output_filename[255] = "output.csv";
-char par_savedir[255] = "SAVE";
-char par_load[255] = "\0";
+				double par_init_grid = 0.0; //
 
-double par_init_grid = 0.5;
-double par_death = 0.5;
-double par_diffusion_rate = 0;
-double par_ll = 1.1; // l + 1 in equation Rs
-double par_sigma = 1.1;
-double par_claimEmpty = 1.1;
-double par_substitution = 0.1;
-double par_insertion = 0.05;
-double par_deletion = 0.05;
-double par_g = 0.05;
-double par_b1 = 0.05;
-double par_b2 = 0.05;
-double par_c = -0.3; //minus c!!!
-double par_Emin = -25.0; 
-double par_Nmet = 3; // 3 -> vonNeumann 
-double par_Nrep = 3; 
+//outputting
+				int par_output_interval = 1000; //
+				int par_save_interval = 1000000; //
+
+				char par_ID[255] = "test\0"; //
+				char par_str_pool[255] = "IN/mapping.txt"; //
+				char par_outdir[255] = "OUT"; //
+				char par_output_filename[255] = "output.csv"; //
+				char par_savedir[255] = "SAVE"; //
+				char par_load[255] = "IN/1_InputMatrix.dat"; //"\0"; // 
+
+//rates
+				double par_diffusion_rate = 4; //
+				double par_claimEmpty = 0.1; //
+
+//neighbourhoods
+				double par_Nmet = 4; // 3 -> vonNeumann, 4 -> Moore 
+				double par_Nrep = 3; //
+
+//mutation rates
+				double par_substitution = 0.005; //
+				double par_insertion = 0.0005; //
+				double par_deletion = 0.0005; //
+
+//equations
+/*
+Pfold = exp(-cE) / (1 + exp(-cE))
+e is mfe of replicator
+*/
+				double par_c = -0.3; //minus c!!!
+
+/*
+a = Pfold * alpha / m^sigma
+alpha is activity of a motif
+m is number of motifs in a replicator
+*/
+				double par_sigma = 1.1; //
+
+/*
+R_s = g * (l * 1 - P_{fold}) / (b1 + b2 * length)
+length is length of the sequence
+P_fold is calculated (see above)
+*/
+				double par_g = 10; //
+				double par_b1 = 0.75; //
+				double par_b2 = 0.005; //
+				double par_ll = 2; // l + 1 in equation Rs 
+
+/*
+Pdeg = 0.9 - 0.8 * e / Emin
+e is mfe of replicator
+*/
+				double par_Emin = -25.0; //
+
+
+
+
+
+
 
 //output parameters to file
 int paramsToFile(char* filename){
@@ -60,7 +97,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_output_filename " << par_output_filename << std::endl;
 	paramfile << "par_savedir " << par_savedir << std::endl;
 	paramfile << "par_load " << par_load << std::endl;
-	paramfile << "par_death " << par_death << std::endl;
+	//paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
 	paramfile << "par_ll " << par_ll << std::endl;
@@ -94,8 +131,8 @@ int Args(int argc, char **argv)
 	if(argv[i][0] == '-'){
 		option = argv[i][1];
 		if( option == '-'){ //long expression
-			if(!strcmp(argv[i], "--par_death")) option = 'k';
-			else if(!strcmp(argv[i], "--par_diffusion_rate")) option = 'D';
+			//if(!strcmp(argv[i], "--par_death")) option = 'k';
+			if(!strcmp(argv[i], "--par_diffusion_rate")) option = 'D';
 			else if(!strcmp(argv[i], "--par_maxtime")) option = 'T';
 			else if(!strcmp(argv[i], "--par_ncol")) option = 'C';
 			else if(!strcmp(argv[i], "--par_nrow")) option = 'R';
@@ -223,14 +260,14 @@ int Args(int argc, char **argv)
 				}
 				continue;
 
-			case 'k':
+			/*case 'k':
 				if (++i == argc) return 1;
 				par_death = atof(argv[i]);
 				if(par_death < 0) {
 					std::cerr << "ERROR at reading argoments: option " << option << ": par_death cant be negative!" << std::endl;
 					return(-1);
 				}
-				continue;
+				continue;*/
 
 			case 'l':
 				if (++i == argc) return 1;

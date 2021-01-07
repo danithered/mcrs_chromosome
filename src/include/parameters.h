@@ -24,7 +24,7 @@ extern char par_savedir[255];
 extern char par_load[255];
 
 extern double par_init_grid;
-extern double par_death;
+//extern double par_death;
 extern double par_diffusion_rate;
 extern double par_ll;
 extern double par_sigma;
