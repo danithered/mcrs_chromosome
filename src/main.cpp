@@ -32,7 +32,11 @@ int main(int argc, char *argv[]) {
 	automata.neighInic(par_Nmet, cadv::torus, 1); //init metabolic neighbourhood 
 	automata.neighInic(par_Nrep, cadv::torus, 2); //init replication neighbourhood
 
-	if(automata.openOutputs()) { //open output
+	//load if needed
+	if(std::strlen(par_load) > 0) automata.init_fromfile(par_load);
+
+	//open output
+	if(automata.openOutputs()) { //returns not 0 if fails
 		gsl_rng_free(r);
 		return -2;
 	}

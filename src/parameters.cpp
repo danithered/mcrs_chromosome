@@ -18,6 +18,7 @@ char par_str_pool[255] = "IN/mapping.txt";
 char par_outdir[255] = "OUT";
 char par_output_filename[255] = "output.csv";
 char par_savedir[255] = "SAVE";
+char par_load[255] = "\0";
 
 double par_init_grid = 0.5;
 double par_death = 0.5;
@@ -58,6 +59,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_outdir " << par_outdir << std::endl;
 	paramfile << "par_output_filename " << par_output_filename << std::endl;
 	paramfile << "par_savedir " << par_savedir << std::endl;
+	paramfile << "par_load " << par_load << std::endl;
 	paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
@@ -104,6 +106,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_outdir")) option = 'O';
 			else if(!strcmp(argv[i], "--par_output_filename")) option = 'F';
 			else if(!strcmp(argv[i], "--par_savedir")) option = 'A';
+			else if(!strcmp(argv[i], "--par_load")) option = 'L';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 'S';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
 			else if(!strcmp(argv[i], "--par_sigma")) option = 'G';
@@ -309,6 +312,16 @@ int Args(int argc, char **argv)
 
 
 			// char
+			case 'L':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 0 ) 
+					strcpy(par_load, argv[i]);
+				else {
+					std::cerr << "ERROR at reading argoments: option " << option << ": should be more than 0 char long!" << std::endl;
+					return -1;
+				}
+				continue;
+				
 			case 'A':
 				if (++i == argc) return 1;
 				if ( strlen(argv[i]) > 0 ) 

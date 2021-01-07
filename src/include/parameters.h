@@ -21,6 +21,7 @@ extern char par_str_pool[255];
 extern char par_outdir[255];
 extern char par_output_filename[255];
 extern char par_savedir[255];
+extern char par_load[255];
 
 extern double par_init_grid;
 extern double par_death;
