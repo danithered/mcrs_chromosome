@@ -81,9 +81,11 @@ namespace cadv {
 				else claims[rep] = 0.0;
 			}
 			//decision
-			decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
-			if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)!
-				vals->replicate( *(repl_neigh[decision]->vals) );
+			if(sum){
+				decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
+				if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)! In case decision is negative see: brokenStickVals
+						vals->replicate( *(repl_neigh[decision]->vals) );
+				}
 			}
 		}
 		else { //if focal cell is occupied (it can die)
@@ -182,14 +184,19 @@ namespace cadv {
 
 		if(!file.is_open()) std::cerr << "ERROR: init_fromfile: file can not be opened!" << std::endl;
 
-		while (std::getline(file, line) ){
+		rnarep::CellContent::no_replicators = 0; //clearing number of replicators 
+
+		for (int cellnum = 0; cellnum < size && std::getline(file, line); cellnum++){
+		//while (std::getline(file, line) ){
 			std::istringstream linestream(line);
 			linestream >> word;
+//			std::cout << "init_fromfile assigning " << word << std::endl;			
 			*(cell->vals) = word;
 			cell++;
 		}
 
 		if(cell != (Cell *) matrix + size) std::cerr << "WARNING: file length is not equal to gridsize!" << std::endl;
+//		std::cout << "Grid initialised with " << rnarep::CellContent::no_replicators << " replicators on a grid of " << size << " cells." << std::endl;
 	}
 
 	inline Cell* CellAut::get(int x, int y) {
@@ -253,7 +260,7 @@ namespace cadv {
 		
 		//saving/outputting
 		if(par_output_interval) do_output();
-		if(par_save_interval) save();
+		if(par_save_interval) if(save()) return -2;
 
 
 		return rnarep::CellContent::no_replicators;
@@ -597,7 +604,7 @@ namespace cadv {
 
 	void CellAut::do_output(){
 
-		std::cout << "output" << std::endl;
+//		std::cout << "output" << std::endl;
 		/* what i need:
 			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
 
@@ -612,16 +619,17 @@ namespace cadv {
 
 		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
-/**/			std::cout << "examined cell" << std::endl;
+//			std::cout << "examined cell" << std::endl;
 			if(!cell->vals->empty){ // if cell is not empty
 				//how much activities does it have?
-				int no_acts = cell->vals->get_no_sites();
+				int no_acts = cell->vals->get_no_acts();
 
 				out_noA[no_acts]++;
 
 				if(no_acts){ //it is not a parasite
-					for(int ea = 0; ea < par_noEA; ea++){
-						int activity = cell->vals->geta(ea);
+					for(int ea = 1; ea <= par_noEA; ea++){
+						double activity = cell->vals->geta(ea - 1); //indexing of "out_" arrays starts at parazite, "a" starts with activity 0
+//						std::cout << "in rep (" << cell->vals->get_type() <<  ")  having " << no_acts << " activities " << ea << "th activity is " << activity << std::endl;
 						if(activity) { //if it has activity ea
 							out_no[ea]++;
 							out_R[ea] += cell->vals->getR();
@@ -653,9 +661,17 @@ namespace cadv {
 		output << time << ';' << rnarep::CellContent::no_replicators;
 		double no;
 		for(int ea = 0; ea <= par_noEA; ea++) {
-			no = (double) out_no[ea];
-			output << ';' << no << ';' << out_R[ea]/no << ';' << out_length[ea]/no << ';' << out_mfe[ea]/no;
-			if(ea) output << ';' << out_a[ea]/no;
+			if(no = (double) out_no[ea]){
+//				std::cout << "outputting: no= " << no << std::endl;
+				output << ';' << no << ';' << out_R[ea]/no << ';' << out_length[ea]/no << ';' << out_mfe[ea]/no;
+				if(ea) output << ';' << out_a[ea]/no;
+			}
+			else {
+//				std::cout << "outputting: no= " << no << " (supposedly 0)" << std::endl;
+				output << ";0;0;0;0";
+				if(ea) output << ";0";
+			}
+
 		}
 
 		for(int ea = 0; ea <= par_noEA; ea++) {
@@ -685,7 +701,7 @@ namespace cadv {
 		
 		filename = savedir; 
 		filename += '/'; 
-		filename += time;
+		filename += std::to_string(time);
 		filename += ".tsv";
 		std::ofstream out(filename);
 		
@@ -700,7 +716,7 @@ namespace cadv {
 			// seq str mfe Pfold Pdeg no_sites R type [alphas]
 			if(cell->vals->empty) out << emptystring; 
 			else {
-				out << cell->vals->get_seq()
+				out << *(cell->vals->get_seq())
 					<< '\t' << cell->vals->get_str()
 					<< '\t' << cell->vals->get_mfe() 
 					<< '\t' << cell->vals->getPfold()
@@ -724,7 +740,7 @@ namespace cadv {
 		filename.clear();
 		filename = savedir;
 		filename += "/rngstate";
-		filename += time;
+		filename += std::to_string(time);
 		filename += ".bin";
 		//std::ofstream rngout(filename, std::ios::out | std::ios::binary);
 

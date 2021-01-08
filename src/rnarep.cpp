@@ -197,6 +197,15 @@ namespace rnarep {
 		return no_sites;
 	}
 
+	int CellContent::get_no_acts(){
+		if (annot_level < 2){
+			if (annot_level) annotate2();
+			else return -1;
+		}
+		
+		return no_acts;
+	}
+
 	int CellContent::get_type(){
 		if (annot_level < 2){
 			if (annot_level) annotate2();

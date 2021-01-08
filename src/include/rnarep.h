@@ -106,6 +106,7 @@ namespace rnarep {
 			}
 
 			void operator =( std::string& templ){
+//				std::cout << "CellContent assignment from templ " << templ << " on empty (" << empty << ") cell.\n";				
 				if(! empty) die();
 
 				//check if new seq is ok
@@ -113,7 +114,9 @@ namespace rnarep {
 					seq = templ;
 					//if(seq.length()) 
 					annotate();
+//					std::cout << "added new replicator" << std::endl;
 				}
+//				else std::cout << "cell stayed empty" << std::endl;
 			}
 
 			void die();
@@ -127,6 +130,8 @@ namespace rnarep {
 			double getR();
 
 			int get_no_sites();
+
+			int get_no_acts();
 
 			int get_type();
 
@@ -145,6 +150,7 @@ namespace rnarep {
 			float mfe;
 			double Pfold;
 			int no_sites;
+			int no_acts;
 			std::string seq; //sequence of replicator
 			double R; // replication rate
 			double *a; //enzymatic activities
@@ -173,6 +179,7 @@ namespace rnarep {
 				annot_level = 2;
 
 				type = 0;
+				no_acts= 0;
 
 				//calculate Pfold
 				// exp(-cE) / (1 + exp(-ce)) = 1 - 1 / (1 + exp(-cE)) , E = MFE, c = parameter
@@ -181,12 +188,15 @@ namespace rnarep {
 				//annotata
 			 	no_sites = patterns.search((char*) seq.c_str(), str, a);
 
+//				if(no_sites) std::cout << "pattern.search has found an enzyme" << std::endl; else std::cout << "pattern.search has found a parazyte" << std::endl;
+
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
 					if(a[act]){ //if there is such an ezymatic activity
 						a[act] = Pfold * a[act] * m_sigma[no_sites]; //mind that m_sigma in now reciproc of prev function! 
 						//adding to type
 						type += 1 << act;
+						no_acts++; //note, that in this version return value of search is number of motifs, not number of activities!!
 					}
 					else a[act] = 0.0; // if there is no such activity
 				}

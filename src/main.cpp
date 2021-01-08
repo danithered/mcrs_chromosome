@@ -54,13 +54,14 @@ int main(int argc, char *argv[]) {
 		//close rng
 		gsl_rng_free(r);
 
-		return 1; // it has died out
+		return 0; // it has survived
 	}
-	else{	// survived
+	else{	
+		// died out
 		//close rng
 		gsl_rng_free(r);
 
-		return 0;
+		return 1;
 	}
 
 } 

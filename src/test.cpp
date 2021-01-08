@@ -277,10 +277,15 @@ int main(int argc, char *argv[]) {
 
 	//for(int t =0 ; t <10; t++) std::cout << "t=" << t << "\t" << (t % 5) << std::endl; 
 
-	std::string b("N");
+/*	std::string b("N");
 
 	if(b != "K") std::cout << "Ja\n";
+*/
 
+
+	double z;
+	if( z=1) std::cout << z << std::endl;
+	if( z=0) std::cout << z << std::endl;
 
 
 
