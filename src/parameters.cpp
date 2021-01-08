@@ -14,6 +14,10 @@ using namespace std;
 
 				double par_init_grid = 0.0; //
 
+//seed
+				int par_seed = -1;
+				int par_seed_plus = 0;
+				char par_seed_file[255] = "\0";
 //outputting
 				int par_output_interval = 1000; //
 				int par_save_interval = 1000000; //
@@ -91,12 +95,15 @@ int paramsToFile(char* filename){
 	paramfile << "par_nrow " << par_nrow << std::endl;
 	paramfile << "par_output_interval " << par_output_interval << std::endl;
 	paramfile << "par_save_interval " << par_save_interval << std::endl;
+	paramfile << "par_seed " << par_seed << std::endl;
+	paramfile << "par_seed_plus " << par_seed_plus << std::endl;
 	paramfile << "par_ID " << par_ID << std::endl;
 	paramfile << "par_str_pool " << par_ID << std::endl;
 	paramfile << "par_outdir " << par_outdir << std::endl;
 	paramfile << "par_output_filename " << par_output_filename << std::endl;
 	paramfile << "par_savedir " << par_savedir << std::endl;
 	paramfile << "par_load " << par_load << std::endl;
+	paramfile << "par_seed_file " << par_seed_file << std::endl;
 	//paramfile << "par_death " << par_death << std::endl;
 	paramfile << "par_diffusion_rate " << par_diffusion_rate << std::endl;
 	paramfile << "par_init_grid " << par_init_grid << std::endl;
@@ -138,12 +145,15 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_nrow")) option = 'R';
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_save_interval")) option = 'w';
+			else if(!strcmp(argv[i], "--par_seed")) option = 'y';
+			else if(!strcmp(argv[i], "--par_seed_plus")) option = 'x';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
 			else if(!strcmp(argv[i], "--par_outdir")) option = 'O';
 			else if(!strcmp(argv[i], "--par_output_filename")) option = 'F';
 			else if(!strcmp(argv[i], "--par_savedir")) option = 'A';
 			else if(!strcmp(argv[i], "--par_load")) option = 'L';
+			else if(!strcmp(argv[i], "--par_seed_file")) option = 'f';
 			else if(!strcmp(argv[i], "--par_init_grid")) option = 'S';
 			else if(!strcmp(argv[i], "--par_ll")) option = 'l';
 			else if(!strcmp(argv[i], "--par_sigma")) option = 'G';
@@ -306,6 +316,18 @@ int Args(int argc, char **argv)
 				continue;
 			
 			// int
+			case 'x':
+				if (++i == argc) return 1;
+				par_seed_plus = atoi(argv[i]);
+				continue;
+			case 'y':
+				if (++i == argc) return 1;
+				par_seed = atoi(argv[i]);
+				if(par_seed < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": cant be negative!" << std::endl;
+					return(-1);
+				}
+				continue;
 			case 'T':
 				if (++i == argc) return 1;
 				par_maxtime = atoi(argv[i]);
@@ -349,6 +371,11 @@ int Args(int argc, char **argv)
 
 
 			// char
+			case 'f':
+				if (++i == argc) return 1;
+				if ( strlen(argv[i]) > 0 ) strcpy(par_seed_file, argv[i]);
+				continue;
+				
 			case 'L':
 				if (++i == argc) return 1;
 				if ( strlen(argv[i]) > 0 ) 

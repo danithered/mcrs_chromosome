@@ -21,7 +21,15 @@ int main(int argc, char *argv[]) {
 
 	//initialise rng
 	time_t timer;
-	randomszam_inic(time(&timer), r);
+	if(std::strlen(par_seed_file)){
+		std::cerr << "ERROR: this part of program is not functiioning right now, cant init rng" << std::endl;
+	}
+	else { // no seed file specified
+		if(par_seed < 0){ // init with time
+			randomszam_inic(time(&timer) + par_seed_plus, r);
+		}
+		else randomszam_inic(par_seed, r); // init with exact seed
+	}
 
 	//start to do stuff
 	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata

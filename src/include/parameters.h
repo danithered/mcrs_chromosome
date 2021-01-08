@@ -14,6 +14,8 @@ extern int par_ncol;
 extern int par_nrow;
 extern int par_output_interval;
 extern int par_save_interval;
+extern int par_seed;
+extern int par_seed_plus;
 
 extern char par_ID[255];
 extern char par_str_pool[255];
@@ -22,6 +24,7 @@ extern char par_outdir[255];
 extern char par_output_filename[255];
 extern char par_savedir[255];
 extern char par_load[255];
+extern char par_seed_file[255];
 
 extern double par_init_grid;
 //extern double par_death;
