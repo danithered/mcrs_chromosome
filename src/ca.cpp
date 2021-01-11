@@ -69,7 +69,7 @@ namespace cadv {
 	}
 
 	void Cell::update(){
-		double sum = 0.0;
+		double sum = par_claimEmpty;
 		int decision = 0;
 
 		if (vals->empty) { // if focal cell is empty (it can be filled with a copy)
@@ -83,6 +83,9 @@ namespace cadv {
 			//decision
 			if(sum){
 				decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
+/**/				if(decision || (sum!=par_claimEmpty) ) {std::cout << "Replication: decision is: " << decision << " from claims:" << std::endl;
+/**/									for(int op = 0; op < no_repl_neigh+1;op++ ) std::cout << claims[op]/sum << "\t";
+/**/									std::cout << std::endl;}
 				if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)! In case decision is negative see: brokenStickVals
 						vals->replicate( *(repl_neigh[decision]->vals) );
 				}
@@ -91,6 +94,7 @@ namespace cadv {
 		else { //if focal cell is occupied (it can die)
 			//DEGRADATION
 			if(vals->Pdeg < gsl_rng_uniform(r) ) vals->die();
+//			std::cout << "Degradation" << std::endl;
 		}
 	}
 
@@ -689,7 +693,13 @@ namespace cadv {
 
 
 	int CellAut::save(){
-		std::string emptystring("N\tN\t0\t-1\t-1\t-1\t-1\t0");
+		/* Outputs:
+		- text file, tab separated, each line represents a grid point from 0th to last
+			values:
+			seq str mfe Pfold Pdeg no_sites R M type [activities]
+		- rng binary state file
+		*/
+		std::string emptystring("N\tN\t0\t-1\t-1\t-1\t-1\t-1\t0");
 		std::string filename;
 
 		//prepare string for empty cells
@@ -726,6 +736,7 @@ namespace cadv {
 					<< '\t' << cell->vals->Pdeg 
 					<< '\t' << cell->vals->get_no_sites()
 					<< '\t' << cell->vals->getR()
+					<< '\t' << cell->M()
 					<< '\t' << cell->vals->get_type() ; 
 				for(double *a = cell->vals->geta(), *a_until = cell->vals->geta() + par_noEA; a != a_until; a++){
 					out << '\t' << *a;

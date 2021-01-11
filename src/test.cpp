@@ -282,16 +282,31 @@ int main(int argc, char *argv[]) {
 	if(b != "K") std::cout << "Ja\n";
 */
 
-
+/*
 	double z;
 	if( z=1) std::cout << z << std::endl;
 	if( z=0) std::cout << z << std::endl;
+*/
 
+/*	time_t t;
+	time(&t);
+	std::cout << "Time is " << ctime(&t); 
+	sleep(2);
+	t = time(0);
+	std::cout << "Time is " << ctime(&t) ;
+*/
+//	for (int i=5; i--; ) std::cout << "line" << i << std::endl ;
 
+	char seq[]="CGCGUCGUUACAGGUCAUCUAUGGAUCACCACACUCCACGCUAUAUUCCGGCUCGAU";
+	char str[]=".((((.(.....(((.(((....))).))).....).))))................";
 
+	dv_annot::PatternPool pool;	
 
+	pool.readFile(par_str_pool);
 
-
+	double a[] = {0,0,0};
+	pool.search(seq, str, a);
+	std::cout << a << "db " << a[0] << " " << a[1] << " " << a[2] << std::endl;
 
 
 

@@ -1,4 +1,5 @@
 #include <iostream>
+//#include <ctime>
 #include "randomgen.h"
 #include "ca.h"
 #include "parameters.h"
@@ -31,6 +32,9 @@ int main(int argc, char *argv[]) {
 		else randomszam_inic(par_seed, r); // init with exact seed
 	}
 
+	//report init
+	cout << "Starting to init simulation " << par_ID << " at " << ctime(&timer); 
+
 	//start to do stuff
 	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata
 
@@ -46,6 +50,11 @@ int main(int argc, char *argv[]) {
 	//open output
 	if(automata.openOutputs()) { //returns not 0 if fails
 		gsl_rng_free(r);
+
+		//report closing
+		timer = time(0);
+		std::cout << "Simulation " << par_ID << " ending at: " << ctime(&timer) << std::endl << "It had init problems." << std::endl;
+
 		return -2;
 	}
 
@@ -54,12 +63,20 @@ int main(int argc, char *argv[]) {
 		//close rng
 		gsl_rng_free(r);
 
+		//report closing
+		timer = time(0);
+		std::cout << "Simulation " << par_ID << " ending at: " << ctime(&timer) << std::endl << "It has survived." << std::endl;
+
 		return 0; // it has survived
 	}
 	else{	
 		// died out
 		//close rng
 		gsl_rng_free(r);
+
+		//report closing
+		timer = time(0);
+		std::cout << "Simulation " << par_ID << " ending at: " << ctime(&timer) << std::endl << "It has died out." << std::endl;
 
 		return 1;
 	}
