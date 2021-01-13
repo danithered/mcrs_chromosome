@@ -31,12 +31,82 @@ double vmi(int y){
 
 gsl_rng * r;
 
+class Testit{
+	public: 
+		int value;
+		class Testthem *parent;
+		/*void switching( Testit &templ){
+			parent->vals = templ.parent->vals; // change this replicators's original cell to contain templ
+			templ.parent->vals = this; // change templ's original cell to contain this replicator
+
+			//changing parents
+			Testthem *temp_parent;
+			temp_parent = parent; // save this
+			parent = templ.parent; // make this replicators parent to templ's parent
+			templ.parent = temp_parent; // make templ's parent this replicators parent (from save)
+		}*/
+};
+
+class Testthem{
+	public:
+		int testval;
+		class Testit *vals;
+		void switchit(Testthem &other){
+			class Testit *tempvals;
+			tempvals = vals; // save myvals
+			vals = other.vals; // set myvals to the others vals
+			other.vals = tempvals; //set the others vals to saved value (my original vals)
+			setParent();
+			other.setParent();
+		}
+
+		void setParent(){
+			vals->parent = this;
+		}
+};
+
+
 int main(int argc, char *argv[]) {
 
     //initialise rng
     time_t timer;
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
+
+	Testthem szulo[2];
+	Testit gyerek1, gyerek2;
+
+	szulo[0].testval=1;
+	szulo[1].testval=2;
+	gyerek1.value = 3;
+	gyerek2.value = 4;
+	szulo[0].vals = &gyerek1;
+	szulo[1].vals = &gyerek2;
+	szulo[0].setParent();
+	szulo[1].setParent();
+
+	std::cout << "child testing: " << gyerek1.value << "\t" << gyerek2.value << std::endl;
+	std::cout << "parent testing: " << szulo[0].testval << "\t" << szulo[1].testval << std::endl;
+	std::cout << "Testing relation 1: " << szulo[0].vals->value << "\t" << (szulo[0].vals->parent)->testval << std::endl;
+	std::cout << "Testing relation 2: " << szulo[1].vals->value << "\t" << szulo[1].vals->parent->testval << std::endl;
+
+	szulo[0].switchit(szulo[1]);
+	std::cout << "Switching... " << std::endl;
+
+	std::cout << "child testing: " << gyerek1.value << "\t" << gyerek2.value << std::endl;
+	std::cout << "parent testing: " << szulo[0].testval << "\t" << szulo[1].testval << std::endl;
+	std::cout << "Testing relation 1: " << szulo[0].vals->value << "\t" << (szulo[0].vals->parent)->testval << std::endl;
+	std::cout << "Testing relation 2: " << szulo[1].vals->value << "\t" << szulo[1].vals->parent->testval << std::endl;
+
+	szulo[0].switchit(szulo[1]);
+	std::cout << "Switching... " << std::endl;
+
+	std::cout << "child testing: " << gyerek1.value << "\t" << gyerek2.value << std::endl;
+	std::cout << "parent testing: " << szulo[0].testval << "\t" << szulo[1].testval << std::endl;
+	std::cout << "Testing relation 1: " << szulo[0].vals->value << "\t" << (szulo[0].vals->parent)->testval << std::endl;
+	std::cout << "Testing relation 2: " << szulo[1].vals->value << "\t" << szulo[1].vals->parent->testval << std::endl;
+
+
 /*
 	char str[] = "..(...).\0", str2[] = "(...)\0";
 	cout << strToInt(str, strlen(str)) << endl;
@@ -296,7 +366,8 @@ int main(int argc, char *argv[]) {
 	std::cout << "Time is " << ctime(&t) ;
 */
 //	for (int i=5; i--; ) std::cout << "line" << i << std::endl ;
-
+/*
+	//char seq[]="CGCGUCGUUACAGGUCAUCUAUGGAUCACCACACUCCACGCUAUAUUCCGGCUCGAU";
 	char seq[]="CGCGUCGUUACAGGUCAUCUAUGGAUCACCACACUCCACGCUAUAUUCCGGCUCGAU";
 	char str[]=".((((.(.....(((.(((....))).))).....).))))................";
 
@@ -304,10 +375,15 @@ int main(int argc, char *argv[]) {
 
 	pool.readFile(par_str_pool);
 
-	double a[] = {0,0,0};
-	pool.search(seq, str, a);
-	std::cout << a << "db " << a[0] << " " << a[1] << " " << a[2] << std::endl;
+	pool.printRules();
 
+	double a[] = {0,0,0};
+	int no = pool.search(seq, str, a);
+	std::cout << no << " sites. a: " <<  a[0] << " " << a[1] << " " << a[2] << std::endl;
+*/
+
+
+	
 
 
 

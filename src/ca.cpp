@@ -83,11 +83,14 @@ namespace cadv {
 			//decision
 			if(sum){
 				decision = dvtools::brokenStickVals(claims, no_repl_neigh + 1, sum, gsl_rng_uniform(r)) ;
-/**/				if(decision || (sum!=par_claimEmpty) ) {std::cout << "Replication: decision is: " << decision << " from claims:" << std::endl;
-/**/									for(int op = 0; op < no_repl_neigh+1;op++ ) std::cout << claims[op]/sum << "\t";
-/**/									std::cout << std::endl;}
+//				if(decision || (sum!=par_claimEmpty) ) {std::cout << "Replication: decision is: " << decision << " from claims:" << std::endl;
+//									for(int op = 0; op < no_repl_neigh+1;op++ ) std::cout << claims[op]/sum << "\t";
+//									std::cout << std::endl;}
 				if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)! In case decision is negative see: brokenStickVals
 						vals->replicate( *(repl_neigh[decision]->vals) );
+						if(gsl_rng_uniform(r) < 0.5) { //havet to switch them at 50 percent
+							switchit( *(repl_neigh[decision]) );
+						}
 				}
 			}
 		}

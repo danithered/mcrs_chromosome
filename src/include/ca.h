@@ -130,6 +130,14 @@ namespace cadv {
 			//an update step on this cell
 			void update();
 
+			//switch with an other cell
+			inline void switchit(Cell &other){
+				class rnarep::CellContent *temp;
+				temp = vals;
+				vals = other.vals;
+				other.vals = temp;
+			}
+
 		private:
 			double *claims;
 	

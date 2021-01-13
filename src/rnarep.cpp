@@ -71,7 +71,7 @@ namespace rnarep {
 	}
 
 	void CellContent::replicate(const CellContent &templ){
-		int tsize = templ.seq.size();
+		//int tsize = templ.seq.size();
 		//int tsizeminus = tsize - 1;
 		
 		//seq.resize(tsize);
@@ -155,6 +155,21 @@ namespace rnarep {
 		else {
 			die();
 		}
+		
+		//randomly places replcators in the two sites
+		//if( gsl_rng_uniform(r) < 0.5 ) {
+			//parent->vals = templ.parent->vals; // change this replicators's original cell to contain templ
+			//templ.parent->vals = this; // change templ's original cell to contain this replicator
+
+			//changing parents
+			//cadv::Cell *temp_parent;
+			//temp_parent = parent; // save this
+			//parent = templ.parent; // make this replicators parent to templ's parent
+			//templ.parent = temp_parent; // make templ's parent this replicators parent (from save)
+
+
+		//}
+
 	}
 
 	double CellContent::geta(int no){

@@ -80,8 +80,6 @@ e is mfe of replicator
 
 //output parameters to file
 int paramsToFile(char* filename){
-	int i=0;
-	
 	// open a file in write mode.
 	std::fstream paramfile(filename, std::fstream::out);
 	
@@ -130,7 +128,7 @@ int paramsToFile(char* filename){
 //parameter modifying function
 int Args(int argc, char **argv)
 {
-  int i, s;
+  int i;
   char option;
   //  char temp[BUFSIZE];
   /* parameters may be overridden here. */

@@ -43,7 +43,7 @@ namespace dv_annot{
 		std::vector<char> chars;
 		std::vector<int> positions;
 		char c;
-		int p = -1, val = 0;
+		int p = -1;
 
 		for( int sr=0; sr < no_subrules; sr++){
 //					if(! (file) ) std::cout << "File is NULL at sr= " << sr << std::endl;
@@ -58,7 +58,7 @@ namespace dv_annot{
 			while(linestream >> p) { //read in position
 				linestream >> c; //read in character
 				chars.push_back(c);
-				positions.push_back(p);
+				positions.push_back(p - 1); //indexing i c starts from 0, while input file starts from 1
 //						std::cout << "new subrule element added: " << c << "at pos " << p << std::endl;
 			}
 			subrules[sr].addBases( chars.size(), chars.data(), positions.data()); //.data() is only cpp11, replace with &x[0] 
@@ -149,6 +149,8 @@ namespace dv_annot{
 			acts[act] = 0;
 		}
 		
+//		std::cout << "search this: " << seq << "\t" << str << "\t a:"; for (int pr = 0; pr < par_noEA; pr++ ) std::cout << acts[pr] << " "; std::cout << std::endl;
+		
 		if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){ // goes tru rules
 //					std::cout << "search = " << search << std::endl;
 			for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){ // finds rule's patterns
@@ -187,6 +189,8 @@ namespace dv_annot{
 			}
 		}*/
 
+//		std::cout << "search this: " << seq << "\t" << str << "\t a:"; for (int pr = 0; pr < par_noEA; pr++ ) std::cout << acts[pr] << " "; std::cout << std::endl;
+
 		return(sites); //currently it is number of motifs in the structure!! It is used later too, mind if you change it!
 	}
 
@@ -201,7 +205,7 @@ namespace dv_annot{
 
 				std::cout << "\t";
 				for(int b =0; b < rules[r].subrules[sr].no_bases; b++){
-					std::cout << "\t" << rules[r].subrules[sr].pos[b] << " " << rules[r].subrules[sr].base[b];
+					std::cout << "\t" << rules[r].subrules[sr].pos[b]+1 << " " << rules[r].subrules[sr].base[b];
 				}
 				std::cout << std::endl << "\tvalues: ";
 				for(int v = 0; v < par_noEA; v++){
