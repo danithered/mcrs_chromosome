@@ -91,6 +91,7 @@ namespace cadv {
 						if(gsl_rng_uniform(r) < 0.5) { //havet to switch them at 50 percent
 							switchit( *(repl_neigh[decision]) );
 						}
+//						std::cout << "Replication happend. The two molecules:" << std::endl << *(vals->get_seq()) << std::endl << *(repl_neigh[decision]->vals->get_seq()) << std::endl;  
 				}
 			}
 		}

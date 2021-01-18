@@ -26,6 +26,8 @@ void randomszam_inic(int seed, gsl_rng * rng);
 
 int randomszam_mentes(const char * filename, gsl_rng * rng);
 
+int randomszam_olvasas(const char * filename, gsl_rng * rng);
+
 
 #endif
 

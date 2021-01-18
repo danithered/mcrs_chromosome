@@ -26,3 +26,23 @@ int randomszam_mentes(const char * filename, gsl_rng * rng){
 		return(0);
 }
 
+int randomszam_olvasas(const char * filename, gsl_rng * rng){
+		FILE *input;
+
+		input = fopen(filename, "r");
+		
+		if(!input){
+			//std::cerr << "ERROR: Could not open file for reading random number generator state!" << std::endl;
+			return 1;
+		}
+		
+		if(gsl_rng_fread (input, r)) {
+			fclose(input);
+			return(2);
+		}
+
+		fclose(input);
+
+		return(0);
+}
+

@@ -13,6 +13,7 @@ using namespace std;
  1: died
  -1: error in reading in argoments
  -2: couldnt open output 
+ -3: rng initialisation
 */
 int main(int argc, char *argv[]) {
 	//Argoments
@@ -23,7 +24,7 @@ int main(int argc, char *argv[]) {
 	//initialise rng
 	time_t timer;
 	if(std::strlen(par_seed_file)){
-		std::cerr << "ERROR: this part of program is not functiioning right now, cant init rng" << std::endl;
+		if(randomszam_olvasas(par_seed_file, r)) return -3;
 	}
 	else { // no seed file specified
 		if(par_seed < 0){ // init with time
