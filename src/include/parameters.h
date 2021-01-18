@@ -4,6 +4,10 @@
 #include <iostream>
 #include <cstring>
 #include <fstream>
+
+extern "C" {
+#include <ViennaRNA/vrna_config.h>
+}
  
 #define MAXLEN 300
  
@@ -45,7 +49,7 @@ extern double par_Nrep;
 
 
 //Functions 
-int paramsToFile(char* filename);
+int paramsToFile(const char* filename);
 int Args(int argc, char **argv);
 
 #endif

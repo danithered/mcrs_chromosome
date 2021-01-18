@@ -79,13 +79,13 @@ e is mfe of replicator
 
 
 //output parameters to file
-int paramsToFile(char* filename){
+int paramsToFile(const char* filename){
 	// open a file in write mode.
 	std::fstream paramfile(filename, std::fstream::out);
 	
 //	std::cout << "Printing parameters to file: " << filename << std::endl;	
 	
-	paramfile << "RNAversion " << system("RNAfold -V") << std::endl;
+	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;
@@ -96,7 +96,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_seed " << par_seed << std::endl;
 	paramfile << "par_seed_plus " << par_seed_plus << std::endl;
 	paramfile << "par_ID " << par_ID << std::endl;
-	paramfile << "par_str_pool " << par_ID << std::endl;
+	paramfile << "par_str_pool " << par_str_pool << std::endl;
 	paramfile << "par_outdir " << par_outdir << std::endl;
 	paramfile << "par_output_filename " << par_output_filename << std::endl;
 	paramfile << "par_savedir " << par_savedir << std::endl;
@@ -115,7 +115,7 @@ int paramsToFile(char* filename){
 	paramfile << "par_b1 " << par_b1 << std::endl;
 	paramfile << "par_b2 " << par_b2 << std::endl;
 	paramfile << "par_c " << par_c << std::endl;
-	paramfile << "par_Emin " << par_c << std::endl;
+	paramfile << "par_Emin " << par_Emin << std::endl;
 	paramfile << "par_Nmet " << par_Nmet << std::endl;
 	paramfile << "par_Nrep " << par_Nrep << std::endl;
 	

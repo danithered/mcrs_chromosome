@@ -58,6 +58,11 @@ int main(int argc, char *argv[]) {
 
 		return -2;
 	}
+	
+	//save parameters
+	std::string paramfilename(automata.savedir.c_str());
+	paramfilename += "/parameters.txt";
+	paramsToFile(paramfilename.c_str());
 
 	//Running simulation
 	if (automata.rUpdate(par_maxtime)){
