@@ -41,5 +41,8 @@ po <- function (lista, level, pre){
 
 #po(arg, 1, names(arg))
 
-
-cat(paste(po(arg, 1, names(arg)), collapse="\n"))
+if(length(arg) > 0){
+	cat(paste(po(arg, 1, names(arg)), collapse="\n"))
+} else {
+	cat ("\n")
+}
