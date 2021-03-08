@@ -21,6 +21,9 @@ OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 _OBJ_test = test.o annot.o parameters.o dv_tools.o bitmuveletek.o 
 OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 
+_OBJ_rev = reverse.o annot.o rnarep.o ca.o 
+OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
+
 
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
@@ -44,4 +47,7 @@ run:
 test: $(OBJ_test)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 	./test
+
+rev: $(OBJ_rev)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
