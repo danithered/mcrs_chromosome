@@ -97,7 +97,7 @@ namespace cadv {
 		}
 		else { //if focal cell is occupied (it can die)
 			//DEGRADATION
-			if(vals->Pdeg < gsl_rng_uniform(r) ) vals->die();
+			if(vals->Pdeg > gsl_rng_uniform(r) ) vals->die();
 //			std::cout << "Degradation" << std::endl;
 		}
 	}
