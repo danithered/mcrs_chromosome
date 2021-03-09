@@ -73,7 +73,12 @@ int main(int argc, char *argv[]) {
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
 
-	Testthem szulo[2];
+
+
+	std:cout << (int) 5/2 << std::endl;
+
+
+/*	Testthem szulo[2];
 	Testit gyerek1, gyerek2;
 
 	szulo[0].testval=1;
@@ -106,7 +111,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Testing relation 1: " << szulo[0].vals->value << "\t" << (szulo[0].vals->parent)->testval << std::endl;
 	std::cout << "Testing relation 2: " << szulo[1].vals->value << "\t" << szulo[1].vals->parent->testval << std::endl;
 
-
+*/
 /*
 	char str[] = "..(...).\0", str2[] = "(...)\0";
 	cout << strToInt(str, strlen(str)) << endl;
