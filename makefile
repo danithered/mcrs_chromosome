@@ -22,7 +22,10 @@ _OBJ_test = test.o annot.o parameters.o dv_tools.o bitmuveletek.o
 OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 
 _OBJ_rev = reverse.o annot.o rnarep.o ca.o 
-OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
+OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_rev))
+
+_OBJ_strgen = strgen.o randomgen.o 
+OBJ_strgen = $(patsubst %,$(ODIR)/%,$(_OBJ_strgen))
 
 
 $(ODIR)/%.o: $(SRCDIR)/%.cpp $(DEPS)
@@ -50,4 +53,8 @@ test: $(OBJ_test)
 
 rev: $(OBJ_rev)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+gen: $(OBJ_strgen)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 

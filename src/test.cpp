@@ -74,8 +74,8 @@ int main(int argc, char *argv[]) {
     gsl_rng_set(r, time(&timer));
 
 
-
-	std:cout << (int) 5/2 << std::endl;
+	for(int i=100; --i; ) std::cout << gsl_rng_uniform_int(r, 3) << std::endl;
+	//std:cout << (int) 5/2 << std::endl;
 
 
 /*	Testthem szulo[2];

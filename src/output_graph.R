@@ -5,7 +5,7 @@ par.orig <- par(no.readonly = T) # save default parameters
 library(RColorBrewer)
 library(ggplot2)
 
-setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/test3/")
+setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/test6/")
 
 t <- read.table("SAVE/parameters.txt", header=F, sep=" ")
 p <- as.list(as.character(t$V2))
