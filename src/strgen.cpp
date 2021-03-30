@@ -5,6 +5,22 @@
 
 using namespace std;
 
+int find_new_pos(std::vector<int> &vec, int max){
+	int hanyadik = gsl_ran_binomial(r, 0.5, max) , p;
+
+	if( vec.empty() ) return(hanyadik);
+	
+	for (std::vector<int>::iterator  d = vec.begin(); (!vec.empty())  && d != vec.end(); ++d) {
+		if(hanyadik == *d) {
+			hanyadik = find_new_pos(vec, max);
+			break;
+		}
+	}
+	return(hanyadik);
+}
+
+char bases[] = "AGCU"; 
+
 int main(int argc, char *argv[]) {
 	//initialise rng
 	time_t timer;
@@ -15,6 +31,10 @@ int main(int argc, char *argv[]) {
 	int n_p = gsl_ran_binomial(r, 0.4, N/2);
 	int no_paired = n_p*2;
 	std::string str;
+	int n_points = N - no_paired;
+
+	std::vector<int> pos;
+	std::vector<char> base;
 
 	if(no_paired){
 		str.assign(no_paired, '0');
@@ -40,14 +60,17 @@ int main(int argc, char *argv[]) {
 				}
 			}
 			//adding points to it
-			int n_points = N - no_paired;
 			//first adding loop bases
 			for(std::string::iterator ch=str.begin(); (ch+1) != str.end(); ++ch){
-				if(*ch == '(' && *(ch+1) == ')' ) where.push_back(ch+1);
+				if(*ch == '(' && *(ch+1) == ')' ) {
+					where.push_back(ch+1);
+//					std::cout << "where: " << (int) ch - str.begin() << std::endl;
+				}
 			}
 			for(; n_points > 0 && where.size() > 0 ; n_points-- ) {
 				int which = gsl_rng_uniform_int(r, where.size());
 				str.insert(where[which ], '.');
+				for(auto w = where.begin(); w != where.end(); ++w) if( *w > where[which] ) (*w)++;
 				where.erase(where.begin() + which);
 			}
 			//adding extra bases
@@ -68,9 +91,27 @@ int main(int argc, char *argv[]) {
 
 	std::cout << str << std::endl;
 
+	if(n_points = N - no_paired) {
 
+		for(int n_clues = gsl_ran_binomial(r, 0.2, n_points); n_clues--;){
+			//int hanyadik = gsl_ran_binomial(r, 0.5, n_points) , p;
+			//for (auto d = pos.begin(); d != NULL && d != pos.end(); ++d) 
+			//for( p=0; hanyadik = (str[p] == '.'):(--hanyadik)?hanyadik ; p++) {};
+			//pos = ;
+			pos.push_back( find_new_pos(pos, n_points-1) );
+			base.push_back( bases[gsl_rng_uniform_int(r, 4)] );
+//			std::cout << n_clues << ": " << pos.back() << base.back() << std::endl;
+		}
+		for(auto po = pos.begin(); po != pos.end(); ++po){
+			int it, point_found;
+			for(it = 0, point_found = -1 ; point_found < *po && it != str.length(); it++) if(str[it] == '.') point_found++; 
+			*po = it;
+//			std::cout << *po << std::endl;
+		}
+	}
 
-
+	for(int i = 0; i < pos.size(); i++) std::cout << pos[i] << base[i] << std::endl;
+	//its output starts from 1! Not 0!
 
 
 
