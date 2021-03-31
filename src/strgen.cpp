@@ -21,14 +21,11 @@ int find_new_pos(std::vector<int> &vec, int max){
 
 char bases[] = "AGCU"; 
 
-int main(int argc, char *argv[]) {
-	//initialise rng
-	time_t timer;
-	randomszam_inic( time(&timer) , r);
+int give_random_str(int str_length = 20, double prop_paired = 0.4, double prop_seq = 0.2){
 
-	int N = gsl_ran_binomial(r, 0.5, 20);
+	int N = gsl_ran_binomial(r, 0.5, str_length);
 
-	int n_p = gsl_ran_binomial(r, 0.4, N/2);
+	int n_p = gsl_ran_binomial(r, prop_paired, N/2);
 	int no_paired = n_p*2;
 	std::string str;
 	int n_points = N - no_paired;
@@ -38,7 +35,7 @@ int main(int argc, char *argv[]) {
 
 	if(no_paired){
 		str.assign(no_paired, '0');
-		std::cout << "N=" << N << ", no_paired=" << no_paired << std::endl;
+//		std::cout << "N=" << N << ", no_paired=" << no_paired << std::endl;
 
 		str[0] = '(';
 
@@ -86,14 +83,14 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		str.assign(N, '.');
-		std::cout << "N=" << N << ", no_paired=" << no_paired << std::endl;
+//		std::cout << "N=" << N << ", no_paired=" << no_paired << std::endl;
 	}
 
 	std::cout << str << std::endl;
 
 	if(n_points = N - no_paired) {
 
-		for(int n_clues = gsl_ran_binomial(r, 0.2, n_points); n_clues--;){
+		for(int n_clues = gsl_ran_binomial(r, prop_seq, n_points); n_clues--;){
 			//int hanyadik = gsl_ran_binomial(r, 0.5, n_points) , p;
 			//for (auto d = pos.begin(); d != NULL && d != pos.end(); ++d) 
 			//for( p=0; hanyadik = (str[p] == '.'):(--hanyadik)?hanyadik ; p++) {};
@@ -113,18 +110,65 @@ int main(int argc, char *argv[]) {
 	for(int i = 0; i < pos.size(); i++) std::cout << pos[i] << base[i] << std::endl;
 	//its output starts from 1! Not 0!
 
+	return 0;
+}
 
+#include "rnarep.h"
+#include "annot.h"
+#include "parameters.h"
+#include "dv_tools.h"
 
+int main(int argc, char *argv[]){
+	//initialise rng
+	time_t timer;
+	randomszam_inic( time(&timer) , r);
 
+	//give_random_str();
+	
+	char input_file[] = "IN/mapping.txt";
 
+	rnarep::CellContent::patterns.readFile(input_file); //read in pattern file
 
+	rnarep::CellContent replicator, mutant;
 
+	//get a sequence
+	std::string startseq("UUAGCCGUUAUA"), mutseq;
 
+	//assign the seq to replicator
+	replicator = startseq;
 
+	//get enzim information from replicator
+	int alap = replicator.get_type();
 
+	//mutate it
+	mutseq = startseq;
+	
+	for(int no_mut_steps = 1; no_mut_steps--;){
+		double rand = gsl_rng_uniform(r);
+		if(rand < 0.8){ //substitution
+		int target = gsl_rng_uniform_int(r, mutseq.length() );
+		mutseq[ target  ] = bases[( rnarep::RNAc2i( rnarep::RNAc2cc( (char) mutseq[target] ) ) + gsl_rng_uniform_int(r, 3) + 1) % 4];
+		} 
+		else if(rand < 0.9){ //addition
+			int target = gsl_rng_uniform_int(r, mutseq.length()+1);
+			mutseq.insert(mutseq.begin() + target, bases[gsl_rng_uniform_int(r,4)]);
+		}
+		else{ //deletion
+			mutseq.erase(mutseq.begin() + gsl_rng_uniform_int(r, mutseq.length()));
+		}
+/**/		std::cout << "mutated" << std::endl;
+	}
+
+	//calculate mutation
+	mutant = mutseq;
+	int uj = mutant.get_type();
+
+	std::cout << "alap: " << alap << ", uj: " << uj << std::endl;
 
 
 	//close rng
 	gsl_rng_free(r);
 	return 0;
 }
+
+

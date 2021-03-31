@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string.h>
 #include <sstream>
-#include <boost/multiprecision/cpp_int.hpp>
+//#include <boost/multiprecision/cpp_int.hpp>
 #include <cmath>
 #include <sys/stat.h>
 
@@ -74,7 +74,12 @@ int main(int argc, char *argv[]) {
     gsl_rng_set(r, time(&timer));
 
 
-	for(int i=100; --i; ) std::cout << gsl_rng_uniform_int(r, 3) << std::endl;
+	std::string st("abcdef");
+	st.insert(st.begin() + st.length() , 'x');
+	std::cout << st << std::endl;
+
+
+//	for(int i=100; --i; ) std::cout << gsl_rng_uniform_int(r, 3) << std::endl;
 	//std:cout << (int) 5/2 << std::endl;
 
 

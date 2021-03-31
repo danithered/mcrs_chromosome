@@ -24,7 +24,7 @@ OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 _OBJ_rev = reverse.o annot.o rnarep.o ca.o 
 OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_rev))
 
-_OBJ_strgen = strgen.o randomgen.o 
+_OBJ_strgen = strgen.o randomgen.o annot.o rnarep.o parameters.o dv_tools.o 
 OBJ_strgen = $(patsubst %,$(ODIR)/%,$(_OBJ_strgen))
 
 
