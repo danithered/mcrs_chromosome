@@ -118,21 +118,23 @@ int give_random_str(int str_length = 20, double prop_paired = 0.4, double prop_s
 #include "parameters.h"
 #include "dv_tools.h"
 
-int main(int argc, char *argv[]){
-	//initialise rng
-	time_t timer;
-	randomszam_inic( time(&timer) , r);
-
-	//give_random_str();
-	
-	char input_file[] = "IN/mapping.txt";
+int map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
+	std::string mutseq;
+	int *transitions;
 
 	rnarep::CellContent::patterns.readFile(input_file); //read in pattern file
 
 	rnarep::CellContent replicator, mutant;
 
-	//get a sequence
-	std::string startseq("UUAGCCGUUAUA"), mutseq;
+	//allocate memory for storing results
+	int no_possible_outcomes = std::pow(2, par_noEA)-1;
+	std::cout << "no_possible_outcomes: " << no_possible_outcomes << ", par_noEA: " << par_noEA << std::endl;
+
+	transitions = new int [no_possible_outcomes];
+
+	for(int ea = 0; ea < no_possible_outcomes; ea++) {
+		transitions[ea] = 0;
+	}
 
 	//assign the seq to replicator
 	replicator = startseq;
@@ -140,30 +142,58 @@ int main(int argc, char *argv[]){
 	//get enzim information from replicator
 	int alap = replicator.get_type();
 
-	//mutate it
-	mutseq = startseq;
+	std::cout << "alap seq: " << startseq << ", str: " << replicator.get_str() << ", type: " << alap << std::endl;
+
+	for(int no_mut_rep = no_repeats; no_mut_rep--;){
+		//mutate it
+		mutseq = startseq;
+		
+		for(int no_mut_steps = mut_dist; no_mut_steps--;){
+			double rand = gsl_rng_uniform(r);
+			if(rand < prop_of_sub){ //substitution
+			int target = gsl_rng_uniform_int(r, mutseq.length() );
+			mutseq[ target  ] = bases[( rnarep::RNAc2i( rnarep::RNAc2cc( (char) mutseq[target] ) ) + gsl_rng_uniform_int(r, 3) + 1) % 4];
+			} 
+			else if(rand < ((1+prop_of_sub)/2) ){ //addition
+				int target = gsl_rng_uniform_int(r, mutseq.length()+1);
+				mutseq.insert(mutseq.begin() + target, bases[gsl_rng_uniform_int(r,4)]);
+			}
+			else{ //deletion
+				mutseq.erase(mutseq.begin() + gsl_rng_uniform_int(r, mutseq.length()));
+			}
+//			std::cout << "mutated" << std::endl;
+		} //mutations
+
+		//calculate mutation
+		mutant = mutseq;
+		transitions[ mutant.get_type() ]++;
+	} //mutants repetiton
+
+	//outputting
+	for(int ea = 0; ea < no_possible_outcomes; ea++) std::cout << "transition to " << ea << ": " << transitions[ea] << std::endl;
+
+	//delete
+	delete [] (transitions);
+
+	return 0;
+}
+
+int main(int argc, char *argv[]){
+	//initialise rng
+	time_t timer;
+	randomszam_inic( time(&timer) , r);
+
+	//give_random_str();
+
+	//get a sequence
+	std::string seq("GUAAUUGCCGACUAUUACGCUGAUGUGACGACCAUCCUUCCGUCCCAAG");
 	
-	for(int no_mut_steps = 1; no_mut_steps--;){
-		double rand = gsl_rng_uniform(r);
-		if(rand < 0.8){ //substitution
-		int target = gsl_rng_uniform_int(r, mutseq.length() );
-		mutseq[ target  ] = bases[( rnarep::RNAc2i( rnarep::RNAc2cc( (char) mutseq[target] ) ) + gsl_rng_uniform_int(r, 3) + 1) % 4];
-		} 
-		else if(rand < 0.9){ //addition
-			int target = gsl_rng_uniform_int(r, mutseq.length()+1);
-			mutseq.insert(mutseq.begin() + target, bases[gsl_rng_uniform_int(r,4)]);
-		}
-		else{ //deletion
-			mutseq.erase(mutseq.begin() + gsl_rng_uniform_int(r, mutseq.length()));
-		}
-/**/		std::cout << "mutated" << std::endl;
-	}
+	map_mutation_neighbourhood(seq, par_str_pool);
 
-	//calculate mutation
-	mutant = mutseq;
-	int uj = mutant.get_type();
 
-	std::cout << "alap: " << alap << ", uj: " << uj << std::endl;
+
+
+
 
 
 	//close rng
