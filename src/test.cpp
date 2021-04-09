@@ -74,10 +74,22 @@ int main(int argc, char *argv[]) {
     gsl_rng_set(r, time(&timer));
 
 
+
+	char seq_file[] = "IN/sample500.txt";
+	std::string seq;
+	std::ifstream file;
+	file.open(seq_file);
+	std::getline(file, seq);
+	std::cout << seq << std::endl;
+	std::getline(file, seq);
+	std::cout << seq << std::endl;
+	file.close();
+
+/*
 	std::string st("abcdef");
 	st.insert(st.begin() + st.length() , 'x');
 	std::cout << st << std::endl;
-
+*/
 
 //	for(int i=100; --i; ) std::cout << gsl_rng_uniform_int(r, 3) << std::endl;
 	//std:cout << (int) 5/2 << std::endl;

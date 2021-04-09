@@ -118,7 +118,7 @@ int give_random_str(int str_length = 20, double prop_paired = 0.4, double prop_s
 #include "parameters.h"
 #include "dv_tools.h"
 
-int map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
+int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
 	std::string mutseq;
 	int *transitions;
 
@@ -128,11 +128,12 @@ int map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_
 
 	//allocate memory for storing results
 	int no_possible_outcomes = std::pow(2, par_noEA)-1;
-	std::cout << "no_possible_outcomes: " << no_possible_outcomes << ", par_noEA: " << par_noEA << std::endl;
+//	std::cout << "no_possible_outcomes: " << no_possible_outcomes << ", par_noEA: " << par_noEA << std::endl;
 
-	transitions = new int [no_possible_outcomes];
+	//first is type of original
+	transitions = new int [no_possible_outcomes+1];
 
-	for(int ea = 0; ea < no_possible_outcomes; ea++) {
+	for(int ea = 0; ea < (no_possible_outcomes+1); ea++) {
 		transitions[ea] = 0;
 	}
 
@@ -140,15 +141,16 @@ int map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_
 	replicator = startseq;
 
 	//get enzim information from replicator
-	int alap = replicator.get_type();
+	transitions[0] = replicator.get_type();
 
-	std::cout << "alap seq: " << startseq << ", str: " << replicator.get_str() << ", type: " << alap << std::endl;
+//	std::cout << "alap seq: " << startseq << ", str: " << replicator.get_str() << ", type: " << transitions[0] << std::endl;
+	transitions++; //step forward pointer for conveniance - dont forget to step it back!
 
 	for(int no_mut_rep = no_repeats; no_mut_rep--;){
 		//mutate it
 		mutseq = startseq;
 		
-		for(int no_mut_steps = mut_dist; no_mut_steps--;){
+		for(int no_mut_steps = 1; no_mut_steps <= mut_dist; no_mut_steps++){
 			double rand = gsl_rng_uniform(r);
 			if(rand < prop_of_sub){ //substitution
 			int target = gsl_rng_uniform_int(r, mutseq.length() );
@@ -161,40 +163,69 @@ int map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_
 			else{ //deletion
 				mutseq.erase(mutseq.begin() + gsl_rng_uniform_int(r, mutseq.length()));
 			}
+//		
 //			std::cout << "mutated" << std::endl;
+
+			//mutated
+			mutant = mutseq;
+			int mtype = mutant.get_type();
+			if( transitions[ mtype ] > no_mut_steps || !transitions[ mtype ] ) {
+				transitions[ mtype ] = no_mut_steps; 
+//				std::cout << "in repeat " << no_mut_rep << " at mutational distance " << no_mut_steps << " found a mutant of type " << mtype << std::endl;
+			}
 		} //mutations
 
 		//calculate mutation
-		mutant = mutseq;
-		transitions[ mutant.get_type() ]++;
+		//mutant = mutseq;
+		//transitions[ mutant.get_type() ]++; //old version to register number of transition, not closest distance
 	} //mutants repetiton
 
 	//outputting
-	for(int ea = 0; ea < no_possible_outcomes; ea++) std::cout << "transition to " << ea << ": " << transitions[ea] << std::endl;
+//	for(int ea = 0; ea < no_possible_outcomes; ea++) std::cout << "transition to " << ea << ": " << transitions[ea] << std::endl;
 
 	//delete
-	delete [] (transitions);
+	//delete [] (transitions);
 
-	return 0;
+	transitions--; //step back for it to start with type of original
+	return transitions;
 }
 
 int main(int argc, char *argv[]){
+	int max_mut = 50;
+	int *results;
+	char seq_file[] = "IN/sample500.txt";
+
 	//initialise rng
 	time_t timer;
 	randomszam_inic( time(&timer) , r);
 
 	//give_random_str();
 
-	//get a sequence
-	std::string seq("GUAAUUGCCGACUAUUACGCUGAUGUGACGACCAUCCUUCCGUCCCAAG");
+	//open seq file
+	std::ifstream file(seq_file);
+	if(!file.is_open()) std::cerr << "ERROR: file (" << seq_file << ") not found!" << std::endl;
 	
-	map_mutation_neighbourhood(seq, par_str_pool);
+	//get a sequence
+	//std::string seq("GUAAUUGCCGACUAUUACGCUGAUGUGACGACCAUCCUUCCGUCCCAAG");
+	std::string seq;
+	while( std::getline(file, seq) ){
+
+		//for(int no_muts = max_mut; --no_muts;) 
+		results = map_mutation_neighbourhood(seq, par_str_pool, max_mut);
+
+		int rmax = std::pow(2, par_noEA);
+		for(int r = 0; r < rmax; r++) std::cout << results[r] << "\t";
+		std::cout << std::endl;
+	}
+
+	delete[] results;
 
 
 
 
 
 
+	file.close();
 
 	//close rng
 	gsl_rng_free(r);
