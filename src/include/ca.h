@@ -227,7 +227,9 @@ namespace cadv {
 			inline int getN(int x, int y) ;
 
 			///gives back pointer to cell
-			inline Cell* get(int cell); 
+			inline Cell* get(int cell) {
+				return(matrix + cell);
+			}
 			
 			///initialises matrix with predefined values, randomly
 			void init(std::string* pool, double* probs, int no_choices); 

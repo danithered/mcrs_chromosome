@@ -227,11 +227,6 @@ namespace cadv {
 		return(-1);
 	}
 
-	///gives back pointer to cell
-	inline Cell* CellAut::get(int cell) {
-		return(matrix + cell);
-	}
-
 	//a singel update step <- this is called by rUpdate and oUpdate
 	int CellAut::updateStep(int cell){
 		matrix[cell].update();
