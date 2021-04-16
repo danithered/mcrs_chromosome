@@ -9,6 +9,8 @@
 
 using namespace std;
 
+char bases[] = "AGCU"; 
+
 int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
 	std::string mutseq;
 	int *transitions;
