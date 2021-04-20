@@ -1,7 +1,7 @@
 #!/bin/bash 
 
 # read in template file
-infile=IN/str1.txt
+infile=$1
 
 n=1
 pos=()
