@@ -79,7 +79,7 @@ par(par.orig) #restore default parameters
 state0 <- read.table("SAVE/0.tsv", sep="\t", header=F )
 colnames(state0) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
 state0 <- cbind(state0, type_f = as.factor(state0$type))
-str(state)
+str(state0)
 
 hist(state[state$a0 > 0,"mfe"])
 
@@ -164,3 +164,104 @@ curve( (( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1))^3  *  10/ (0.75 + 0.005 * 30
 
 #a*R
 curve( (( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1))  *  10/ (0.75 + 0.005 * 30) * ( 2 - ( 1- 1/(1+ exp( -0.3*x )) ) )   , xlab="mfe", ylab="R*a", xlim=c(-25,0))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#komplementer plot
+cout <- system("../../rev 300 300 3 ../../IN/mapping.txt SAVE/0.tsv", intern=T)
+rev_state0 <- do.call(rbind.data.frame, strsplit(cout, "\t"))
+colnames(rev_state0) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "type", paste0("a",0:(as.numeric(p$par_noEA) -1) ) )
+str(rev_state0)
+
+state0$type
+rev_state0$type
+
+
+van <- state0$seq != "N"
+pairs <- table(data.frame(orig=state0$type[van], rev=rev_state0$type[van]))
+# p2 <- pairs
+# p2[lower.tri(pairs)] <- p2[lower.tri(pairs)] + t(p2)[lower.tri(pairs)] # add to each other
+# p2[upper.tri(pairs)] <- t(p2)[upper.tri(pairs)] # make it symmetric
+pairs <- pairs + t(pairs)
+diag(pairs) <- diag(pairs)/2
+
+library(lattice)
+tv <- as.numeric(colnames(pairs))
+kell <- 0:(2^as.numeric(p$par_noEA)-1)
+
+beszur <- function(m, pos, val= 0){
+  m2 <- matrix(val,ncol=ncol(m)+1, nrow=nrow(m)+1)
+  cn <- colnames(m)
+  rn <- rownames(m)
+  
+  if(pos > 1){
+    m2[1:(pos-1), 1:(pos-1)] <- m[1:(pos-1), 1:(pos-1)]
+  }
+  if(pos <= ncol(m)){
+    m2[(pos+1):(ncol(m)+1),(pos+1):(ncol(m)+1)] <- m[pos:ncol(m),pos:ncol(m)]
+    if(pos > 1){
+      m2[pos:ncol(m)+1,1:(pos-1)] <- m[pos:ncol(m),1:(pos-1)]
+      m2[1:(pos-1),pos:ncol(m)+1] <- m[1:(pos-1),pos:ncol(m)]
+    }
+  }
+  
+  if( !is.null(cn) ) {
+    if(pos == 1){ # elejere
+      ncn <- c(NA, cn)
+      nrn <- c(NA, rn)
+    } else if(pos > ncol(m)){ #vegere
+      ncn <- c(cn, NA)
+      nrn <- c(rn, NA)
+    } else{ # koztes
+      ncn <- c(cn[1:(pos-1)], NA, cn[pos:length(cn)])
+      nrn <- c(rn[1:(pos-1)], NA, rn[pos:length(rn)])
+    }
+    colnames(m2) <- ncn
+    rownames(m2) <- nrn
+  }
+  
+  return(m2)
+}
+
+pairs2 <- pairs
+for( ke in kell[!kell %in% tv]+1 ) pairs2 <- beszur(pairs2, ke)
+colnames(pairs2) <- kell
+rownames(pairs2) <- kell
+
+image(kell, kell,  pairs2, xaxt="n", yaxt="n" )
+axis(1, at= kell, labels=enzN(kell))
+axis(2, at= kell, labels=enzN(kell), las=1)
+abline(h= kell+0.5)
+abline(v= kell+0.5)
+
+enzN <- Vectorize(function(x){
+  if(x==0) return("parazite")
+  
+  m <- ceiling(log(x,2))
+  acts <- c()
+  
+  for(i in m:0){
+    if(x %/% 2^i != 0){
+      acts <- c(acts, i)
+      x <- x-2^i
+      if(x == 0) break
+    }
+  }
+  
+  return( as.expression(bquote(E[.(paste(sort(acts), collapse = ","))])) )
+})
