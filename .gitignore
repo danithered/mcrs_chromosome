@@ -7,3 +7,8 @@ test
 *~
 src/.Rhistory
 old/*
+OUT/*
+gen
+rev
+randseq
+IN/.Rhistory

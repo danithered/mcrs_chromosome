@@ -20,3 +20,5 @@ str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
 str found in 249565 sequences and subrules applied for 1813
+str found in 971522 sequences and subrules applied for 56620
+str found in 183137 sequences and subrules applied for 1020

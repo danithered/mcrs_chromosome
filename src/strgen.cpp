@@ -107,7 +107,7 @@ int give_random_str(int str_length = 20, double prop_paired = 0.4, double prop_s
 		}
 	}
 
-	for(int i = 0; i < pos.size(); i++) std::cout << pos[i] << base[i] << std::endl;
+	for(int i = 0; i < pos.size(); i++) std::cout << pos[i] << " " << base[i] << std::endl;
 	//its output starts from 1! Not 0!
 
 	return 0;
