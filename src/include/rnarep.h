@@ -123,6 +123,8 @@ namespace rnarep {
 
 			void replicate(const CellContent &templ);
 
+			void merge(const CellContent &templ);
+
 			double geta(int no);
 
 			double* geta();
