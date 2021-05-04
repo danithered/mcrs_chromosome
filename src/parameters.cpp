@@ -32,6 +32,8 @@ using namespace std;
 //rates
 				double par_diffusion_rate = 4; //
 				double par_claimEmpty = 0.1; //
+				double par_merge = 0.1; //testing
+				double par_claimCleave = 0.1;
 
 //neighbourhoods
 				double par_Nmet = 4; // 3 -> vonNeumann, 4 -> Moore 
@@ -41,6 +43,9 @@ using namespace std;
 				double par_substitution = 0.005; //
 				double par_insertion = 0.0005; //
 				double par_deletion = 0.0005; //
+				double par_cleave_r = 10; 
+				double par_cleave_i = 0.5;
+				double par_cleave_K = 0.1;
 
 //equations
 /*

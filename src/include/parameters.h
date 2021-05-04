@@ -46,6 +46,11 @@ extern double par_c;
 extern double par_Emin;
 extern double par_Nmet;
 extern double par_Nrep;
+extern double par_merge;
+extern double par_cleave_r;
+extern double par_cleave_i;
+extern double par_cleave_K;
+extern double par_claimCleave;
 
 
 //Functions 
