@@ -38,7 +38,7 @@ str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
 str found in 2968 sequences and subrules applied for 687
 str found in 0 sequences and subrules applied for 0
-
+str found in 527468 sequences and subrules applied for 40173
 str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
@@ -50,3 +50,23 @@ str found in 4086 sequences and subrules applied for 379
 str found in 527468 sequences and subrules applied for 8671
 str found in 0 sequences and subrules applied for 0
 str found in 0 sequences and subrules applied for 0
+B1astr found in 196707 sequences and subrules applied for 18555
+B1bstr found in 196707 sequences and subrules applied for 19068
+B1cstr found in 196707 sequences and subrules applied for 69170
+B2astr found in 196488 sequences and subrules applied for 18303
+B2bstr found in 196488 sequences and subrules applied for 18681
+B2cstr found in 196488 sequences and subrules applied for 68415
+B3astr found in 350201 sequences and subrules applied for 122355
+B3bstr found in 350201 sequences and subrules applied for 123584
+B4astr found in 249564 sequences and subrules applied for 14573
+B4bstr found in 249564 sequences and subrules applied for 15300
+B4cstr found in 249564 sequences and subrules applied for 46721
+B5astr found in 658974 sequences and subrules applied for 125408
+B5bstr found in 658974 sequences and subrules applied for 22778
+B6astr found in 73227 sequences and subrules applied for 4813
+B6bstr found in 73227 sequences and subrules applied for 4987
+B6cstr found in 73227 sequences and subrules applied for 20639
+B7astr found in 95910 sequences and subrules applied for 26501
+B7bstr found in 95910 sequences and subrules applied for 26724
+B8astr found in 350119 sequences and subrules applied for 122488
+B8bstr found in 350119 sequences and subrules applied for 123210
