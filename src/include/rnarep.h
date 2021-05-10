@@ -193,11 +193,11 @@ namespace rnarep {
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
 					if(a[act]){ //if there is such an ezymatic activity
-						unsigned long long int one;
-						one = 1;
+						//unsigned long long int one;
+						//one = 1;
 						a[act] = Pfold * a[act] * m_sigma[no_sites]; //mind that m_sigma in now reciproc of prev function! 
 						//adding to type
-						type += (one << act);
+						type += ( ( (unsigned long long int) 1) << act);
 						no_acts++; //note, that in this version return value of search is number of motifs, not number of activities!!
 					}
 					else a[act] = 0.0; // if there is no such activity
