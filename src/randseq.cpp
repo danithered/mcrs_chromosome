@@ -82,8 +82,9 @@ int main(int argc, char *argv[]){
 	std::string seq_file_start("OUT/randseqs_ea"), seq_file, seq;
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 	rnarep::CellContent replicator;
-	int no_seqs = 500, lambda = 45;
-	long long int type;
+	int no_seqs = 100000000, lambda = 45;
+	//int no_seqs = 100, lambda = 45;
+	unsigned long long int type;
 
 //	rnarep::CellContent::patterns.printRules();
 
@@ -118,12 +119,13 @@ int main(int argc, char *argv[]){
 
 		//put it in file
 		type = replicator.get_type();
-		if(type < no_types) { //dont forget to delete this condition! it just slows it down...
-			if(type && (type % 2 == 0) ) files[(int) std::pow(type, 0.5) ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl;
-		}
-		else {
-			std::cerr << "ERROR: calculation of number of types (" << type << " - max: " << no_types << ") were wrong!" << std::endl;
-		}
+//		std::cout << type << " " << std::log2(type) << seq << std::endl;
+//		if(type < no_types) { //dont forget to delete this condition! it just slows it down...
+			if(type && (type % 2 == 0) ) files[(int) std::log2(type) ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl;
+//		}
+//		else {
+//			std::cerr << "ERROR: calculation of number of types (" << type << " - max: " << no_types << ") were wrong!" << std::endl;
+//		}
 		
 		//die
 		replicator.die();

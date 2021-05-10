@@ -221,7 +221,7 @@ namespace rnarep {
 		return no_acts;
 	}
 
-	long long int CellContent::get_type(){
+	unsigned long long int CellContent::get_type(){
 		if (annot_level < 2){
 			if (annot_level) annotate2();
 			else return -1;

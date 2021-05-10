@@ -133,7 +133,7 @@ namespace rnarep {
 
 			int get_no_acts();
 
-			long long int get_type();
+			unsigned long long int get_type();
 
 			int get_length();
 
@@ -154,7 +154,7 @@ namespace rnarep {
 			std::string seq; //sequence of replicator
 			double R; // replication rate
 			double *a; //enzymatic activities
-			long long int type; //an integer indicating the enzimatic activities that can be found in a replicator
+			unsigned long long int type; //an integer indicating the enzimatic activities that can be found in a replicator
 			//std::vector<int> ins;
 			//std::vector<int> subs;
 			//std::vector<int> dels;
@@ -193,9 +193,11 @@ namespace rnarep {
 				//compute a from alpha
 				for(int act = 0; act < par_noEA; act++) {
 					if(a[act]){ //if there is such an ezymatic activity
+						unsigned long long int one;
+						one = 1;
 						a[act] = Pfold * a[act] * m_sigma[no_sites]; //mind that m_sigma in now reciproc of prev function! 
 						//adding to type
-						type += 1 << act;
+						type += (one << act);
 						no_acts++; //note, that in this version return value of search is number of motifs, not number of activities!!
 					}
 					else a[act] = 0.0; // if there is no such activity
