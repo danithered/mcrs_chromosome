@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <cmath>
 extern "C" {
 #include <ViennaRNA/fold.h>
 #include <ViennaRNA/utils/basic.h>
@@ -80,8 +81,11 @@ int main(int argc, char *argv[]){
 	//stuff
 	std::string seq_file_start("OUT/randseqs_ea"), seq_file, seq;
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
-	rnarep::CellContent replicator, mutant;
+	rnarep::CellContent replicator;
 	int no_seqs = 500, lambda = 45;
+	long long int type;
+
+//	rnarep::CellContent::patterns.printRules();
 
 	//create output file streams
 	std::vector<std::ofstream> files;
@@ -102,13 +106,20 @@ int main(int argc, char *argv[]){
 	for(; no_seqs--; ){
 		//get a sequence
 		seq.clear();
-		for(int rb=gsl_ran_poisson(r, lambda); rb--;) seq.push_back(bases[gsl_rng_uniform_int(r, 4)]);
+//		std::cout << "seq cleared" << seq << std::endl;
+		for(int rb=gsl_ran_poisson(r, lambda); rb--;) {
+//			std::cout << "add base" << std::endl;
+			seq.push_back(bases[gsl_rng_uniform_int(r, 4)]);
+		}
+//		std::cout << "seq is " << seq << std::endl;
 		replicator = seq;
 
+//		std::cout << replicator.getR() <<  std::endl;
+
 		//put it in file
-		int type = replicator.get_type();
+		type = replicator.get_type();
 		if(type < no_types) { //dont forget to delete this condition! it just slows it down...
-			if(type && (type % 2 == 0) ) files[(int) type/2 ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl;
+			if(type && (type % 2 == 0) ) files[(int) std::pow(type, 0.5) ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl;
 		}
 		else {
 			std::cerr << "ERROR: calculation of number of types (" << type << " - max: " << no_types << ") were wrong!" << std::endl;

@@ -133,7 +133,7 @@ namespace rnarep {
 
 			int get_no_acts();
 
-			int get_type();
+			long long int get_type();
 
 			int get_length();
 
@@ -154,7 +154,7 @@ namespace rnarep {
 			std::string seq; //sequence of replicator
 			double R; // replication rate
 			double *a; //enzymatic activities
-			unsigned int type; //an integer indicating the enzimatic activities that can be found in a replicator
+			long long int type; //an integer indicating the enzimatic activities that can be found in a replicator
 			//std::vector<int> ins;
 			//std::vector<int> subs;
 			//std::vector<int> dels;

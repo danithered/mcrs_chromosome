@@ -93,6 +93,7 @@ namespace dv_annot{
 			//for(int i=0; i < par_noEA; i++) a[i] = 0.0;
 		}
 		no = 0;
+		no_sites = new int[par_noEA];
 
 		//read in rest of file
 		while (file >> no){ //read number of subrules

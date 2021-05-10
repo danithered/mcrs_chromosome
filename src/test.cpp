@@ -10,6 +10,7 @@
 #include "dv_tools.h"
 #include "randomgen.h"
 #include "bitmuveletek.h"
+#include "limits"
 
 using namespace std;
 
@@ -74,8 +75,10 @@ int main(int argc, char *argv[]) {
     gsl_rng_set(r, time(&timer));
 
 
+    	std::cout << sizeof(long long int) << std::endl;
+	std::cout << std::numeric_limits<long long int>::max() << std::endl;
 
-	char seq_file[] = "IN/sample500.txt";
+/*	char seq_file[] = "IN/sample500.txt";
 	std::string seq;
 	std::ifstream file;
 	file.open(seq_file);
@@ -84,7 +87,7 @@ int main(int argc, char *argv[]) {
 	std::getline(file, seq);
 	std::cout << seq << std::endl;
 	file.close();
-
+*/
 /*
 	std::string st("abcdef");
 	st.insert(st.begin() + st.length() , 'x');

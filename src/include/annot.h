@@ -147,7 +147,7 @@ namespace dv_annot{
 
 			//Constructor
 			PatternPool(){
-				no_sites = new int[par_noEA];
+				//no_sites = new int[par_noEA];
 //				std::cout << "Pattern pool init started" << std::endl;
 				//sites = 0;
 				//if (par_noEA) a = new double [par_noEA];
