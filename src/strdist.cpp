@@ -84,17 +84,22 @@ int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut
 }
 
 int main(int argc, char *argv[]){
+	//Argoments
+	if ( Args(argc, argv) ) {
+		return(-1);
+	}
+
 	int max_mut = 50;
 	int *results;
-	char seq_file[] = "IN/sample500.txt";
+	//char seq_file[] = "IN/sample500.txt";
 
 	//initialise rng
 	time_t timer;
 	randomszam_inic( time(&timer) , r);
 
 	//open seq file
-	std::ifstream file(seq_file);
-	if(!file.is_open()) std::cerr << "ERROR: file (" << seq_file << ") not found!" << std::endl;
+	std::ifstream file(par_load);
+	if(!file.is_open()) std::cerr << "ERROR: file (" << par_load<< ") not found!" << std::endl;
 	
 	//get a sequence
 	//std::string seq("GUAAUUGCCGACUAUUACGCUGAUGUGACGACCAUCCUUCCGUCCCAAG");
