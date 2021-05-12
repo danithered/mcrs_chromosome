@@ -116,12 +116,16 @@ int main(int argc, char *argv[]){
 		//for(int no_muts = max_mut; --no_muts;) 
 		results = map_mutation_neighbourhood(seq, max_mut);
 
-		int rmax = std::pow(2, par_noEA);
-		for(int r = 0; r < rmax; r++) std::cout << results[r] << "\t";
+		int rmax = par_noEA + 1;
+		for(int r = 0; r < rmax; r++) {
+			std::cout << results[r] << "\t";
+		}
 		std::cout << std::endl;
+
+
+		delete[] results;
 	}
 
-	delete[] results;
 
 
 
