@@ -11,22 +11,22 @@ using namespace std;
 
 char bases[] = "AGCU"; 
 
-int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
+int* map_mutation_neighbourhood(std::string &startseq, int mut_dist = 1, int no_repeats = 100, double prop_of_sub = 0.8){
 	std::string mutseq;
 	int *transitions;
 
-	rnarep::CellContent::patterns.readFile(input_file); //read in pattern file
 
 	rnarep::CellContent replicator, mutant;
 
 	//allocate memory for storing results
-	int no_possible_outcomes = std::pow(2, par_noEA)-1;
+	//int no_possible_outcomes = std::pow(2, par_noEA)-1;
+	int no_possible_outcomes = par_noEA+1; // single activities plus parasite
 //	std::cout << "no_possible_outcomes: " << no_possible_outcomes << ", par_noEA: " << par_noEA << std::endl;
 
 	//first is type of original
-	transitions = new int [no_possible_outcomes+1];
+	transitions = new int [no_possible_outcomes];
 
-	for(int ea = 0; ea < (no_possible_outcomes+1); ea++) {
+	for(int ea = 0; ea < no_possible_outcomes; ea++) {
 		transitions[ea] = 0;
 	}
 
@@ -46,8 +46,8 @@ int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut
 		for(int no_mut_steps = 1; no_mut_steps <= mut_dist; no_mut_steps++){
 			double rand = gsl_rng_uniform(r);
 			if(rand < prop_of_sub){ //substitution
-			int target = gsl_rng_uniform_int(r, mutseq.length() );
-			mutseq[ target  ] = bases[( rnarep::RNAc2i( rnarep::RNAc2cc( (char) mutseq[target] ) ) + gsl_rng_uniform_int(r, 3) + 1) % 4];
+				int target = gsl_rng_uniform_int(r, mutseq.length() );
+				mutseq[ target  ] = bases[( rnarep::RNAc2i( rnarep::RNAc2cc( (char) mutseq[target] ) ) + gsl_rng_uniform_int(r, 3) + 1) % 4];
 			} 
 			else if(rand < ((1+prop_of_sub)/2) ){ //addition
 				int target = gsl_rng_uniform_int(r, mutseq.length()+1);
@@ -61,10 +61,15 @@ int* map_mutation_neighbourhood(std::string &startseq, char* input_file, int mut
 
 			//mutated
 			mutant = mutseq;
-			int mtype = mutant.get_type();
-			if( transitions[ mtype ] > no_mut_steps || !transitions[ mtype ] ) {
-				transitions[ mtype ] = no_mut_steps; 
-//				std::cout << "in repeat " << no_mut_rep << " at mutational distance " << no_mut_steps << " found a mutant of type " << mtype << std::endl;
+			if( mutant.get_no_acts() < 2 ){ //if mutant is parasite or has a single activity
+				int mtype = mutant.get_type();
+				if(mtype){
+					mtype = (int) std::log2( (double) mtype);
+				}
+				if( transitions[ mtype ] > no_mut_steps || !transitions[ mtype ] ) {
+					transitions[ mtype ] = no_mut_steps; 
+//					std::cout << "in repeat " << no_mut_rep << " at mutational distance " << no_mut_steps << " found a mutant of type " << mtype << std::endl;
+				}
 			}
 		} //mutations
 
@@ -91,11 +96,14 @@ int main(int argc, char *argv[]){
 
 	int max_mut = 50;
 	int *results;
+	std::string seq;
 	//char seq_file[] = "IN/sample500.txt";
 
 	//initialise rng
 	time_t timer;
 	randomszam_inic( time(&timer) , r);
+
+	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 
 	//open seq file
 	std::ifstream file(par_load);
@@ -103,11 +111,10 @@ int main(int argc, char *argv[]){
 	
 	//get a sequence
 	//std::string seq("GUAAUUGCCGACUAUUACGCUGAUGUGACGACCAUCCUUCCGUCCCAAG");
-	std::string seq;
 	while( std::getline(file, seq) ){
 
 		//for(int no_muts = max_mut; --no_muts;) 
-		results = map_mutation_neighbourhood(seq, par_str_pool, max_mut);
+		results = map_mutation_neighbourhood(seq, max_mut);
 
 		int rmax = std::pow(2, par_noEA);
 		for(int r = 0; r < rmax; r++) std::cout << results[r] << "\t";
