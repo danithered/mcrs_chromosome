@@ -18,9 +18,11 @@ perfile=$((length*dens/100/no_strs))
 for(( d=1 ; d <= $no_strs ; d++ ))
 do	
 	#find seqfiles in directory
-	file=($(find IN/str/1/randseqs* | head -n 1))
-	
-	shuf -n $perfile file >> temp.txt
+	file=($(find IN/str/$d/randseqs* | head -n 1))
+
+	#echo $file $perfile
+	#pwd
+	shuf -n $perfile $file >> temp.txt
 done
 
 no_lines=$( wc -l < temp.txt )
@@ -31,3 +33,4 @@ do
 done
 
 shuf temp.txt
+rm temp.txt

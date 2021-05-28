@@ -66,6 +66,30 @@ class Testthem{
 		}
 };
 
+void init_fromfile(char *infile) {
+		int size=5;
+		std::string line, word;
+
+		std::ifstream file(infile);
+		//Cell *cell = matrix;
+
+		if(!file.is_open()) std::cerr << "ERROR: init_fromfile: file can not be opened!" << std::endl;
+
+		//rnarep::CellContent::no_replicators = 0; //clearing number of replicators 
+
+		for (int cellnum = 0; cellnum < size && std::getline(file, line); cellnum++){
+		//while (std::getline(file, line) ){
+			std::istringstream linestream(line);
+			linestream >> word;
+			std::cout << "init_fromfile assigning " << word << std::endl;			
+			//*(cell->vals) = word;
+			//cell++;
+		}
+
+		//if(cell != (Cell *) matrix + size) std::cerr << "WARNING: file length is not equal to gridsize!" << std::endl;
+//		std::cout << "Grid initialised with " << rnarep::CellContent::no_replicators << " replicators on a grid of " << size << " cells." << std::endl;
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -75,8 +99,10 @@ int main(int argc, char *argv[]) {
     gsl_rng_set(r, time(&timer));
 
 
-    	std::cout << sizeof(long long int) << std::endl;
-	std::cout << std::numeric_limits<long long int>::max() << std::endl;
+	init_fromfile(argv[1]);
+
+//    	std::cout << sizeof(long long int) << std::endl;
+//	std::cout << std::numeric_limits<long long int>::max() << std::endl;
 
 /*	char seq_file[] = "IN/sample500.txt";
 	std::string seq;
