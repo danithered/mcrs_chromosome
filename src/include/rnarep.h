@@ -8,7 +8,8 @@
 
 extern "C" {
 #include <ViennaRNA/fold.h>
-#include <ViennaRNA/utils/basic.h>
+//#include <ViennaRNA/utils/basic.h>
+#include <ViennaRNA/fold_vars.h>
 }
 
 #include "randomgen.h"
@@ -70,7 +71,8 @@ namespace rnarep {
 
 				
 				// allocate memory for MFE structure (length + 1)
-				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+				//str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+				str = new char [MAXLEN + 1];
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
@@ -85,7 +87,8 @@ namespace rnarep {
 				seq = input_str;
 				// allocate memory for MFE structure (length + 1)
 
-				str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+				//str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+				str = new char [MAXLEN + 1];
 
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
@@ -167,7 +170,8 @@ namespace rnarep {
 				annot_level = 1;
 				
 				// predict Minmum Free Energy and corresponding secondary structure
-				mfe = vrna_fold(seq.c_str(), str);
+				//mfe = vrna_fold(seq.c_str(), str);
+				mfe = (double) fold(seq.c_str(), str);
 					  
 				//calculate Pdeg
 				//Pdeg = 0.9 - 0.8 * (mfe<par_Emin?par_Emin:mfe) / par_Emin ;

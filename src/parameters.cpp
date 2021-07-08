@@ -85,7 +85,13 @@ int paramsToFile(const char* filename){
 	
 //	std::cout << "Printing parameters to file: " << filename << std::endl;	
 	
-	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
+	//write vienna rna version to file
+	std::string comm("RNAfold --version >> ");
+	comm += filename;
+	system(comm.c_str());
+
+
+	//paramfile << "RNAversion " << VRNA_VERSION << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;

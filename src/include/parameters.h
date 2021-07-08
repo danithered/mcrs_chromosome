@@ -5,9 +5,9 @@
 #include <cstring>
 #include <fstream>
 
-extern "C" {
-#include <ViennaRNA/vrna_config.h>
-}
+//extern "C" {
+//#include <ViennaRNA/vrna_config.h>
+//}
  
 #define MAXLEN 300
  
