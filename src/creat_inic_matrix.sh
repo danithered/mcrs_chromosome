@@ -22,7 +22,7 @@ do
 
 	#echo $file $perfile
 	#pwd
-	shuf -n $perfile $file >> temp.txt
+	shuf -n $perfile -r $file >> temp.txt
 done
 
 no_lines=$( wc -l < temp.txt )

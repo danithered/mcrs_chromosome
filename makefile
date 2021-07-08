@@ -7,8 +7,8 @@ SRCDIR=./src
 CC=g++
 C=gcc
 
-CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb -fexceptions -Wall -pg # for testing
-#CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -O3 # for stuff
+#CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb -fexceptions -Wall -pg # for testing
+CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -O3 # for stuff
 
 LIBS=-lm `pkg-config --libs gsl` `pkg-config --libs RNAlib2`
 
@@ -24,7 +24,7 @@ OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 _OBJ_rev = reverse.o ca.o annot.o rnarep.o parameters.o randomgen.o dv_tools.o 
 OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_rev))
 
-_OBJ_strgen = strgen.o randomgen.o 
+_OBJ_strgen = strgen2.o randomgen.o 
 OBJ_strgen = $(patsubst %,$(ODIR)/%,$(_OBJ_strgen))
 
 _OBJ_strdist = strdist.o randomgen.o annot.o rnarep.o parameters.o dv_tools.o 

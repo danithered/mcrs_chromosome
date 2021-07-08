@@ -63,7 +63,7 @@ beszur <- function(m, pos, val= 0){
 
 #######################
 
-setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/test6/")
+setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/t3A95.dg6/")
 
 t <- read.table("SAVE/parameters.txt", header=F, sep=" ")
 p <- as.list(as.character(t$V2))
