@@ -46,6 +46,7 @@ extern double par_c;
 extern double par_Emin;
 extern double par_Nmet;
 extern double par_Nrep;
+extern double par_uc_bonus;
 
 
 //Functions 

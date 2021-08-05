@@ -98,8 +98,10 @@ int main(int argc, char *argv[]) {
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
 
+    	int a=2, b=3;
+	std::cout << a / b << " " << a / (double) b << " " << (double) a / b  << std::endl;
 
-	init_fromfile(argv[1]);
+//	init_fromfile(argv[1]);
 
 //    	std::cout << sizeof(long long int) << std::endl;
 //	std::cout << std::numeric_limits<long long int>::max() << std::endl;

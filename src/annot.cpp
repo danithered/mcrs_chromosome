@@ -153,31 +153,66 @@ namespace dv_annot{
 //		std::cout << "search this: " << seq << "\t" << str << "\t a:"; for (int pr = 0; pr < par_noEA; pr++ ) std::cout << acts[pr] << " "; std::cout << std::endl;
 		
 		if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){ // goes tru rules
-//					std::cout << "search = " << search << std::endl;
+//			std::cout << "search = " << search << std::endl;
+
 			for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){ // finds rule's patterns
-//						std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
-				//templ is a pointer to the start of the pattern
+//				std::cout << "looking for structure [" << rules[search].pattern << "] in str (search = " << search << ")"  << std::endl;
+				//templ is a pointer to the start of the str pattern
 				//look for the subrules
 				for(int sr = 0, sr_max = rules[search].no_subrules; sr < sr_max; sr++){ // if pattern found goes tru subrules
-//							std::cout << "sr = " << sr << std::endl;
+//					std::cout << "sr = " << sr << std::endl;
 					//looking tru the subrules
 					char *base = rules[search].subrules[sr].base;
 					int *pos = rules[search].subrules[sr].pos;
 					int *pos_max = pos + rules[search].subrules[sr].no_bases;
 
-//							std::cout << "compare " << *(seq + (templ - str + *pos)) << "and" << *base << " (from " << rules[search].subrules[sr].no_bases << " bases)" << std::endl;
+//					std::cout << "compare " << *(seq + (templ - str + *pos)) << "and" << *base << " (from " << rules[search].subrules[sr].no_bases << " bases)" << std::endl;
 					for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){} //checks subrule
 
-//							std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
+//					std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 					if (pos == pos_max){ //subrule applies
 						sites++;
+
+						//looking tru activities in subrule
 						for(int act = 0; act < par_noEA; act++){
-//									std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
-							acts[act] += rules[search].subrules[sr].value[act];
-							no_sites[act]++;
+//							std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
+							int curr_act = rules[search].subrules[sr].value[act];
+
+							if(curr_act){ //if subrule adds a valid activity
+								/******************************/
+								// now find the uc ratio!
+								if(par_uc_bonus) {
+									int open_bases = 0; //number of points
+									int uc_num = 0; //it will compute the ratio of pirimidin bases in open "." positions in the structure
+
+									//compute number of open bases in motif and number of C/Us in open places
+									for(int b = 0; b < templ_length; b++){
+										if(templ[b] == '.'){
+											open_bases++;
+											if(templ_seq[b] == 'U' || templ_seq[b] == 'C') uc_num++;
+										}
+									}
+
+									//calc
+									if( uc_num ) {
+										acts[act] += curr_act * (1 + par_uc_bonus * (double) uc_num / open_bases); // if there is bonus system and bonus
+										 
+									} else {
+										acts[act] += curr_act; // if there is bonus system, but no bonus (only core activity)
+									}
+								} else {
+									//no bonus system
+									acts[act] += curr_act;
+								}
+
+								/******************************/
+								no_sites[act]++;
+							}
 						}
 						break; // if subrule applies, doesnt checks for other subrules in this pattern -> goes to find next pattern
 					}
+					// it is the wanted structure
+
 				} //sr in subrules
 			} // pattern search in sequence
 		} // search in rules
