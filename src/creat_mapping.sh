@@ -14,22 +14,28 @@ do
 	#looping thru those files
 	for s in ${strfiles[@]}
 	do
-		#print rule
-		printf "1 "
-		sed -n 1p $s
-		#print subrules
-		sed '1d; :a;N;$!ba;s/\n/ /g' $s
+		startlines=($(awk '/\./ {print FNR}' $s) $(( $(wc -l < $s) + 1 )) )
 		
-		#print activities for subrules
-		for (( a = 1 ; a <= $no_strs ; a++ ))
+		for n in $(seq 0 $(( ${#startlines[@]} -2 )))
 		do
-			if [ $a = $d ]
-			then
-				printf "%d " 1
-			else
-				printf "%d " 0
-			fi
+			#print rule
+			printf "1 "
+			sed -n ${startlines[n]}p $s
+			
+			#print subrules
+			awk -v s="${startlines[n]}" -v e="${startlines[n+1]}" 'NR>s&&NR<e' $s | sed ':a;N;$!ba;s/\n/ /g'
+			
+			#print activities for subrules
+			for (( a = 1 ; a <= $no_strs ; a++ ))
+			do
+				if [ $a = $d ]
+				then
+					printf "%d " 1
+				else
+					printf "%d " 0
+				fi
+			done
+			echo
 		done
-		echo
 	done
 done

@@ -3,6 +3,9 @@
 
 namespace dv_annot{
 
+
+	dvtools::quickPosVals PatternPool::gcBonusFunc(17, [](int x){return 0.5 + 1/(1+std::exp(par_gc_bonus * (double)x)); });
+
 	//Functions for Subrule
 	void Subrule::addBases(int _no_bases, char *_base, int *_pos) {
 		no_bases = _no_bases;
@@ -181,21 +184,23 @@ namespace dv_annot{
 							if(curr_act){ //if subrule adds a valid activity
 								/******************************/
 								// now find the uc ratio!
-								if(par_uc_bonus) {
-									int open_bases = 0; //number of points
-									int uc_num = 0; //it will compute the ratio of pirimidin bases in open "." positions in the structure
+								if(par_gc_bonus) {
+									//int open_bases = 0; //number of points
+									int gc_num = 0; //it will compute the ratio of pirimidin bases in open "." positions in the structure
 
 									//compute number of open bases in motif and number of C/Us in open places
 									for(int b = 0; b < templ_length; b++){
-										if(templ[b] == '.'){
-											open_bases++;
-											if(templ_seq[b] == 'U' || templ_seq[b] == 'C') uc_num++;
+										if(templ[b] == '.' && (templ_seq[b] == 'G' || templ_seq[b] == 'C')){
+											//open_bases++;
+											//if(templ_seq[b] == 'G' || templ_seq[b] == 'C') 
+											gc_num++;
 										}
 									}
 
 									//calc
-									if( uc_num ) {
-										acts[act] += curr_act * (1 + par_uc_bonus * (double) uc_num / open_bases); // if there is bonus system and bonus
+									if( gc_num ) {
+										//acts[act] += curr_act * (1 + par_gc_bonus * (double) gc_num / open_bases); // if there is bonus system and bonus
+										acts[act] += curr_act * gcBonusFunc[gc_num]; // if there is bonus system and bonus
 										 
 									} else {
 										acts[act] += curr_act; // if there is bonus system, but no bonus (only core activity)

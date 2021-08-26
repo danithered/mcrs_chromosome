@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	system("mkdir -p OUT/rstr");
 
 	//simple loop
-	for(int looplength = 5; looplength < 13; looplength += 2){
+	for(int looplength = 5; looplength < 19; looplength += 2){
 		num++;
 
 		//create dir
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
 
 	}
 	//interloop
-	for(int looplength = 5; looplength < 13; looplength += 2){
+	for(int looplength = 5; looplength < 19; looplength += 2){
 		num++;
 
 		//create dir

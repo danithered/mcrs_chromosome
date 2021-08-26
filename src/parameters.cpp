@@ -55,7 +55,7 @@ alpha is activity of a motif
 m is number of motifs in a replicator
 */
 				double par_sigma = 1.1; //
-				double par_uc_bonus = 0.0; //
+				double par_gc_bonus = -0.3; //
 
 /*
 R_s = g * (l * 1 - P_{fold}) / (b1 + b2 * length)
@@ -125,7 +125,7 @@ int paramsToFile(const char* filename){
 	paramfile << "par_Emin " << par_Emin << std::endl;
 	paramfile << "par_Nmet " << par_Nmet << std::endl;
 	paramfile << "par_Nrep " << par_Nrep << std::endl;
-	paramfile << "par_uc_bonus " << par_uc_bonus << std::endl;
+	paramfile << "par_gc_bonus " << par_gc_bonus << std::endl;
 	
 
 	paramfile.close();
@@ -174,7 +174,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_Emin")) option = 'e';
 			else if(!strcmp(argv[i], "--par_Nmet")) option = 'm';
 			else if(!strcmp(argv[i], "--par_Nrep")) option = 'r';
-			else if(!strcmp(argv[i], "--par_uc_bonus")) option = 'U';
+			else if(!strcmp(argv[i], "--par_gc_bonus")) option = 'U';
 		}
 		switch(option){
 			// double
@@ -324,8 +324,8 @@ int Args(int argc, char **argv)
 			
 			case 'U':
 				if (++i == argc) return 1;
-				par_uc_bonus = atof(argv[i]);
-				if(par_uc_bonus < 0 || par_uc_bonus > 1) {
+				par_gc_bonus = atof(argv[i]);
+				if(par_gc_bonus < 0 || par_gc_bonus > 1) {
 					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
 					return(-1);
 				}

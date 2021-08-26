@@ -5,8 +5,10 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <cmath>
 
 #include "parameters.h"
+#include "dv_tools.h"
 
 namespace dv_annot{
 
@@ -179,6 +181,8 @@ namespace dv_annot{
 
 		private:
 			int *no_sites;
+			static dvtools::quickPosVals gcBonusFunc;
+
 
 
 	}; //PatternPool
