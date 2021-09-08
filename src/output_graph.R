@@ -4,6 +4,7 @@ par.orig <- par(no.readonly = T) # save default parameters
 
 library(RColorBrewer)
 library(ggplot2)
+library(lattice)
 
 ################
 ## Functions ###
@@ -61,9 +62,15 @@ beszur <- function(m, pos, val= 0){
 }
 
 
-#######################
+######################
+#### read in data ####
+######################
 
-setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/t3A95.dg6/")
+whattosee <- "test5.5"
+whattosee <- "t3sz2_dusit95L30_1"
+
+{
+setwd(paste0("/home/danielred/data/programs/mcrs_chromosome/OUT/", whattosee, "/"))
 
 t <- read.table("SAVE/parameters.txt", header=F, sep=" ")
 p <- as.list(as.character(t$V2))
@@ -71,8 +78,8 @@ names(p) <- t$V1
 
 strsplit(readLines("SAVE/parameters.txt"), " ")
 
-
 table <- read.table("output.csv", header=T, sep=";")
+}
 str(table)
 
 # oszlopok:
@@ -80,6 +87,10 @@ str(table)
 #		replicators: number of replicators on the grid
 #		no/mean_R/mean_length/mean_mfe: number/average properties of replicators having a given enzymatic activity. Note, that in case a replicator have more activities, its values are considered in more than one category.
 # 	no_Ax: number of replicators having x activities
+
+##################################
+#### simple plots from output ####
+##################################
 
 
 # number of promiscous replicators
@@ -131,35 +142,65 @@ legend("topleft", fill=linecolors, legend=paste("A",0:3))
 
 par(par.orig) #restore default parameters
 
+barplot( as.numeric(table[table$time==0,paste0("no_A", 0:3)]),  
+         names.arg = paste0("no_A", 0:3),
+         main=paste("time:", tt, "res:", whattosee)
+         )
 
 
 # unique data
-state0 <- read.table("SAVE/0.tsv", sep="\t", header=F )
-colnames(state0) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
-state0 <- cbind(state0, type_f = as.factor(state0$type))
-str(state0)
+state <- list()
+state[["times"]] <- unlist(strsplit(list.files("./SAVE", "*.tsv"), ".", fixed=T))
+state$times <- state$times[seq(1, length(state$times), 2)]
 
-state <- read.table("SAVE/1000000.tsv", sep="\t", header=F )
-colnames(state) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
-state <- cbind(state, type_f = as.factor(state$type))
-str(state)
+#for(tt in state$times )
+{ 
+  tt=0
+  state[[paste0("t", tt)]] <- read.table( paste0("SAVE/", tt, ".tsv"), sep="\t", header=F )
+  colnames(state[[paste0("t", tt)]]) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
+  state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], type_f = as.factor(state[[paste0("t", tt)]]$type))
+  state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], 
+                                    type_name = as.factor(as.character(enzN(state[[paste0("t", tt)]]$type))))
+  as.character(enzN(st$type))
+  #str(state)
+  #state <- read.table("SAVE/1000000.tsv", sep="\t", header=F )
+  #colnames(state) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
+  #state <- cbind(state, type_f = as.factor(state$type))
 
-hist(state[state$a0 > 0,"mfe"])
+  st <- state[[paste0("t", tt)]] # get the state
+  types <- levels(st$type_f)
+  
+  #### PLOTS ####
+  
+  # histogram of mfe
+  try({
+    hist(st[st$a0 > 0,"mfe"], main = paste("time:", tt, "res:", whattosee) )
+    hist(st[st$a0 > 0,"M"], main = paste("time:", tt, "res:", whattosee) )
 
-state$mfe[state$mfe < -25] <- -25
-ggplot(data=state[state$seq != "N",],aes(mfe, fill=type_f)) +
-  geom_histogram(binwidth=0.5) +
-  xlim(0,as.numeric(p$par_Emin)-2)
-
-ggplot(data=state0[state0$seq != "N",],aes(mfe, fill=type_f)) +
-  geom_histogram(binwidth=0.5) +
-  xlim(0,as.numeric(p$par_Emin)-2)
-
-#maps
-library(lattice)
-image(1:300, 1:300,matrix(state$M, ncol=300), asp=1 )
-image(1:300, 1:300,matrix(state$R, ncol=300) )
-
+    st$mfe[st$mfe < -25] <- -25 # set the minimum of mfe (it is done in runtime, anyway)
+    
+    ggplot(data=st[st$seq != "N",],aes(mfe, fill=type_name)) +
+      geom_histogram(binwidth=0.5) +
+      xlim(0,as.numeric(p$par_Emin)-2) +
+      labs(caption=paste("time:", tt, "res:", whattosee)) +
+      scale_fill_discrete(labels=parse_format(), name="")
+  
+    ggplot(data=st[st$seq != "N",],aes(Pdeg, fill=type_name)) +
+      geom_histogram(binwidth=0.01) +
+      labs(caption=paste("time:", tt, "res:", whattosee)) +
+      scale_fill_discrete(labels=parse_format())
+    
+    #maps
+    image(1:300, 1:300,matrix(st$M, ncol=300), 
+          asp=1, 
+          main="Metabolism", sub=paste("time:", tt, "res:", whattosee)
+          )
+    image(1:300, 1:300,matrix(st$R, ncol=300), 
+          asp=1, 
+          main="R", sub=paste("time:", tt, "res:", whattosee)
+          )
+  })
+}
 
 
 
@@ -251,7 +292,8 @@ curve( (( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1))  *  10/ (0.75 + 0.005 * 30) 
 
 
 #komplementer plot
-cout <- system("../../rev 300 300 3 ../../IN/mapping.txt SAVE/0.tsv", intern=T)
+#cout <- system("../../rev 300 300 3 ../../IN/mapping.txt SAVE/0.tsv", intern=T)
+cout <- system("../../rev 300 300 3 ../../IN/old/mapping.txt SAVE/0.tsv", intern=T)
 rev_state0 <- do.call(rbind.data.frame, strsplit(cout, "\t"))
 colnames(rev_state0) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "type", paste0("a",0:(as.numeric(p$par_noEA) -1) ) )
 str(rev_state0)

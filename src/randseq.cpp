@@ -83,6 +83,7 @@ int main(int argc, char *argv[]){
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 	rnarep::CellContent replicator;
 	int no_seqs = 100000000, lambda = 45;
+	//int no_seqs = 100000000, lambda = 30;
 	//int no_seqs = 100, lambda = 45;
 	unsigned long long int type;
 
@@ -121,7 +122,8 @@ int main(int argc, char *argv[]){
 		type = replicator.get_type();
 //		std::cout << type << " " << std::log2(type) << seq << std::endl;
 //		if(type < no_types) { //dont forget to delete this condition! it just slows it down...
-			if(type && (type % 2 == 0) ) files[(int) std::log2(type) ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl;
+			//if(type && (type % 2 == 0) ) files[(int) std::log2(type) ] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl; //this outputs PURE enzimes (so not promiscous ones)
+			if(type) for(int typecheck=0; typecheck < par_noEA; typecheck++) if(type & ( 1 << typecheck ) ) files[typecheck] << seq << '\t' << replicator.get_str() << '\t' << seq.length() << '\t' << replicator.get_mfe() << std::endl; //this outputs any replicator, which has given activity (note that if it is a promiscous one, it will be outputted to several files)
 //		}
 //		else {
 //			std::cerr << "ERROR: calculation of number of types (" << type << " - max: " << no_types << ") were wrong!" << std::endl;

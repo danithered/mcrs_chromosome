@@ -1,6 +1,9 @@
 #include "ca.h"
 
 namespace cadv {
+	/**/int no_births=0;
+	/**/int no_deaths=0;
+
 	//FUNCTIONS FOR Cell
 	void Cell::inicNeigh(int n, int type){
 		switch(type){
@@ -91,14 +94,18 @@ namespace cadv {
 						if(gsl_rng_uniform(r) < 0.5) { //havet to switch them at 50 percent
 							switchit( *(repl_neigh[decision]) );
 						}
+/**/						no_births++;
 //						std::cout << "Replication happend. The two molecules:" << std::endl << *(vals->get_seq()) << std::endl << *(repl_neigh[decision]->vals->get_seq()) << std::endl;  
 				}
 			}
 		}
 		else { //if focal cell is occupied (it can die)
 			//DEGRADATION
-			if(vals->Pdeg > gsl_rng_uniform(r) ) vals->die();
-//			std::cout << "Degradation" << std::endl;
+			if(vals->Pdeg > gsl_rng_uniform(r) ) {
+/**/				no_deaths++;
+/**/				std::cout << "Degradation with Pdeg " << vals->Pdeg << std::endl;
+				vals->die();
+			}
 		}
 	}
 
@@ -262,6 +269,7 @@ namespace cadv {
 					matrix[ gsl_rng_uniform_int(r, size) ].diff();
 				}
 			}
+/**/			std::cout << "Cycle " << time << ": number of total deaths: " << no_deaths << ", number of total births: " << no_births << std::endl;
 		}
 		
 		//saving/outputting
