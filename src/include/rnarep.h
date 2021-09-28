@@ -138,6 +138,8 @@ namespace rnarep {
 
 			unsigned long long int get_type();
 
+			unsigned long long int get_prev_type();
+
 			int get_length();
 
 			double get_mfe();
@@ -158,6 +160,7 @@ namespace rnarep {
 			double R; // replication rate
 			double *a; //enzymatic activities
 			unsigned long long int type; //an integer indicating the enzimatic activities that can be found in a replicator
+			unsigned long long int prev_type; //an integer indicating the enzimatic activities that can be found in a replicator
 			//std::vector<int> ins;
 			//std::vector<int> subs;
 			//std::vector<int> dels;
@@ -168,6 +171,7 @@ namespace rnarep {
 			void annotate() { //getting mfe and Pdeg. Have to be called every time the sequence changes (and not for empty)
 				empty = false;
 				annot_level = 1;
+				prev_type = 0;
 				
 				// predict Minmum Free Energy and corresponding secondary structure
 				//mfe = vrna_fold(seq.c_str(), str);

@@ -151,6 +151,7 @@ namespace rnarep {
 		//for now it is seq is added -> need to annotate!!
 		if(seq.length()){
 			annotate();
+			prev_type = templ.type; 
 		}
 		else {
 			die();
@@ -228,6 +229,16 @@ namespace rnarep {
 		}
 		
 		return type;
+
+	}
+
+	unsigned long long int CellContent::get_prev_type(){
+		if (annot_level < 2){ 
+			if (annot_level) annotate2();
+			else return -1;
+		}
+		
+		return prev_type;
 
 	}
 
