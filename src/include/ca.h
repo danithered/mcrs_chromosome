@@ -20,7 +20,7 @@
 
 
 namespace cadv {
-	/**/extern int no_births, no_deaths;
+	//extern int no_births, no_deaths;
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
 	enum Ca_edge {wall = 0, mirror = 1, torus=2};
 

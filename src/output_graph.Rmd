@@ -1,0 +1,861 @@
+---
+title: Report of a simulation
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    self_contained: false
+params:
+  report:
+    label: Which report would you like to see?
+    input: select
+    value: t3sz2_dusit80L45nei88_2cc
+    choices: !r list.dirs("/home/danielred/data/programs/mcrs_chromosome/OUT", recursive = F, full.names = F)
+  abrmax:
+    label: Set maximum of timepoints to plot (default is to show them all)
+    input: numeric
+    value: NA
+  abrmin:
+    label: Set minimum of timepoints to plot
+    input: numeric
+    value: 0
+  kompl:
+    label: Would you like to output complemeter plots too? (lots of time)
+    value: FALSE
+---
+
+```{r, setup, include=FALSE}
+rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
+
+# set this option in the first code chunk in the document
+knitr::opts_chunk$set(echo = F)
+
+# libraries
+library(RColorBrewer)
+library(ggplot2)
+library(gganimate)
+library(lattice)
+library(scales)
+library(knitr)
+library(Polychrome)
+
+par.orig <- par(no.readonly = T) # save default parameters
+
+```
+
+
+```{r functions}
+################
+## Functions ###
+################
+
+plotNeigh <- function(neigh_tipus, 
+                      ylim=NA,
+                      xlim=NA,
+                      asp=NA, 
+                      xlab=NA, 
+                      ylab=NA, 
+                      axes=NA,
+                      las=NA,
+                      bty=NA,
+                      main=NA,
+                      ...)
+{
+  n_inic_x = n_inic_y = c()
+  maxDist = ceiling(log2( neigh_tipus - 1))
+  for(x  in -maxDist:maxDist){ 
+    for(y in -maxDist:maxDist){ 
+      if( 2^abs(x) + 2^abs(y) <= neigh_tipus ){
+        n_inic_x <- c(n_inic_x, x)
+        n_inic_y <- c(n_inic_y, y)
+      }
+    } 
+  }
+  
+  k <- matrix(rep(0, (maxDist*2+1)^2 ), ncol=maxDist*2+1)
+  middle <- maxDist + 1
+  
+  for(i in 1:length(n_inic_x)){
+    k[middle + n_inic_x[i], middle +n_inic_y[i] ] <- 1
+  }
+  k[middle+0,middle+0] <- 2
+  
+  #parameters
+  if(is.na(ylim)) ylim=c(-maxDist-0.5,maxDist+0.5)
+  if(is.na(xlim)) xlim=c(-maxDist-0.5,maxDist+0.5)
+  if(is.na(asp)) asp=1
+  if(is.na(xlab)) xlab=""
+  if(is.na(ylab)) ylab=""
+  if(is.na(axes)) {
+    axes=F
+    draw.axis=T
+  } else {
+    draw.axis=F
+  }
+  if(is.na(las)) las=1
+  if(is.na(bty)) bty="n"
+  if(is.na(main)) main=neigh_tipus
+  
+  #draw grid
+  image(-maxDist:maxDist, -maxDist:maxDist, k, 
+        ylim=ylim,
+        xlim=xlim,
+        asp=asp, 
+        xlab=xlab, 
+        ylab=ylab, 
+        axes=axes,
+        las=las,
+        bty=bty,
+        main=main,
+        ...) 
+  segments(-(maxDist+1):maxDist+0.5, 
+           rep(-maxDist-0.5, maxDist*4 ), 
+           -(maxDist+1):maxDist+0.5, 
+           rep(maxDist+0.5, maxDist*4 ),
+           col="grey")
+  segments( y0=-(maxDist+1):maxDist+0.5, 
+            x0=rep(-maxDist-0.5, maxDist*4 ), 
+            y1=-(maxDist+1):maxDist+0.5,
+            x1=rep(maxDist+0.5, maxDist*4 ),
+            col="grey")
+  #abline(h=-(maxDist+1):maxDist+0.5, col="grey")
+  #abline(v=-(maxDist+1):maxDist+0.5, col="grey")
+  if(draw.axis){
+    axis(1, lwd=0, at=-maxDist:maxDist)
+    axis(2, lwd=0, at=-maxDist:maxDist, las=1)
+  }
+  return( sum(k != 0) )
+}
+
+enzN <- Vectorize(function(x){
+  if(x==0) return("parazite")
+  if(x==-1) return("empty")
+  
+  m <- ceiling(log(x,2))
+  acts <- c()
+  
+  for(i in m:0){
+    if(x %/% 2^i != 0){
+      acts <- c(acts, i)
+      x <- x-2^i
+      if(x == 0) break
+    }
+  }
+  
+  return( as.expression(bquote(E[.(paste(sort(acts), collapse = ","))])) )
+})
+
+beszur <- function(m, pos, val= 0){
+  m2 <- matrix(val,ncol=ncol(m)+1, nrow=nrow(m)+1)
+  cn <- colnames(m)
+  rn <- rownames(m)
+  
+  if(pos > 1){
+    m2[1:(pos-1), 1:(pos-1)] <- m[1:(pos-1), 1:(pos-1)]
+  }
+  if(pos <= ncol(m)){
+    m2[(pos+1):(ncol(m)+1),(pos+1):(ncol(m)+1)] <- m[pos:ncol(m),pos:ncol(m)]
+    if(pos > 1){
+      m2[pos:ncol(m)+1,1:(pos-1)] <- m[pos:ncol(m),1:(pos-1)]
+      m2[1:(pos-1),pos:ncol(m)+1] <- m[1:(pos-1),pos:ncol(m)]
+    }
+  }
+  
+  if( !is.null(cn) ) {
+    if(pos == 1){ # elejere
+      ncn <- c(NA, cn)
+      nrn <- c(NA, rn)
+    } else if(pos > ncol(m)){ #vegere
+      ncn <- c(cn, NA)
+      nrn <- c(rn, NA)
+    } else{ # koztes
+      ncn <- c(cn[1:(pos-1)], NA, cn[pos:length(cn)])
+      nrn <- c(rn[1:(pos-1)], NA, rn[pos:length(rn)])
+    }
+    colnames(m2) <- ncn
+    rownames(m2) <- nrn
+  }
+  
+  return(m2)
+}
+
+collegend <- function(..., min=NA, max=NA, pal){
+  leg <- c(max, rep(NA, length(pal) -2), min)
+  legend(...,
+         legend = leg,
+         fill = pal,
+         border = NA,
+         #title.adj = 2,
+         y.intersp = par("pin")[2]/length(pal)*4)
+}
+
+# beszur <- function(m, pos, val= 0){
+#     m2 <- matrix(val,ncol=ncol(m)+1, nrow=nrow(m)+1)
+#     cn <- colnames(m)
+#     rn <- rownames(m)
+#     
+#     if(pos > 1){
+#       m2[1:(pos-1), 1:(pos-1)] <- m[1:(pos-1), 1:(pos-1)]
+#     }
+#     if(pos <= ncol(m)){
+#       m2[(pos+1):(ncol(m)+1),(pos+1):(ncol(m)+1)] <- m[pos:ncol(m),pos:ncol(m)]
+#       if(pos > 1){
+#         m2[pos:ncol(m)+1,1:(pos-1)] <- m[pos:ncol(m),1:(pos-1)]
+#         m2[1:(pos-1),pos:ncol(m)+1] <- m[1:(pos-1),pos:ncol(m)]
+#       }
+#     }
+#     
+#     if( !is.null(cn) ) {
+#       if(pos == 1){ # elejere
+#         ncn <- c(NA, cn)
+#         nrn <- c(NA, rn)
+#       } else if(pos > ncol(m)){ #vegere
+#         ncn <- c(cn, NA)
+#         nrn <- c(rn, NA)
+#       } else{ # koztes
+#         ncn <- c(cn[1:(pos-1)], NA, cn[pos:length(cn)])
+#         nrn <- c(rn[1:(pos-1)], NA, rn[pos:length(rn)])
+#       }
+#       colnames(m2) <- ncn
+#       rownames(m2) <- nrn
+#     }
+#     
+#     return(m2)
+# }
+
+type2noA <- Vectorize(function(x){
+  if(x==0) return("A 0")
+  if(x==-1) return("empty")
+  
+  m <- ceiling(log(x,2))
+  acts <- c()
+  
+  for(i in m:0){
+    if(x %/% 2^i != 0){
+      acts <- c(acts, i)
+      x <- x-2^i
+      if(x == 0) break
+    }
+  }
+  return( paste("A",length(acts)) )
+
+})
+
+
+```
+
+
+
+```{r read_data, message=FALSE}
+######################
+#### read in data ####
+######################
+
+# read in simulation name from param
+#splitted <- unlist(strsplit(params$input, "/"))
+#whattosee <- splitted[length(splitted)-1]
+whattosee <- params$report
+
+#workdir <- paste0(paste(splitted[1:(length(splitted)-1)], collapse ="/"), "/")
+workdir <- paste0(rootdir, whattosee, "/")
+#whattosee <- "test5.5"
+#whattosee <- "t3sz2_dusit95L30_1"
+
+#knitr::opts_knit$set(root.dir = workdir)
+#setwd(workdir)
+
+t <- read.table(paste0(workdir, "SAVE/parameters.txt"), header=F, sep=" ")
+p <- as.list(as.character(t$V2))
+names(p) <- t$V1
+
+#strsplit(readLines( paste0(workdir, "SAVE/parameters.txt") ), " ")
+
+table <- read.table(paste0(workdir, "output.csv"), header=T, sep=";")
+
+#str(table)
+
+# oszlopok:
+# 	time
+#		replicators: number of replicators on the grid
+#		no/mean_R/mean_length/mean_mfe: number/average properties of replicators having a given enzymatic activity. Note, that in case a replicator have more activities, its values are considered in more than one category.
+# 	no_Ax: number of replicators having x activities
+
+
+
+
+# read in unique data
+
+state <- list()
+state[["times"]] <- unlist(strsplit(list.files(paste0(workdir,"SAVE"), "*.tsv"), ".", fixed=T))
+state$times <- state$times[seq(1, length(state$times), 2)]
+state$times <- state$times[order(as.numeric(state$times))]
+
+if( params$abrmax == "NA" ){
+  ttt <- state$times
+} else {
+  ttt <- state$times[as.numeric(state$times) <= as.numeric(params$abrmax) & as.numeric(state$times) >= as.numeric(params$abrmin) ]
+}
+if(length(ttt) > 200 ){
+  ttt <- ttt[round(seq(1,length(ttt), length.out=200))]
+}
+
+#ttt <- 0
+
+for(tt in ttt )
+{ 
+  #tt=0
+  state[[paste0("t", tt)]] <- read.table( paste0(workdir, "SAVE/", tt, ".tsv"), sep="\t", header=F )
+  colnames(state[[paste0("t", tt)]]) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
+  state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], type_f = as.factor(state[[paste0("t", tt)]]$type))
+  state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], 
+                                    type_name = as.factor(as.character(enzN(state[[paste0("t", tt)]]$type))))
+  
+  message(paste("reading in snapshot", tt, "max:", max(as.numeric(ttt)), "number of snapshots:", length(ttt)))
+  #as.character(enzN(st$type))
+  #str(state)
+  #state <- read.table("SAVE/1000000.tsv", sep="\t", header=F )
+  #colnames(state) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
+  #state <- cbind(state, type_f = as.factor(state$type))
+}
+
+```
+
+# simulation properties
+
+Simulation ID: **`r whattosee`**
+
+Parameters:
+
+```{r output_paramtable}
+knitr::kable(unlist(p))
+```
+
+## Neighbourhood sizes
+```{r metN}
+par(mfrow=c(1,2))
+
+n_neighsMet <- plotNeigh(as.numeric(p$par_Nmet), main="Metabolic neighbourhood", sub=p$par_Nmet)
+n_neighsRep <- plotNeigh(as.numeric(p$par_Nrep), main="Replication neighbourhood", sub=p$par_Nrep)
+
+```
+
+Number of cells in a metabolic neighbourhood: `r n_neighsMet` and in a replication neighbourhood: `r n_neighsRep` (central cell included).
+
+# simple plots from output
+
+## number of promiscous replicators
+
+```{r time_A}
+linecolors <- brewer.pal(4, "Set1")
+plot(table$time, table$no_A0
+     , type="l"
+     , ylim=c(0, max(table$replicators))
+     , main="Number of promiscous replicators"
+     , col=linecolors[1])
+for(i in 1:3) lines(table$time, table[,paste0("no_A", i)], col=linecolors[i+1])
+legend("topleft", fill=linecolors, legend=paste("A",0:3))
+```
+
+## by activity by property
+
+```{r time_everything}
+par(mfrow=c(4,5), oma=c(5,2,4,1), mar=c(0,4.1,0,0))
+
+plotprop=T
+axt="n"
+size = as.numeric(p$par_ncol) * as.numeric(p$par_nrow)
+for(ea in c(paste0("enz",0:2),"par" )) {
+  plottype=T
+  if(ea=="par") axt="s"
+  for(prop in c("no", "mean_R", "mean_length", "mean_mfe", "mean_a")){
+    what <- paste(prop, ea, sep="_")
+    
+    if(prop == "no") {
+      table[,what] <- table[,what] / size
+      yl = c(0,1)
+    }
+    else{
+      yl=NULL
+    }
+    
+    if(what == "mean_a_par") plot.new()
+    else plot(table$time, table[,what], type="l", ylab="", xlab="", xaxt=axt, las=1, ylim=yl, col="red")
+    
+    if(plottype){
+      plottype=F
+      mtext(ea, 2,4)
+    }
+    
+    if(plotprop) mtext(prop, 3,2)
+  }
+  if(plotprop) plotprop=F
+}
+mtext("time", 1, 3, outer=T)
+
+par(par.orig) #restore default parameters
+
+```
+
+## frequency of promiscous replicators in the inic pool
+
+```{r}
+barplot( as.numeric(table[table$time==0,paste0("no_A", 0:3)]),  
+         names.arg = paste0("no_A", 0:3),
+         main=paste("time:", tt, "res:", whattosee)
+         )
+```
+
+## number of activities in inic pool    
+```{r}
+needed_cols <- c("no_par", paste0("no_enz", 0:2))
+barplot( as.numeric(table[table$time==0, needed_cols])*as.numeric(p$par_ncol)*as.numeric(p$par_nrow) ,  
+         names.arg = needed_cols,
+         main=paste("time:", tt, "res:", whattosee)
+         )
+```
+
+```{r inic_types}
+
+if(as.numeric(p$par_noEA) <= 3) {
+  typecolors <- c("black", brewer.pal(2^as.numeric(p$par_noEA),"Set3"))
+} else {
+  #typecolors <- c("black", distinctColorPalette(2^as.numeric(p$par_noEA), altCol=TRUE, runTsne=TRUE))
+  typecolors <- c("black", createPalette(2^as.numeric(p$par_noEA), c("#010101", "#ff0000"), M=100000) )
+}
+
+names(typecolors) <- c("empty", enzN(0:(2^as.numeric(p$par_noEA)-1) ))
+
+if("0" %in% ttt){
+outtable <-table(state$t0[state$t0$seq != "N", "type_name"])
+  barplot(outtable, 
+          names.arg = sapply(names(outtable), function(x) parse(text=x)), 
+          col=sapply(names(outtable), function(x, cols) cols[x==names(cols)], typecolors) )
+}
+```
+
+
+
+# unique data
+
+```{r , fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop"}
+par(mfrow=c(1,2), oma=c(0,0,2,0))
+for(tt in ttt )
+{ 
+  #tt=0
+  st <- state[[paste0("t", tt)]] # get the state
+  types <- levels(st$type_f)
+  
+  #### PLOTS ####
+  
+  # histogram of mfe
+  try({
+    hist(st[st$type > 0,"mfe"], 
+         #main = paste("time:", tt, "res:", whattosee) , 
+         main = "" , 
+         xlim=c(0, -35),
+         ylim=c(0, as.numeric(p$par_ncol) * as.numeric(p$par_nrow)/15 )
+         )
+    hist(st[st$type > 0,"M"], 
+         #main = paste("time:", tt, "res:", whattosee) 
+         main = "",
+         xlim=c(0, 2000), 
+         ylim=c(0, as.numeric(p$par_ncol) * as.numeric(p$par_nrow)/15 )
+         )
+    
+    mtext(paste("time:", tt, "res:", whattosee), outer=T)
+  })
+  
+}
+```
+
+
+## MFE
+
+```{r hist_mfegg, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F}
+for(tt in ttt )
+{ 
+  #tt=0
+  st <- state[[paste0("t", tt)]] # get the state
+  types <- levels(st$type_f)
+
+  st$mfe[st$mfe < -25] <- -25 # set the minimum of mfe (it is done in runtime, anyway)
+  
+  print(
+      ggplot(data=st[st$seq != "N",],aes(mfe, fill=type_name)) +
+        geom_histogram(binwidth=0.5) +
+        xlim(0,as.numeric(p$par_Emin)-2) +
+        ylim(0, as.numeric(p$par_ncol)*as.numeric(p$par_nrow)/3)+
+        labs(caption=paste("time:", tt, "res:", whattosee)) +
+        scale_fill_discrete(labels=parse_format(), name="")
+   )
+}
+```
+
+## Pdeg
+
+```{r hist_Pdeg, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F}
+for(tt in ttt )
+{ 
+  #tt=0
+  st <- state[[paste0("t", tt)]] # get the state
+  types <- levels(st$type_f)
+
+  print(
+      ggplot(data=st[st$seq != "N",],aes(Pdeg, fill=type_name)) +
+        geom_histogram(binwidth=0.01) +
+        labs(caption=paste("time:", tt, "res:", whattosee)) +
+        scale_fill_discrete(labels=parse_format())+
+        xlim(0,1)
+      )
+}
+```
+
+## Maps
+
+```{r maps, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", fig.height=4.5, fig.width=7}
+for(tt in ttt )
+{ 
+  #tt=0
+  par(mfrow=c(2,4), mar=c(0.5,0.5,0.5,0.5), xpd=NA, oma=c(3,0,4,0))
+  plot.new()
+
+  st <- state[[paste0("t", tt)]] # get the state
+  types <- levels(st$type_f)
+  
+  try({
+    
+    #legend 1
+    par(mfg=c(1,1))
+    plot.new()
+    u <- par("usr")
+    collegend(u[2], u[4]- (u[4]-u[3])*0.15, xjust=1,
+              #title="Metabolism",
+              min=0, max="max", 
+              bty="n",
+              pal=heat.colors(300))
+    text(u[2], u[4]- (u[4]-u[3])*0.1, "Metabolism", cex=1.5, adj=c(1,0))
+
+    #map1
+    par(mfg=c(1,2))
+    image(1:300, 1:300, matrix(st$M, ncol=300), 
+          asp=1, 
+          axes=F, xlab="", ylab=""#,
+          #main="Metabolism", 
+          #sub=paste("time:", tt, "res:", whattosee)
+          )
+    
+    #legend 2
+    par(mfg=c(1,4))
+    #plot(0,0,axes=F, pch=NA, xlab="", ylab="", main="Replication rate", adj=0)
+    plot.new()
+    u <- par("usr")
+    collegend(u[1], u[4]- (u[4]-u[3])*0.15, 
+              #title="Replication rate",
+              #title.adj = 5,
+              min=0, max="max", 
+              bty="n",
+              pal=hcl.colors(300, "PuRd"))
+    text(u[1], u[4]- (u[4]-u[3])*0.1, "Replication rate", cex=1.5, adj=c(0,0))
+    
+    #map 2
+    par(mfg=c(1,3))
+    image(1:300, 1:300,matrix(st$R, ncol=300), 
+          asp=1, 
+          col=hcl.colors(300, "PuRd"),
+          axes=F, xlab="", ylab=""#,
+          #main="R", 
+          #sub=paste("time:", tt, "res:", whattosee)
+          )
+    #mtext("Replication rate", side=3, cex=0.5, outer=F)
+
+    #legend 3
+    par(mfg=c(2,1))
+    dd<- st$type
+    dd[st$seq=="N"]<- -1
+    u_dd <- sort(unique(dd))
+    u_cols <- sapply( as.character(enzN(u_dd)), function(x, cols) cols[x==names(cols)], typecolors)
+    
+    plot.new()
+    legend(u[2], u[4]- (u[4]-u[3])*0.15, xjust=1,
+           horiz=F, 
+           #legend=enzN(u_dd), 
+           legend= parse(text=names(typecolors)), 
+           #title="Replicator types",
+           #fill=u_cols,
+           fill=typecolors,
+           ncol=ceiling((2^as.numeric(p$par_noEA)+1) / 10),
+           bty="n")
+    text(u[2], u[4]- (u[4]-u[3])*0.1, "Replicator types", cex=1.5, adj=c(1,0))
+    
+    #map 3
+    par(mfg=c(2,2))
+    image(1:300, 1:300, matrix(dd, ncol=300), 
+          col= u_cols , 
+          asp=1, #main="Replicator types",
+          axes=F, xlab="", ylab="")
+    
+    #legend 4
+    par(mfg=c(2,4))
+    
+    plot.new()
+    u<-par("usr")
+    u_dd <- -1:as.numeric(p$par_noEA) 
+    u_dd[u_dd > -1] <- paste("A", u_dd[u_dd > -1])
+    u_dd[u_dd=="-1"] <- "empty"
+    legend(u[1], u[4]- (u[4]-u[3])*0.15,
+           horiz=F, 
+           #legend=c("empty", "parasite", "specialist", "2act", "3act"), 
+           legend= u_dd, 
+           #title="Promiscuity level",
+           fill=c("black", brewer.pal(length(u_dd)-1,"Dark2")),bty="n" )
+    text(u[1], u[4]- (u[4]-u[3])*0.1, "Promiscuity level", cex=1.5, adj=c(0,0))
+
+    #map 4
+    par(mfg=c(2,3))
+    # dd[dd %in% c(1,2,4)]<- 1
+    # dd[dd %in% c(3, 5,6)]<- 2
+    # dd[dd == 7]<- 3
+    # #u_dd <- sort(unique(dd))
+    dd<- st$type
+    dd[st$seq=="N"]<- -1    
+    #dd <- type2noA(dd)
+    image(1:300, 1:300, matrix(dd, ncol=300), 
+          col= c("black", brewer.pal(length(u_dd)-1,"Dark2")) , 
+          asp=1, #main="Promiscuity level",
+          axes=F, xlab="", ylab="")
+    
+    #titles
+    mtext(tt, outer = T, cex=2, line=1)
+    mtext(whattosee, line=1, outer = T, side=1)
+  })
+
+}
+```
+
+## Properties of types
+
+```{r , eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop"}
+for(tt in ttt )
+{ 
+  # select data
+  st <- state[[paste0("t", tt)]] # get the state
+  st <-st[st$seq!="N",]
+  st$length <- nchar(st$seq)
+  
+  #plot
+  pppp <- lapply(unique(st$type), function(x, st) stack(st[st$type==x, ], select=c("mfe", "length", "R"), drop=F), st)
+  names(pppp)= unique(st$type)
+  
+  stlong <- data.frame()
+  for( typeit in sort(unique(st$type)) ){
+    stlong <- rbind(stlong, 
+                    cbind(  pppp[[ as.character(typeit) ]], 
+                            type=rep( as.character(enzN(typeit)), nrow(pppp[[ as.character(typeit) ]]) ) 
+                          )
+                    )
+  }
+  stlong$type <- as.factor(stlong$type)
+  
+  try(print({
+  ggplot(data=stlong, aes(x=type, fill=ind)) +
+    geom_bar(aes(y=values), stat="summary", fun="mean", position=position_dodge()) +
+    scale_x_discrete(labels=parse( text= levels(stlong$type) ))+
+    labs(title=tt, caption=whattosee)
+  }))
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Diagnostics
+
+```{r eval=F}
+max(table$time)
+table[table$time == max(table$time),]
+
+
+
+#Pfold
+ggplot(data=state[state$seq != "N",],aes(Pfold, fill=type_f)) +
+  geom_histogram() 
+ggplot(data=state0[state0$seq != "N",],aes(Pfold, fill=type_f)) +
+  geom_histogram() 
+curve(1- 1/(1+ exp( -0.3*x )), xlab="mfe", xlim=c(-25,0), ylab="Pfold")
+
+#mfe
+ggplot(data=state[state$seq != "N",],aes(mfe, fill=type_f)) +
+  geom_histogram(binwidth=0.5) 
+xlim(0,as.numeric(p$par_Emin))
+plot(table$time, table$mean_mfe_par
+     , type="l"
+     , ylim=c(-25,0)
+     , main="Number of promiscous replicators"
+     , col=linecolors[1])
+for(i in 0:2) lines(table$time, table[,paste0("mean_mfe_enz", i)], col=linecolors[i+1])
+legend("topleft", fill=linecolors, legend=paste("A",0:3))
+
+#Pdeg
+ggplot(data=state[state$seq != "N",],aes(Pdeg, fill=type_f)) +
+  geom_histogram() 
+mfe=-0.00001
+0.9-0.8*mfe/-25
+curve(0.9-0.8*x/-25, xlim=c(-25,0))
+
+#a
+curve(x*1* 1/(1^1.1), xlab="Pfold", ylab="a", xlim=c(0,1))
+curve(  ( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1), xlab="mfe", ylab="a", xlim=c(-25,0))
+
+#R
+ggplot(data=state[state$seq != "N",],aes(R, fill=type_f)) +
+  geom_histogram() 
+ggplot(data=state0[state0$seq != "N",],aes(R, fill=type_f)) +
+  geom_histogram() 
+
+curve(    10/ (0.75 + 0.005 * 30) * ( 2 - x)   , xlab="Pfold", ylab="R", )
+curve(    10/ (0.75 + 0.005 * 30) * ( 2 - ( 1- 1/(1+ exp( -0.3*x )) ) )   , xlab="mfe", ylab="R", xlim=c(-25,0))
+
+
+# a*a*a*R
+
+curve( (( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1))^3  *  10/ (0.75 + 0.005 * 30) * ( 2 - ( 1- 1/(1+ exp( -0.3*x )) ) )   , xlab="mfe", ylab="R*a*a*a", xlim=c(-25,0))
+
+#a*R
+curve( (( 1- 1/(1+ exp( -0.3*x )) )  *1* 1/(1^1.1))  *  10/ (0.75 + 0.005 * 30) * ( 2 - ( 1- 1/(1+ exp( -0.3*x )) ) )   , xlab="mfe", ylab="R*a", xlim=c(-25,0))
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# komplementer plot
+
+```{r kompl, eval=as.logical(params$kompl), fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop"}
+
+try({
+  for(tt in ttt ){
+    st <- state[[paste0("t", tt)]] # get the state
+    types <- levels(st$type_f)
+    
+    # Read in reverse state
+    #cout <- system("../../rev 300 300 3 ../../IN/mapping.txt SAVE/0.tsv", intern=T)
+    cout <- system(paste("../rev",  
+                         p$par_nrow, 
+                         p$par_ncol,
+                         p$par_noEA, 
+                         paste0("../", p$par_str_pool), 
+                         paste0(workdir, "SAVE/", tt, ".tsv"))
+                   , intern=T)
+    rev_state <- do.call(rbind.data.frame, strsplit(cout, "\t"))
+    colnames(rev_state) <- c("seq", 
+                              "str", 
+                              "mfe", 
+                              "Pfold", 
+                              "Pdeg", 
+                              "no_sites", 
+                              "R", 
+                              "type", 
+                              paste0("a",0:(as.numeric(p$par_noEA) -1) ) )
+    
+    # calculate table
+    van <- st$seq != "N"
+    odf <- data.frame(orig=st$type[van], rev=rev_state$type[van])
+    odf$orig <- factor(odf$orig, levels = 0:(2^as.numeric(p$par_noEA)-1))
+    odf$rev <- factor(odf$rev, levels = 0:(2^as.numeric(p$par_noEA)-1))
+    pairs <- table(odf)
+    
+    #make it square
+    # pairs2 <- data.frame()
+    # for(i in 0:5) {
+    #   if( !i %in% as.numeric(colnames(pairs)) ){
+    #     if(i>0) pairs2 <- cbind(pairs2, pairs[,1:i])
+    #     pairs2 <- cbind(pairs2, rep(0, nrow(pairs)) )
+    #     if( (i+1) <5) pairs2 <- cbind(pairs2, pairs[ (i+1):ncol(pairs) ] )
+    #   } 
+    # }
+    
+    
+    # p2 <- pairs
+    # p2[lower.tri(pairs)] <- p2[lower.tri(pairs)] + t(p2)[lower.tri(pairs)] # add to each other
+    # p2[upper.tri(pairs)] <- t(p2)[upper.tri(pairs)] # make it symmetric
+    pairs <- pairs + t(pairs)
+    diag(pairs) <- diag(pairs)/2
+    
+    tv <- as.numeric(colnames(pairs))
+    kell <- 0:(2^as.numeric(p$par_noEA)-1)
+    
+    
+    
+    pairs2 <- pairs
+    for( ke in kell[!kell %in% tv]+1 ) pairs2 <- beszur(pairs2, ke)
+    colnames(pairs2) <- kell
+    rownames(pairs2) <- kell
+    
+    #komplementer plot for state
+    
+    image(kell, kell,  pairs2, 
+          xaxt="n", yaxt="n" ,
+          xlab="", ylab="",
+          main = tt, sub= whattosee
+          )
+    axis(1, at= kell, labels=enzN(kell))
+    axis(2, at= kell, labels=enzN(kell), las=1)
+    abline(h= kell+0.5)
+    abline(v= kell+0.5)
+  }
+})
+
+```
+
+
+
+# nem tudom ez mi
+
+```{r , eval=FALSE}
+barplot(table( state[state$seq != "N", "type"] ), names.arg = enzN(0:5) )
+barplot(table( rev_state[state$seq != "N", "type"] ), names.arg = enzN(0:5) )
+
+barplot(table( state0[state0$seq != "N", "type"] ), names.arg = enzN(0:4) )
+barplot(table( rev_state0[rev_state0$seq != "N", "type"] ) )
+
+```
+

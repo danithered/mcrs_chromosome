@@ -18,7 +18,9 @@ perfile=$((length*dens/100/no_strs))
 for(( d=1 ; d <= $no_strs ; d++ ))
 do	
 	#find seqfiles in directory
-	file=($(find IN/str/$d/randseqs* | head -n 1))
+	#file=($(find IN/str/$d/randseqs* | head -n 1))
+	file=($(find IN/str/$d/ -name randseqs_ea* -and ! -name *_compl.txt))
+
 
 	#echo $file $perfile
 	#pwd

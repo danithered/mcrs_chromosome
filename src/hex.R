@@ -82,12 +82,12 @@ new.hgrid2 <- function(ncol, nrow){
 
 new.hgrid2(6,6)
 
-draw.hgrid <- function(x, ncol, colors){
+draw.hgrid <- function(x, ncol, colors, ...){
   scale = (max(x)-min(x) +1 )/length(colors)
   no=length(x)
   if(no %% ncol != 0) cat ("ERROR wrong number of columns")
   plot.new()
-  plot.window(xlim=c(0, ncol+0.5), ylim=c(no %/% ncol +sqrt(1/3), -sqrt(1/3)), asp=1)
+  plot.window(xlim=c(0, ncol+0.5), ylim=c(no %/% ncol +sqrt(1/3), -sqrt(1/3)), asp=1, ...)
   for(n in 0:(no-1) ){
     addh(n %% ncol, n %/% ncol, col=colors[round(x[n+1] %/% scale +1)])
     #cat(x[n], colors[round(x[n] %/% scale +1)], "\n")
@@ -187,3 +187,99 @@ for(q in 1:length(dx) ){
 draw.hgrid(k, ncol, colors=c("white", "red", "green"))
 }
 
+
+
+
+
+
+
+
+
+
+
+### neigh types square
+for(neigh_tipus in 3:30){
+  n_inic_x = n_inic_y = c()
+  maxDist = ceiling(log2( neigh_tipus - 1))
+  for(x  in -maxDist:maxDist){ 
+    for(y in -maxDist:maxDist){ 
+      if( 2^abs(x) + 2^abs(y) <= neigh_tipus ){
+        n_inic_x <- c(n_inic_x, x)
+        n_inic_y <- c(n_inic_y, y)
+      }
+    } 
+  }
+  
+  k <- matrix(rep(0, (maxDist*2+1)^2 ), ncol=maxDist*2+1)
+  middle <- maxDist + 1
+  
+  for(i in 1:length(n_inic_x)){
+    k[middle + n_inic_x[i], middle +n_inic_y[i] ] <- 1
+  }
+  k[middle+0,middle+0] <- 2
+  
+  #draw grid
+  image(-maxDist:maxDist, -maxDist:maxDist, k, 
+        ylim=c(-maxDist-0.5,maxDist+0.5),
+        xlim=c(-maxDist-0.5,maxDist+0.5),
+        asp=1, 
+        xlab="", ylab="", axes=F,
+        las=1,
+        bty="n",
+        main=neigh_tipus) 
+  segments(-(maxDist+1):maxDist+0.5, 
+           rep(-maxDist-0.5, maxDist*4 ), 
+           -(maxDist+1):maxDist+0.5, 
+           rep(maxDist+0.5, maxDist*4 ),
+           col="grey")
+  segments( y0=-(maxDist+1):maxDist+0.5, 
+            x0=rep(-maxDist-0.5, maxDist*4 ), 
+            y1=-(maxDist+1):maxDist+0.5,
+            x1=rep(maxDist+0.5, maxDist*4 ),
+            col="grey")
+  #abline(h=-(maxDist+1):maxDist+0.5, col="grey")
+  #abline(v=-(maxDist+1):maxDist+0.5, col="grey")
+  axis(1, lwd=0, at=-maxDist:maxDist)
+  axis(2, lwd=0, at=-maxDist:maxDist, las=1)
+}
+
+
+
+
+
+
+
+
+### HEX neigh types
+for(neigh_tipus in 4:60){
+  dx=c()
+  dy=c()
+  maxDist = round(log2(neigh_tipus - 2))
+  for(x in -maxDist:maxDist){ 
+    for(y in -maxDist:maxDist){ 
+      if( (2^abs(x) + 2^abs(y) + 2^abs(0-x-y)) <= neigh_tipus ) {
+        dx <- c(dx, x);
+        dy <- c(dy, y);
+      }
+    }
+  } 
+  
+  
+  #setup
+  ncol=nrow=maxDist*2+1
+  k <- rep(0, ncol*nrow)
+  
+  #set neigh
+  pos=floor(length(k)/2)
+  
+  #calc
+  for(q in 1:length(dx) ){
+    w <- (( pos%/%ncol + dy[q]) %% nrow)*ncol + (pos%%ncol + dx[q] + (dy[q] + bitwAnd(pos %/% ncol, 1))%/%2 ) %% ncol
+    k[w+1] <- 1
+  }
+  k[pos+1] <- 2
+  
+  #draw grid
+  draw.hgrid(k, ncol, colors= c("transparent",rev(heat.colors(2))), main=neigh_tipus)
+  mtext(neigh_tipus)
+}

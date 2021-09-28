@@ -1,3 +1,6 @@
+### code to analyse pools -> mutational distance of types, PCoA
+
+
 tr <- read.table("file:///home/danielred/data/programs/mcrs_chromosome/testgen6.txt", sep="\t")
 colnames(tr) <- c("orig", paste0("to", 0: (ncol(tr)-2) ))
 tr <- tr[,1:(ncol(tr)-1) ]

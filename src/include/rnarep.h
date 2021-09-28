@@ -176,6 +176,7 @@ namespace rnarep {
 				//calculate Pdeg
 				Pdeg = 0.9 - 0.8 * (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
 				//Pdeg = 0.05 - 0.049 * ( (mfe<par_Emin)?par_Emin:mfe) / par_Emin ;
+				//Pdeg=0.07;
 				
 				no_replicators++;
 			} 

@@ -35,7 +35,7 @@ using namespace std;
 
 //neighbourhoods
 				double par_Nmet = 4; // 3 -> vonNeumann, 4 -> Moore 
-				double par_Nrep = 3; //
+				double par_Nrep = 4; //
 
 //mutation rates
 				double par_substitution = 0.005; //
