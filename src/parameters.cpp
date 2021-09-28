@@ -2,7 +2,6 @@
 
 using namespace std;
 
-
 //parameters harder to change
 				int par_noEA=3;
 
@@ -126,6 +125,7 @@ int paramsToFile(const char* filename){
 	paramfile << "par_Nmet " << par_Nmet << std::endl;
 	paramfile << "par_Nrep " << par_Nrep << std::endl;
 	paramfile << "par_gc_bonus " << par_gc_bonus << std::endl;
+	paramfile << "versioninfo " << versioninfo << std::endl;
 	
 
 	paramfile.close();
