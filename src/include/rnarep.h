@@ -124,7 +124,7 @@ namespace rnarep {
 
 			void die();
 
-			void replicate(const CellContent &templ);
+			void replicate( CellContent &templ);
 
 			double geta(int no);
 

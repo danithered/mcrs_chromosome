@@ -9,12 +9,12 @@ params:
   report:
     label: Which report would you like to see?
     input: select
-    value: t3sz2_dusit80L45nei88_2cc
+    value: testParDeath4_5
     choices: !r list.dirs("/home/danielred/data/programs/mcrs_chromosome/OUT", recursive = F, full.names = F)
   abrmax:
-    label: Set maximum of timepoints to plot (default is to show them all)
+    label: Set maximum of timepoints to plot (add negative value to show them all)
     input: numeric
-    value: NA
+    value: -1
   abrmin:
     label: Set minimum of timepoints to plot
     input: numeric
@@ -22,6 +22,8 @@ params:
   kompl:
     label: Would you like to output complemeter plots too? (lots of time)
     value: FALSE
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, setup, include=FALSE}
@@ -38,6 +40,7 @@ library(lattice)
 library(scales)
 library(knitr)
 library(Polychrome)
+library(cowplot)
 
 par.orig <- par(no.readonly = T) # save default parameters
 
@@ -241,6 +244,24 @@ type2noA <- Vectorize(function(x){
 
 })
 
+type2A <- Vectorize(function(x){
+  if(x==0) return(0)
+  if(x==-1) return(NA)
+  
+  m <- ceiling(log(x,2))
+  acts <- c()
+  
+  for(i in m:0){
+    if(x %/% 2^i != 0){
+      acts <- c(acts, i)
+      x <- x-2^i
+      if(x == 0) break
+    }
+  }
+  return( length(acts) )
+
+})
+
 
 ```
 
@@ -290,7 +311,7 @@ state[["times"]] <- unlist(strsplit(list.files(paste0(workdir,"SAVE"), "*.tsv"),
 state$times <- state$times[seq(1, length(state$times), 2)]
 state$times <- state$times[order(as.numeric(state$times))]
 
-if( params$abrmax == "NA" ){
+if( as.numeric(params$abrmax) < 0 ){
   ttt <- state$times
 } else {
   ttt <- state$times[as.numeric(state$times) <= as.numeric(params$abrmax) & as.numeric(state$times) >= as.numeric(params$abrmin) ]
@@ -305,7 +326,31 @@ for(tt in ttt )
 { 
   #tt=0
   state[[paste0("t", tt)]] <- read.table( paste0(workdir, "SAVE/", tt, ".tsv"), sep="\t", header=F )
-  colnames(state[[paste0("t", tt)]]) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
+  if(ncol(state[[paste0("t", tt)]]) == 9 + as.numeric(p$par_noEA)){
+    colnames(state[[paste0("t", tt)]]) <- c("seq", 
+                                            "str", 
+                                            "mfe", 
+                                            "Pfold", 
+                                            "Pdeg", 
+                                            "no_sites",
+                                            "R",
+                                            "M",
+                                            "type",
+                                            paste0("a", 0:(as.numeric(p$par_noEA)-1)) )
+  } else {
+    colnames(state[[paste0("t", tt)]]) <- c("seq", 
+                                            "str", 
+                                            "mfe", 
+                                            "Pfold", 
+                                            "Pdeg", 
+                                            "no_sites",
+                                            "R",
+                                            "M",
+                                            "type",
+                                            paste0("a", 0:(as.numeric(p$par_noEA)-1)),
+                                            "type_prev")
+  }
+  
   state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], type_f = as.factor(state[[paste0("t", tt)]]$type))
   state[[paste0("t", tt)]] <- cbind(state[[paste0("t", tt)]], 
                                     type_name = as.factor(as.character(enzN(state[[paste0("t", tt)]]$type))))
@@ -634,7 +679,7 @@ for(tt in ttt )
 
 ## Properties of types
 
-```{r , eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop"}
+```{r propsbars, eval=F, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop"}
 for(tt in ttt )
 { 
   # select data
@@ -665,6 +710,194 @@ for(tt in ttt )
 }
 ```
 
+
+
+```{r propsall, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", warning=FALSE, fig.height=12, fig.width=8}
+
+drop_unused = F
+dropfrom = 3
+
+for(tt in ttt )
+{ 
+  # select data
+  st <- state[[paste0("t", tt)]] # get the state
+  st <- st[st$seq != "N",]
+
+  if(nrow(st) == 0) {
+    pic <- matrix(c(0,1,0,0,0,0,0,0,0,0,0,1,0,
+                    1,1,0,0,0,0,0,0,0,0,0,1,1,
+                    0,0,0,1,1,1,1,1,1,1,0,0,0,
+                    0,0,1,1,1,1,1,1,1,1,1,0,0,
+                    0,0,1,1,0,0,1,0,0,1,1,0,0,
+                    0,0,1,1,1,1,1,1,1,1,1,0,0,
+                    0,0,0,1,1,1,1,1,1,1,0,0,0,
+                    1,1,0,1,1,0,1,0,1,1,0,1,1,
+                    0,1,0,0,0,0,0,0,0,0,0,1,0
+            ), ncol=9)
+    image(1:nrow(pic), 1:ncol(pic), pic, ylim=c(nrow(pic),0.5), asp=1, axes=F, xlab="", ylab="")
+    next
+  }
+  st$length <- nchar(st$seq)
+  
+  kell <- 0:(2^as.numeric(p$par_noEA)-1)
+  
+  #reorder by numbers of activities
+  kell2 <- kell[order(type2noA(kell))]
+
+  pppp <- lapply(unique(st$type), function(x, st) {
+    out <- stack(st[st$type==x, ], select=c("mfe", "Pfold", "length", "R", "Pdeg"), drop=F)
+    out <- rbind(out, data.frame(values=sum(st$type==x), ind="count") )
+    return(out)
+  }
+  , st)
+  
+  names(pppp)= unique(st$type)
+  
+  stlong <- data.frame(values=numeric(), ind=factor(levels=levels(pppp[[1]]$ind )), type=factor(levels=enzN(kell2)))
+  for( typeit in sort(unique(st$type)) ){
+    stlong <- rbind(stlong, 
+                    cbind(  pppp[[ as.character(typeit) ]], 
+                            type=rep( as.character(enzN(typeit)), nrow(pppp[[ as.character(typeit) ]]) ) 
+                    )
+    )
+  }
+  stlong$type <- factor(stlong$type, levels = enzN(kell2))
+  stlong$type <- factor(stlong$type, levels = enzN(kell2[type2A(kell2) < dropfrom | table(stlong$type) > 0]) ) #drop unused levels over dropfrom
+
+  #transformations
+  #stlong[stlong$ind == "count", "values"] <- stlong[stlong$ind == "count", "values"]/as.numeric(p$par_ncol)/as.numeric(p$par_nrow) #proprtional to number of cells
+  #stlong[stlong$ind == "count", "values"] <- stlong[stlong$ind == "count", "values"]/ sum(stlong[stlong$ind == "count", "values"])
+  #stlong[stlong$ind == "mfe", "values"] <- stlong[stlong$ind == "mfe", "values"] / 25
+  #stlong[stlong$ind == "length", "values"] <- stlong[stlong$ind == "length", "values"] / as.numeric(p$MAXLEN)
+  
+  Rmax <- as.numeric(p$par_g) / ( as.numeric(p$par_b1)+as.numeric(p$par_b2) ) * ( as.numeric(p$par_ll) )
+  #stlong[stlong$ind == "R", "values"] <- stlong[stlong$ind == "R", "values"] / Rmax
+
+  if(nrow(stlong) >0){
+    gplots <- list(
+      #mfe
+      ggplot(data=stlong[stlong$ind == "mfe", ], aes(x=type, fill=type, y=values)) +
+        facet_grid(ind~.)+
+        #geom_boxplot(aes(y=values))+
+        geom_violin(width=1)+
+        stat_summary(fun=mean, geom="point")+
+        scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+        coord_cartesian(ylim = c(0, -30))+
+        labs(title= tt, subtitle=whattosee)+
+        theme(axis.title.x = element_blank(), 
+              axis.text.x=element_blank(),
+              axis.ticks = element_blank(),
+              legend.position = "none",
+              axis.title.y = element_blank()),
+      
+      
+      #Pfold
+      ggplot(data=stlong[stlong$ind == "Pfold", ], aes(x=type, fill=type, y=values)) +
+        facet_grid(ind~.)+
+        geom_violin(width=1)+
+        stat_summary(fun=mean, geom="point")+
+        #geom_boxplot(aes(y=values))+
+        scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+        scale_y_continuous(breaks= c(0, 1), 
+                           labels= c("0%", "100%"), 
+                           #limits = c(0,1),
+                           #sec.axis = sec_axis(~ . * 1.20, name = "mpg (UK)")
+                           ) +
+        coord_cartesian(ylim = c(0, 1))+
+        theme(axis.title.x = element_blank(), 
+              axis.text.x=element_blank(),
+              axis.ticks = element_blank(),
+              legend.position = "none",
+              axis.title.y = element_blank()),
+      
+      
+      #Pdeg
+      ggplot(data=stlong[stlong$ind == "Pdeg", ], aes(x=type, fill=type, y=values)) +
+        facet_grid(ind~.)+
+        geom_violin(width=1)+
+        stat_summary(fun=mean, geom="point")+
+        #geom_boxplot(aes(y=values))+
+        scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+        scale_y_continuous(breaks= c(0, 1), 
+                           labels= c("0%", "100%"), 
+                           #limits = c(0,1),
+                           #sec.axis = sec_axis(~ . * 1.20, name = "mpg (UK)")
+                           ) +
+        coord_cartesian(ylim = c(0, 1))+
+        theme(axis.title.x = element_blank(), 
+              axis.text.x=element_blank(),
+              axis.ticks = element_blank(),
+              legend.position = "none",
+              axis.title.y = element_blank()),
+    
+      
+      #R
+      ggplot(data=stlong[stlong$ind == "R", ], aes(x=type, fill=type, y=values)) +
+        facet_grid(ind~.)+
+        #geom_boxplot(aes(y=values))+
+        geom_violin(width=1)+
+        stat_summary(fun=mean, geom="point")+
+        scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+        scale_y_continuous(#breaks= c(0, 1), 
+                           labels= function(x) paste(round(x,2)), 
+                           #limits = c(0,Rmax),
+                           #limits = c(0,max(stlong[stlong$ind == "R", "values"])),
+                           #sec.axis = sec_axis(~ . * 25, name = "kJ", breaks=-25:0)
+                           )  +
+        #coord_cartesian(ylim = c(-30, 0))+
+        theme(axis.title.x = element_blank(), 
+              axis.text.x=element_blank(),
+              axis.ticks = element_blank(),
+              legend.position = "none",
+              axis.title.y = element_blank()),
+  
+      
+      #length
+      ggplot(data=stlong[stlong$ind == "length", ], aes(x=type, fill=type, y=values)) +
+        facet_grid(ind~.)+
+        geom_violin(width=1)+
+        stat_summary(fun=mean, geom="point")+
+        #geom_boxplot(aes(y=values))+
+        scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+        scale_y_continuous(#breaks= c(0, 1), 
+                           #labels= c("0%", "1%"), 
+                           #limits = c(0,as.numeric(p$MAXLEN)/3),
+                           #sec.axis = sec_axis(~ . * 25, name = "kJ", breaks=-25:0)
+                           )  +
+        coord_cartesian(ylim = c(0, as.numeric(p$MAXLEN)/3))+
+        theme(axis.title.x = element_blank(), 
+              axis.text.x=element_blank(),
+              axis.ticks = element_blank(),
+              legend.position = "none",
+              axis.title.y = element_blank()),
+      #count
+      ggplot(data=stlong[stlong$ind=="count",], aes(x=type, 
+                                                    fill=type,
+                                                     #y=values / as.numeric(p$par_ncol) / as.numeric(p$par_nrow)
+                                                     y=values / sum(stlong[stlong$ind=="count", "values"])
+                                                    )) +
+        facet_grid(ind~.)+
+        geom_bar(stat="identity") +
+        geom_text(aes(label=values), 
+                  position = position_stack(vjust=0.5),
+                  size=2, 
+                  fill=NA, 
+                  angle=270)+
+        scale_x_discrete(labels = parse_format(), drop=drop_unused )+
+        scale_y_continuous(breaks= c(0, 1), 
+                           labels= c("0%", "100%"))+
+        coord_cartesian(ylim = c(0, 1), clip="off" )+
+        theme(legend.position = "none",
+              axis.ticks = element_blank(),
+              axis.title.y = element_blank())
+    )
+    
+    
+    print(plot_grid( plotlist= gplots, align = "v", ncol = 1, rel_heights = c(1.5,1,1,1,1,2) ))
+  }
+}
+
+```
 
 
 
@@ -843,6 +1076,91 @@ try({
     abline(v= kell+0.5)
   }
 })
+
+```
+
+```{r kompl_easy, eval= !as.logical(params$kompl), fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", fig.height=12, fig.width=8}
+
+cat("WARNING: these are based on ancestry, not on actual reversing")
+
+for(tt in ttt ){
+  try({
+    par(mfrow=c(2,1))
+  
+    st <- state[[paste0("t", tt)]] # get the state
+    types <- levels(st$type_f)
+    
+    # calculate table
+    van <- st$seq != "N"
+    odf <- data.frame(orig=st$type[van], rev=st$type_prev[van])
+    odf$orig <- factor(odf$orig, levels = 0:(2^as.numeric(p$par_noEA)-1))
+    odf$rev <- factor(odf$rev, levels = 0:(2^as.numeric(p$par_noEA)-1))
+    pairs <- table(odf)
+    
+    #make it square
+    # pairs2 <- data.frame()
+    # for(i in 0:5) {
+    #   if( !i %in% as.numeric(colnames(pairs)) ){
+    #     if(i>0) pairs2 <- cbind(pairs2, pairs[,1:i])
+    #     pairs2 <- cbind(pairs2, rep(0, nrow(pairs)) )
+    #     if( (i+1) <5) pairs2 <- cbind(pairs2, pairs[ (i+1):ncol(pairs) ] )
+    #   } 
+    # }
+    
+    
+    # p2 <- pairs
+    # p2[lower.tri(pairs)] <- p2[lower.tri(pairs)] + t(p2)[lower.tri(pairs)] # add to each other
+    # p2[upper.tri(pairs)] <- t(p2)[upper.tri(pairs)] # make it symmetric
+    pairs <- pairs + t(pairs)
+    diag(pairs) <- diag(pairs)/2
+    
+    tv <- as.numeric(colnames(pairs))
+    
+    kell <- 0:(2^as.numeric(p$par_noEA)-1)
+    
+    pairs2 <- pairs
+    for( ke in kell[!kell %in% tv]+1 ) pairs2 <- beszur(pairs2, ke)
+    colnames(pairs2) <- kell
+    rownames(pairs2) <- kell
+    
+    #reorder by numbers of activities
+    kell2 <- kell[order(type2noA(kell))]
+    pairs2 <- pairs2[as.character(kell2),]
+    pairs2 <- pairs2[,as.character(kell2)]
+    
+    
+    
+    #komplementer plot for state
+    
+    image(kell, kell,  
+          pairs2, 
+          xaxt="n", yaxt="n" ,
+          xlab="", ylab="",
+          col= heat.colors(100, rev = TRUE)[5:100],
+          main = tt, sub= whattosee
+          )
+    axis(1, at= kell, labels=enzN(kell2), las=2)
+    axis(2, at= kell, labels=enzN(kell2), las=1)
+    abline(h= kell+0.5)
+    abline(v= kell+0.5)
+    
+    image(kell, kell,  
+      log(pairs2+1), 
+      #pairs2, 
+      xaxt="n", yaxt="n" ,
+      xlab="", ylab="",
+      #col= hcl.colors(200, "YlOrRd", rev = TRUE),
+      col= heat.colors(100, rev = TRUE)[5:100],
+      main = "on a logaritmic scale"
+    )
+    text(rep(kell, length(kell)), rep(kell, each=length(kell)), c(pairs2), cex=0.5 )
+    
+    axis(1, at= kell, labels=enzN(kell2), las=2)
+    axis(2, at= kell, labels=enzN(kell2), las=1)
+    abline(h= kell+0.5)
+    abline(v= kell+0.5)
+  })
+}
 
 ```
 

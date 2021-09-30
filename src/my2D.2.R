@@ -1,5 +1,87 @@
 library(RRNA)
-
+addToPlot <- function(x=0, y=0, coords, 
+                      xspan=1, rot = NA, gap=0.05, 
+                      main_con=NA, side_con=NA, 
+                      add_letter=F, cex_letter=par("cex"), col_letter="black",
+                      ...){
+  #rotate
+  if(!is.na(rot)){
+    midx <- mean(coords$x)
+    midy <- mean(coords$y)
+    dist <- sqrt(coords$x^2 + coords$y^2)
+    angle <- atan2(coords$y, coords$x) + rot
+    coords$y <- midy + sin(angle) * dist
+    coords$x <- midx + cos(angle) * dist
+    
+  }
+  
+  #align
+  coords$x <- (coords$x - min(coords$x))
+  coords$y <- (coords$y - min(coords$y))
+  
+  #rescale
+  scaling=1
+  if(!is.na(xspan)){
+    #compute scaling factor
+    scaling = xspan/(max(coords$x) - min(coords$x))
+    
+    coords$x <- coords$x * scaling
+    coords$y <- coords$y * scaling
+  }
+  
+  #realign
+  coords$x <- x + coords$x
+  coords$y <- y + coords$y
+  
+  #connector lines
+  if(!is.na(main_con)){
+    if(is.logical(main_con)) if(main_con) main_con <- list(lwd=1, lty=1, col="black")
+    
+    with(main_con, {
+      #points(coords$x, coords$y, type="c", col=col, lwd=lwd, lty=lty)
+      segments(coords[1:(nrow(coords)-1),"x"], 
+               coords[1:(nrow(coords)-1),"y"], 
+               coords[2:nrow(coords),"x"], 
+               coords[2:nrow(coords),"y"], 
+               col=col, lwd=lwd, lty=lty)
+    })
+    
+  }
+  
+  if(!is.na(side_con)){
+    if(is.logical(side_con)) if(side_con) side_con <- list(lwd=1, lty=1, col="black")
+    
+    with(side_con, {
+      segs <- data.frame()
+      
+      for(base in 1:nrow(coords)){
+        if(coords[base, "bound"] > 0 & base < coords[base, "bound"]){
+          segs <- rbind(segs, data.frame(
+            x0=coords[base, "x"], 
+            y0=coords[base, "y"],
+            x1=coords[coords[base, "bound"], "x"],
+            y1=coords[coords[base, "bound"], "y"]  ))
+        }
+      }
+      segments(segs$x0, segs$y0, segs$x1, segs$y1, lwd=lwd, col=col, lty=lty)
+      
+    })
+    
+  }
+  
+  #points(coords$x, coords$y)
+  symbols(coords$x, coords$y, 
+          circles=rep(scaling* (1/2-gap), nrow(coords)), 
+          inches=F, add=T, ...)
+  
+  #add letter
+  lett <- coords[add_letter, ]
+  if(nrow(lett) > 0) {
+    text(lett$x, lett$y, labels=lett$seq, cex=cex_letter, col=col_letter)
+  }
+  
+  #return(coords)
+}
 
 dirto <- function(to, from=c(0,0)){
 	
@@ -48,7 +130,7 @@ pooldata=sapply(strID, function(id) {
   close(filecon)
   
   if( is.na(startofPattern) ) {
-    cat("ERROR: no pattern found")
+    cat(paste("ERROR: no pattern found in", id, "\n"))
     return(NA)
   }
   
@@ -98,6 +180,10 @@ pooldata=sapply(strID, function(id) {
   )
 })
 
+#pooldata <- pooldatas[[1]]##noo
+p.colnames <- colnames(pooldata[[1]])
+pooldata = do.call(rbind.data.frame, pooldata)
+colnames(pooldata) <- p.colnames
 
 r=1
 
@@ -115,9 +201,30 @@ barplot( c(rep(NA, 4), pooldata[r,"mean_R"] / maxok["mean_R"] ), add=T, axes=F )
 barplot( c(rep(NA, 5), -pooldata[r,"mean_mfe"] / maxok["mean_mfe"] ), add=T, axes=F )
 text()
 
-plot(0,0)
-ct=makeCt( pooldata$mask[r], pooldata$seq[r])
+plot(0,0, asp=1)
+ct=makeCt( pooldata$str[r], pooldata$seq[r])
 coords=ct2coord(ct)
+addToPlot(0,0,coords, xspan=1,
+          fg="lightblue")
+
+strsplit(numbs[nth, "seq"], "")[[1]] != "N"
+
+addToPlot(x_orig,1.8,coords, xspan=1, 
+          add_letter = strsplit(numbs[nth, "seq"], "")[[1]] != "N", 
+          cex_letter = 1, 
+          col_letter = "red",
+          fg="lightblue", 
+          # bg=NA,
+          bg=c(rep("lightblue", 1),
+               rep("red", nrow(coords)/2-2 ),
+               rep("coral", 3),
+               rep("red", nrow(coords)/2-2 ),
+               rep("lightblue", 1)),
+          rot=pi/2,
+          main_con = T, side_con = list(lwd=1, col="red", lty=1) )
+
+
+
 
 
 

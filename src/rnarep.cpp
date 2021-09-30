@@ -70,7 +70,7 @@ namespace rnarep {
 		}
 	}
 
-	void CellContent::replicate(const CellContent &templ){
+	void CellContent::replicate(CellContent &templ){
 		//int tsize = templ.seq.size();
 		//int tsizeminus = tsize - 1;
 		
@@ -151,7 +151,10 @@ namespace rnarep {
 		//for now it is seq is added -> need to annotate!!
 		if(seq.length()){
 			annotate();
-			prev_type = templ.type; 
+			prev_type = templ.get_type(); 
+			/* for testing purposes: dont forget to comment it out!! */
+//			if(prev_type == 0 && type == 0) die(); //it will cause perasites to die immediately - WARNING: just for testing purposes, comment it out for main simulations!!!"
+			/*********************************************************/
 		}
 		else {
 			die();
