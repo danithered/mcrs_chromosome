@@ -1,8 +1,14 @@
 library(RRNA)
+library(ggplot2)
+library(ggplotify)
+#library(grid)
+library(cowplot)
+library(plotrix)
+
 addToPlot <- function(x=0, y=0, coords, 
                       xspan=1, rot = NA, gap=0.05, 
                       main_con=NA, side_con=NA, 
-                      add_letter=F, cex_letter=par("cex"), col_letter="black",
+                      add_letter=F, cex_letter=par("cex"), col_letter="black", col=NULL,
                       ...){
   #rotate
   if(!is.na(rot)){
@@ -70,10 +76,18 @@ addToPlot <- function(x=0, y=0, coords,
   }
   
   #points(coords$x, coords$y)
-  symbols(coords$x, coords$y, 
-          circles=rep(scaling* (1/2-gap), nrow(coords)), 
-          inches=F, add=T, ...)
-  
+  # symbols(coords$x, coords$y, 
+  #         circles=rep(scaling* (1/2-gap), nrow(coords)), 
+  #         inches=F, add=T, ...)
+  if(is.null(col)){
+  	cols <- rep("transparent", nrow(coords))
+  } else {
+  	cols <- col
+  }
+  for(ci in 1:nrow(coords) ) draw.circle(coords$x[ci], coords$y[ci],
+  						radius = scaling* (1/2-gap), nrow(coords),
+  						col=cols[ci],
+  						...)
   #add letter
   lett <- coords[add_letter, ]
   if(nrow(lett) > 0) {
@@ -82,6 +96,25 @@ addToPlot <- function(x=0, y=0, coords,
   
   #return(coords)
 }
+
+#testing add: 19(cra) 22(cxy) 23(din) 25(family) 28(fin) 48(mgp) 56(pin) 57(plt) 64(usr) 68(xpd)
+what = names(par())[56]
+#par(mfrow=c(1,1))
+{
+#par(fin=c(5,5))
+plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " "))
+addToPlot(0,0, coords, main_con=T, xspan = 1)
+plot_grid(as.ggplot(function(x){
+	#par(mgp=c(3,1,0))
+	plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " ") )
+	#plot.new()
+	#plot.window(asp=1, ylim=c(0,1), xlim=c(0, 1))
+	addToPlot(0,0, coords, main_con=T, xspan = 1)
+#}), scale=1.2)
+}, scale=1))
+}
+
+
 
 dirto <- function(to, from=c(0,0)){
 	
@@ -96,17 +129,36 @@ setwd("/home/danielred/data/programs/mcrs_chromosome/IN/str/")
 strID <- list.dirs(recursive = F, full.names = F)  
 
 
-pooldata=sapply(strID, function(id) {
+pooldata=list()
+for(id in strID) {
   # process rule
   rule <- readLines(paste(id, "str.txt", sep="/"))
   subs <- grep(".", rule, fixed=T)
   if(length(subs) > 1){ rule <- rule[ 1:(subs[2]-1) ] } #ignore subrules > 1
   
-  filecon <- file(paste(id, rev(list.files(id, pattern="randseqs_ea*"))[1], sep="/"))
-  open(filecon)
+  #filecon <- file(paste(id, rev(list.files(id, pattern="randseqs_ea*"))[1], sep="/"))
+  poolfile <- read.table(paste(id, rev(list.files(id, pattern="randseqs_ea*"))[1], sep="/"))
+  colnames(poolfile) <- c("seq", 
+													"str", 
+													"mfe", 
+													"Pfold", 
+													"Pdeg", 
+													"no_sites",
+													"R",
+													"length",
+													"type",
+													paste0("a", 0:(ncol(poolfile)-10)) 
+													)
+  
+  #open(filecon)
   startofPattern <- NA
-  while(is.na(startofPattern) & length( line <- readLines(filecon, 1)) > 0){
-    repl <- strsplit(line, "\t", fixed=T)[[1]][1:2]
+  linecount = 0
+  while(is.na(startofPattern)){
+  	#read in next line
+  	linecount = linecount+1
+  	repl <- poolfile[linecount, c("seq", "str")]
+    #repl <- strsplit(line, "\t", fixed=T)[[1]][1:2]
+  	
     where <- gregexpr(rule[1], repl[2], fixed=T)[[1]]
     if(where[1] > -1){ #it has this activity
       #check for subrules
@@ -115,7 +167,9 @@ pooldata=sapply(strID, function(id) {
         found = T
         for(sr in rule[2:length(rule)]){
           sub <- strsplit(sr, " ")[[1]]
-          if(substr(repl[1], w + as.numeric(sub[1]), w + as.numeric(sub[1]) ) != sub[2]) { #it is not ok 
+          if(substr(repl[1],
+          					w + as.numeric(sub[1])-1,
+          					w + as.numeric(sub[1])-1 ) != sub[2]) { #it is not ok 
             found = F
             break
           }
@@ -127,7 +181,7 @@ pooldata=sapply(strID, function(id) {
       } # checking possible locations
     }
   } # looping tru file to find ok replicator
-  close(filecon)
+  #close(filecon)
   
   if( is.na(startofPattern) ) {
     cat(paste("ERROR: no pattern found in", id, "\n"))
@@ -137,8 +191,9 @@ pooldata=sapply(strID, function(id) {
   mask <- paste(rep("N", nchar(repl[1])), collapse="")
   for(sr in rule[2:length(rule)]){
     sub <- strsplit(sr, " ")[[1]]
-    ch = startofPattern + as.numeric(sub[1])
-    substr(mask, ch, ch) <- sub[2]
+    ch = startofPattern + as.numeric(sub[1]) -1
+    #substr(mask, ch, ch) <- sub[2]
+    substr(mask, ch, ch) <- substr(repl[1], ch, ch)
   }
   
   fr = read.table(paste(id, rev(list.files(id, pattern="randseqs_ea*"))[1], sep="/"))
@@ -154,74 +209,262 @@ pooldata=sapply(strID, function(id) {
                     paste0("a", 0:(ncol(fr)-10)))
   
   
-  return(data.frame(id=id,
-             seq=repl[1], 
-             str=repl[2], 
-             start=startofPattern, 
-             end=startofPattern + nchar(repl[1]),
-             mask=mask,
-             n = nrow(fr),
-             #length
-             mean_length=mean(fr$length),
-             sd_length=sd(fr$length),
-             #replicability
-             mean_R=mean(fr$R),
-             sd_R=sd(fr$R),
-             #Pdeg
-             mean_Pdeg=mean(fr$Pdeg),
-             sd_Pdeg=sd(fr$Pdeg),
-             #Pfold
-             mean_Pfold=mean(fr$Pfold),
-             sd_Pfold=sd(fr$Pfold),
-             #MFE
-             mean_mfe=mean(fr$mfe),
-             sd_mfe=sd(fr$mfe)
-        )
-  )
-})
+  pooldata[[id]] <- list(id=id,
+						             seq=as.character(repl[1]), 
+						             str=as.character(repl[2]), 
+						             start=startofPattern, 
+						             end=startofPattern + nchar(rule[1]) - 1,
+						             mask=mask,
+						             n = nrow(fr),
+						             #length
+						             mean_length=mean(fr$length),
+						             sd_length=sd(fr$length),
+						             #replicability
+						             mean_R=mean(fr$R),
+						             sd_R=sd(fr$R),
+						             #Pdeg
+						             mean_Pdeg=mean(fr$Pdeg),
+						             sd_Pdeg=sd(fr$Pdeg),
+						             #Pfold
+						             mean_Pfold=mean(fr$Pfold),
+						             sd_Pfold=sd(fr$Pfold),
+						             #MFE
+						             mean_mfe=mean(fr$mfe),
+						             sd_mfe=sd(fr$mfe)
+        						)
+}
 
 #pooldata <- pooldatas[[1]]##noo
-p.colnames <- colnames(pooldata[[1]])
+p.colnames <- names(pooldata[[1]])
 pooldata = do.call(rbind.data.frame, pooldata)
 colnames(pooldata) <- p.colnames
 
 r=1
 
-maxok <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max)
-minek <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max)
+#plot(0,0, asp=1)
+ct=makeCt( pooldata$str[r], pooldata$seq[r])
+coords=ct2coord(ct)
+
+seqrule <- strsplit(pooldata$mask[r], "")[[1]] != "N"
+
+colormask <- rep(NA, length(seqrule))
+colormask[ pooldata[r, "start"]:pooldata[r, "end"] ] <- "red" 
+colormask[ seqrule ] <- "coral" 
+colormask[pooldata[r, "start"] + which(strsplit(pooldata[r, "str"], "")[[1]][ pooldata[r, "start"]:pooldata[r, "end"] ] != ".") -1] <- "blue"
+
+p1 <- as.ggplot(~{
+	plot.new()
+	plot.window(asp=1, xlim=c(0,1), ylim=c(0,1), xpd=NA)
+	addToPlot(0,0,coords, xspan=1,
+						fg="lightblue",
+						#bases
+						add_letter = seqrule,
+						cex_letter = 0.5,
+						col_letter = "red",
+						#fill
+						bg=colormask,
+						#rotate it
+						#rot=pi/2,
+						#connecting lines
+						main_con = T
+						#, side_con = list(lwd=1, col="red", lty=1)
+						)
+})
+p2 <- as.grob(~barplot(1:2))
+p1
+p3 <- as.ggplot(~plot(0,0,asp=1))
+plot_grid(p1, p3, ncol=1, greedy = F, scale=c(2,1))
+
+
+#plot properties of pool
+maxok <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
+minek <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
 
 barplot( unlist(pooldata[r, c("mean_Pdeg", "mean_Pfold")]), 
-         xlim=c(0,7), 
-         axes=F, 
-         ylim=c(-1,1)
-        )
+				 xlim=c(0,7), 
+				 axes=F, 
+				 ylim=c(-1,1)
+)
 barplot( c(rep(NA, 2), pooldata[r,"n"] / maxok["n"] ), add=T, axes=F )
 barplot( c(rep(NA, 3), pooldata[r,"mean_length"] / maxok["mean_length"] ), add=T, axes=F )
 barplot( c(rep(NA, 4), pooldata[r,"mean_R"] / maxok["mean_R"] ), add=T, axes=F )
 barplot( c(rep(NA, 5), -pooldata[r,"mean_mfe"] / maxok["mean_mfe"] ), add=T, axes=F )
 text()
 
-plot(0,0, asp=1)
-ct=makeCt( pooldata$str[r], pooldata$seq[r])
-coords=ct2coord(ct)
-addToPlot(0,0,coords, xspan=1,
-          fg="lightblue")
+Rmax=50
+lmax = 100
 
-strsplit(numbs[nth, "seq"], "")[[1]] != "N"
+pfl <- stack(poolfile[,c("mfe", "Pfold", "Pdeg", "R", "length")])
+ggplot(data=pfl, aes(x=1, y=values)) +
+	facet_grid(ind~.)+
+	#geom_boxplot(aes(y=values))+
+	geom_violin(width=1)+
+	stat_summary(fun=mean, geom="point")
+	coord_cartesian(ylim = c(0, -30))
+	scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+	labs(title= tt, subtitle=whattosee)+
+	theme(axis.title.x = element_blank(), 
+				axis.text.x=element_blank(),
+				axis.ticks = element_blank(),
+				legend.position = "none",
+				axis.title.y = element_blank())
 
-addToPlot(x_orig,1.8,coords, xspan=1, 
-          add_letter = strsplit(numbs[nth, "seq"], "")[[1]] != "N", 
-          cex_letter = 1, 
-          col_letter = "red",
-          fg="lightblue", 
-          # bg=NA,
-          bg=c(rep("lightblue", 1),
-               rep("red", nrow(coords)/2-2 ),
-               rep("coral", 3),
-               rep("red", nrow(coords)/2-2 ),
-               rep("lightblue", 1)),
-          rot=pi/2,
-          main_con = T, side_con = list(lwd=1, col="red", lty=1) )
+tulplots <- list(
+	ggplot(data=poolfile, aes(x=1, y=mfe)) +
+		geom_violin(width=1)+
+		stat_summary(fun=mean, geom="point")+
+		coord_cartesian(ylim = c(0, -30))+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none")
+,	
+	ggplot(data=poolfile, aes(x=1, y=Pfold)) +
+		geom_violin(width=1)+
+		stat_summary(fun=mean, geom="point")+
+		coord_cartesian(ylim = c(0, 1))+
+		scale_y_continuous(breaks=c(0,1), labels = c("0%", "100%"))+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none")
+,	
+	ggplot(data=poolfile, aes(x=1, y=Pdeg)) +
+		geom_violin(width=1)+
+		stat_summary(fun=mean, geom="point")+
+		scale_y_continuous(breaks=c(0,1), labels = c("0%", "100%"))+
+		coord_cartesian(ylim = c(0, 1))+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none")
+,	
+	ggplot(poolfile, aes(x=1, y=R)) +
+		geom_violin(width=1)+
+		stat_summary(fun=mean, geom="point")+
+		coord_cartesian(ylim = c(0, Rmax))+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none")
+,	
+	ggplot(data=poolfile, aes(x=1, y=length)) +
+		geom_violin(width=1)+
+		stat_summary(fun=mean, geom="point")+
+		coord_cartesian(ylim = c(0, lmax))+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none")
+,
+	ggplot(data=data.frame(n= nrow(poolfile) ), aes(y=n, x=1)) +
+		geom_bar(stat = "identity")+
+		theme(axis.title.x = element_blank(), 
+					axis.text.x=element_blank(),
+					axis.ticks = element_blank(),
+					legend.position = "none") +
+		coord_cartesian(ylim=c(0, all))+
+		scale_y_continuous(breaks = c(0, all), 
+											 labels = c("0%", "100%"))
+,
+	as.ggplot(~{
+		plot.new()
+		plot.window(asp=1, xlim=c(0,1), ylim=c(0,1), xpd=NA)
+		addToPlot(0,0,coords, 
+							xspan=1,
+							border="lightblue",
+							#bases
+							add_letter = seqrule,
+							cex_letter = 0.5,
+							col_letter = "red",
+							#fill
+							col=colormask,
+							#rotate it
+							#rot=pi/2,
+							#connecting lines
+							main_con = T
+							#, side_con = list(lwd=1, col="red", lty=1)
+		)
+	}, scale=1)
+)
+plot_grid(plotlist=tulplots, ncol=1, align="v")
+plot_grid( tulplots[[7]], ncol=1, align="v")
+plot_grid(plotlist=lapply(tulplots, function(x) x + theme(axis.title.y = element_blank(), axis.text.y = element_blank())))
+
+numbers <- data.frame(id=c("1", "2"), n=c(1000, 104))
+all <- 3000
+ggplot(numbers, aes(x=id, y=n))+
+	geom_bar(stat="identity")+
+	scale_y_continuous(breaks = c(0, all), 
+										 labels = c("0%", "100%"), 
+										 limits=c(0, all)
+										 )
+all=50000
+
+
+
+
+
+#copied
+		#count
+		ggplot(data=stlong[stlong$ind=="count",], aes(x=type, 
+																									fill=type,
+																									#y=values / as.numeric(p$par_ncol) / as.numeric(p$par_nrow)
+																									y=values / sum(stlong[stlong$ind=="count", "values"])
+		)) +
+			facet_grid(ind~.)+
+			geom_bar(stat="identity") +
+			geom_text(aes(label=values), 
+								position = position_stack(vjust=0.5),
+								size=2, 
+								fill=NA, 
+								angle=270)+
+			scale_x_discrete(labels = parse_format(), drop=drop_unused )+
+			scale_y_continuous(breaks= c(0, 1), 
+												 labels= c("0%", "100%"))+
+			coord_cartesian(ylim = c(0, 1), clip="off" )+
+			theme(legend.position = "none",
+						axis.ticks = element_blank(),
+						axis.title.y = element_blank())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
