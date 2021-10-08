@@ -4,6 +4,7 @@ library(ggplotify)
 #library(grid)
 library(cowplot)
 library(plotrix)
+library(gtable)
 
 addToPlot <- function(x=0, y=0, coords, 
                       xspan=1, rot = NA, gap=0.05, 
@@ -29,7 +30,10 @@ addToPlot <- function(x=0, y=0, coords,
   scaling=1
   if(!is.na(xspan)){
     #compute scaling factor
-    scaling = xspan/(max(coords$x) - min(coords$x))
+    scaling = ifelse(max(coords$x) < max(coords$y),
+                     xspan/(max(coords$y) - min(coords$y)),
+                     xspan/(max(coords$x) - min(coords$x))
+    )
     
     coords$x <- coords$x * scaling
     coords$y <- coords$y * scaling
@@ -40,40 +44,45 @@ addToPlot <- function(x=0, y=0, coords,
   coords$y <- y + coords$y
   
   #connector lines
-  if(!is.na(main_con)){
-    if(is.logical(main_con)) if(main_con) main_con <- list(lwd=1, lty=1, col="black")
-    
-    with(main_con, {
-      #points(coords$x, coords$y, type="c", col=col, lwd=lwd, lty=lty)
-      segments(coords[1:(nrow(coords)-1),"x"], 
-               coords[1:(nrow(coords)-1),"y"], 
-               coords[2:nrow(coords),"x"], 
-               coords[2:nrow(coords),"y"], 
-               col=col, lwd=lwd, lty=lty)
-    })
-    
-  }
-  
-  if(!is.na(side_con)){
-    if(is.logical(side_con)) if(side_con) side_con <- list(lwd=1, lty=1, col="black")
-    
-    with(side_con, {
-      segs <- data.frame()
-      
-      for(base in 1:nrow(coords)){
-        if(coords[base, "bound"] > 0 & base < coords[base, "bound"]){
-          segs <- rbind(segs, data.frame(
-            x0=coords[base, "x"], 
-            y0=coords[base, "y"],
-            x1=coords[coords[base, "bound"], "x"],
-            y1=coords[coords[base, "bound"], "y"]  ))
-        }
+  ## MAIN_CON
+  if(!is.list(main_con)) if(!is.na(main_con)){
+    if(is.logical(main_con)){
+      if(main_con) {
+        main_con <- list(lwd=1, lty=1, col="black")
       }
-      segments(segs$x0, segs$y0, segs$x1, segs$y1, lwd=lwd, col=col, lty=lty)
-      
-    })
-    
+    }
   }
+    
+  if(is.list(main_con)) with(main_con, {
+    #points(coords$x, coords$y, type="c", col=col, lwd=lwd, lty=lty)
+    segments(coords[1:(nrow(coords)-1),"x"], 
+             coords[1:(nrow(coords)-1),"y"], 
+             coords[2:nrow(coords),"x"], 
+             coords[2:nrow(coords),"y"], 
+             col=col, lwd=lwd, lty=lty)
+  })
+  
+  ##SIDE_CON
+  if(!is.list(side_con)) if(!is.na(side_con)){
+    if(is.logical(side_con)) if(side_con) side_con <- list(lwd=1, lty=1, col="black")
+  }  
+  
+  if(is.list(side_con)) with(side_con, {
+    segs <- data.frame()
+    
+    for(base in 1:nrow(coords)){
+      if(coords[base, "bound"] > 0 & base < coords[base, "bound"]){
+        segs <- rbind(segs, data.frame(
+          x0=coords[base, "x"], 
+          y0=coords[base, "y"],
+          x1=coords[coords[base, "bound"], "x"],
+          y1=coords[coords[base, "bound"], "y"]  ))
+      }
+    }
+    segments(segs$x0, segs$y0, segs$x1, segs$y1, lwd=lwd, col=col, lty=lty)
+    
+  })
+
   
   #points(coords$x, coords$y)
   # symbols(coords$x, coords$y, 
@@ -97,25 +106,6 @@ addToPlot <- function(x=0, y=0, coords,
   #return(coords)
 }
 
-#testing add: 19(cra) 22(cxy) 23(din) 25(family) 28(fin) 48(mgp) 56(pin) 57(plt) 64(usr) 68(xpd)
-what = names(par())[56]
-#par(mfrow=c(1,1))
-{
-#par(fin=c(5,5))
-plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " "))
-addToPlot(0,0, coords, main_con=T, xspan = 1)
-plot_grid(as.ggplot(function(x){
-	#par(mgp=c(3,1,0))
-	plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " ") )
-	#plot.new()
-	#plot.window(asp=1, ylim=c(0,1), xlim=c(0, 1))
-	addToPlot(0,0, coords, main_con=T, xspan = 1)
-#}), scale=1.2)
-}, scale=1))
-}
-
-
-
 dirto <- function(to, from=c(0,0)){
 	
 	return(atan2(to[2] - from[2], to[1] - from[1]) / pi)
@@ -125,12 +115,24 @@ pirad2deg <- function(rad) {rad * 180}
 deg2rad <- function(deg) {deg * pi / 180}
 deg2pirad <- function(deg) {deg / 180}
 
+
+#Computing
 setwd("/home/danielred/data/programs/mcrs_chromosome/IN/str/") 
 strID <- list.dirs(recursive = F, full.names = F)  
 
+all=50000
+Rmax=50
+lmax = 100
 
-pooldata=list()
-for(id in strID) {
+strID <- strID[order(as.numeric(strID))]
+
+for(r in 1:length(strID) ) {
+  if(r==1){
+    pooldata=list()
+    tulplots <- list()
+  }
+  id <- strID[r]
+  
   # process rule
   rule <- readLines(paste(id, "str.txt", sep="/"))
   subs <- grep(".", rule, fixed=T)
@@ -208,7 +210,99 @@ for(id in strID) {
                     "type",
                     paste0("a", 0:(ncol(fr)-10)))
   
+  #compute 2D structure and colorisation
+  ct=makeCt( as.character(repl[2]), as.character(repl[1]))
+  coords=ct2coord(ct)
   
+  seqrule <- strsplit(mask, "")[[1]] != "N"
+  
+  colormask <- rep(NA, length(seqrule))
+  colormask[ startofPattern:(startofPattern + nchar(rule[1]) - 1) ] <- "red" 
+  colormask[ seqrule ] <- "coral" 
+  colormask[startofPattern + which(strsplit(as.character(repl[2]), "")[[1]][ startofPattern:(startofPattern + nchar(rule[1]) - 1) ] != ".") -1] <- "blue"
+  
+  #plots
+  tulplots[[length(tulplots)+1]] <- ggplot(data=poolfile, aes(x=1, y=mfe)) +
+    geom_violin(width=1)+
+    labs(title=id)+
+    stat_summary(fun=mean, geom="point")+
+    coord_cartesian(ylim = c(0, -30))+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none",
+          plot.title = element_text(hjust = 0.5))
+  	
+  tulplots[[length(tulplots)+1]] <- ggplot(data=poolfile, aes(x=1, y=Pfold)) +
+    geom_violin(width=1)+
+    stat_summary(fun=mean, geom="point")+
+    coord_cartesian(ylim = c(0, 1))+
+    scale_y_continuous(breaks=c(0,1), labels = c("0%", "100%"))+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none")
+  
+  tulplots[[length(tulplots)+1]] <- ggplot(data=poolfile, aes(x=1, y=Pdeg)) +
+    geom_violin(width=1)+
+    stat_summary(fun=mean, geom="point")+
+    scale_y_continuous(breaks=c(0,1), labels = c("0%", "100%"))+
+    coord_cartesian(ylim = c(0, 1))+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none")
+  
+  tulplots[[length(tulplots)+1]] <- ggplot(poolfile, aes(x=1, y=R)) +
+    geom_violin(width=1)+
+    stat_summary(fun=mean, geom="point")+
+    coord_cartesian(ylim = c(0, Rmax))+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none")
+  
+  tulplots[[length(tulplots)+1]] <- ggplot(data=poolfile, aes(x=1, y=length)) +
+    geom_violin(width=1)+
+    stat_summary(fun=mean, geom="point")+
+    coord_cartesian(ylim = c(0, lmax))+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none")
+
+  tulplots[[length(tulplots)+1]] <- ggplot(data=data.frame(n= nrow(poolfile) ), aes(y=n, x=1)) +
+    geom_bar(stat = "identity")+
+    theme(axis.title.x = element_blank(), 
+          axis.text.x=element_blank(),
+          axis.ticks = element_blank(),
+          legend.position = "none") +
+    coord_cartesian(ylim=c(0, all))+
+    scale_y_continuous(breaks = c(0, all), 
+                       labels = c("0%", "100%"))
+  
+  tulplots[[length(tulplots)+1]] <- as.ggplot(~{
+    plot.new()
+    plot.window(asp=1, xlim=c(0,1), ylim=c(0,1), xpd=NA)
+    addToPlot(0,0,coords, 
+              xspan=1,
+              border="lightblue",
+              #bases
+              add_letter = seqrule,
+              cex_letter = 0.5,
+              col_letter = "red",
+              #fill
+              col=colormask,
+              #rotate it
+              #rot=pi/2,
+              #connecting lines
+              main_con = T
+              , side_con = list(lwd=0.5, col="purple", lty=2)
+    )
+  }, scale=1)
+  
+  
+  #pooldata
   pooldata[[id]] <- list(id=id,
 						             seq=as.character(repl[1]), 
 						             str=as.character(repl[2]), 
@@ -232,6 +326,9 @@ for(id in strID) {
 						             mean_mfe=mean(fr$mfe),
 						             sd_mfe=sd(fr$mfe)
         						)
+  
+  
+  
 }
 
 #pooldata <- pooldatas[[1]]##noo
@@ -239,75 +336,80 @@ p.colnames <- names(pooldata[[1]])
 pooldata = do.call(rbind.data.frame, pooldata)
 colnames(pooldata) <- p.colnames
 
+#plot figure
+for(tp in 8:length(tulplots)) tulplots[[tp]] <- tulplots[[tp]] + 
+  theme(axis.title.y = element_blank(), 
+        axis.text.y = element_blank()
+        )
+axes <- list()
+for(tp in 1:7){
+  axes[[length(axes)+1]] <- as.ggplot(~{
+    grid.newpage()
+    grid.draw(gtable_filter(ggplotGrob(tulplots[[tp]]), 'axis-l|ylab', trim=F))
+    gtable_filter(ggplotGrob(tulplots[[1]]), 'axis-l|ylab', trim=F)
+  #}, hjust=0.7)
+  })
+}
+
+pdf("pool.pdf", w = (r+1)*2, h= 7*2)
+#plot_grid(plotlist=c(axes, tulplots), ncol=r+1, byrow=F)
+plot_grid(plotlist=c(axes, lapply(tulplots, function(x) x + theme(axis.title.y = element_blank(), 
+                                                                  axis.text.y = element_blank() ) )),
+          ncol=r+1,
+          byrow=F)
+dev.off()
+
+
+plot_grid(plotlist=tulplots[c(8, 9, 15, 16)+5-7], ncol=2, byrow=F, )
+
+
+
+
+
+
+
+
+
+
+
 r=1
 
 #plot(0,0, asp=1)
-ct=makeCt( pooldata$str[r], pooldata$seq[r])
-coords=ct2coord(ct)
-
-seqrule <- strsplit(pooldata$mask[r], "")[[1]] != "N"
-
-colormask <- rep(NA, length(seqrule))
-colormask[ pooldata[r, "start"]:pooldata[r, "end"] ] <- "red" 
-colormask[ seqrule ] <- "coral" 
-colormask[pooldata[r, "start"] + which(strsplit(pooldata[r, "str"], "")[[1]][ pooldata[r, "start"]:pooldata[r, "end"] ] != ".") -1] <- "blue"
-
-p1 <- as.ggplot(~{
-	plot.new()
-	plot.window(asp=1, xlim=c(0,1), ylim=c(0,1), xpd=NA)
-	addToPlot(0,0,coords, xspan=1,
-						fg="lightblue",
-						#bases
-						add_letter = seqrule,
-						cex_letter = 0.5,
-						col_letter = "red",
-						#fill
-						bg=colormask,
-						#rotate it
-						#rot=pi/2,
-						#connecting lines
-						main_con = T
-						#, side_con = list(lwd=1, col="red", lty=1)
-						)
-})
-p2 <- as.grob(~barplot(1:2))
-p1
-p3 <- as.ggplot(~plot(0,0,asp=1))
-plot_grid(p1, p3, ncol=1, greedy = F, scale=c(2,1))
 
 
-#plot properties of pool
-maxok <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
-minek <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
 
-barplot( unlist(pooldata[r, c("mean_Pdeg", "mean_Pfold")]), 
-				 xlim=c(0,7), 
-				 axes=F, 
-				 ylim=c(-1,1)
-)
-barplot( c(rep(NA, 2), pooldata[r,"n"] / maxok["n"] ), add=T, axes=F )
-barplot( c(rep(NA, 3), pooldata[r,"mean_length"] / maxok["mean_length"] ), add=T, axes=F )
-barplot( c(rep(NA, 4), pooldata[r,"mean_R"] / maxok["mean_R"] ), add=T, axes=F )
-barplot( c(rep(NA, 5), -pooldata[r,"mean_mfe"] / maxok["mean_mfe"] ), add=T, axes=F )
-text()
 
+
+
+
+
+
+
+
+
+#testing add: 19(cra) 22(cxy) 23(din) 25(family) 28(fin) 48(mgp) 56(pin) 57(plt) 64(usr) 68(xpd)
+what = names(par())[56]
+#par(mfrow=c(1,1))
+{
+  #par(fin=c(5,5))
+  plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " "))
+  addToPlot(0,0, coords, main_con=T, xspan = 1)
+  plot_grid(as.ggplot(function(x){
+    #par(mgp=c(3,1,0))
+    plot(0, 0, asp=1, xlim=c(0, 1), ylim=c(0,1), main= paste(par(what), collapse = " ") )
+    #plot.new()
+    #plot.window(asp=1, ylim=c(0,1), xlim=c(0, 1))
+    addToPlot(0,0, coords, main_con=T, xspan = 1)
+    #}), scale=1.2)
+  }, scale=1))
+}
+
+
+
+all=50000
 Rmax=50
 lmax = 100
 
-pfl <- stack(poolfile[,c("mfe", "Pfold", "Pdeg", "R", "length")])
-ggplot(data=pfl, aes(x=1, y=values)) +
-	facet_grid(ind~.)+
-	#geom_boxplot(aes(y=values))+
-	geom_violin(width=1)+
-	stat_summary(fun=mean, geom="point")
-	coord_cartesian(ylim = c(0, -30))
-	scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
-	labs(title= tt, subtitle=whattosee)+
-	theme(axis.title.x = element_blank(), 
-				axis.text.x=element_blank(),
-				axis.ticks = element_blank(),
-				legend.position = "none",
-				axis.title.y = element_blank())
 
 tulplots <- list(
 	ggplot(data=poolfile, aes(x=1, y=mfe)) +
@@ -388,6 +490,79 @@ tulplots <- list(
 	}, scale=1)
 )
 plot_grid(plotlist=tulplots, ncol=1, align="v")
+
+
+
+
+
+
+p1 <- as.ggplot(~{
+  plot.new()
+  plot.window(asp=1, xlim=c(0,1), ylim=c(0,1), xpd=NA)
+  addToPlot(0,0,coords, xspan=1,
+            fg="lightblue",
+            #bases
+            add_letter = seqrule,
+            cex_letter = 0.5,
+            col_letter = "red",
+            #fill
+            bg=colormask,
+            #rotate it
+            #rot=pi/2,
+            #connecting lines
+            main_con = T
+            #, side_con = list(lwd=1, col="red", lty=1)
+  )
+})
+p2 <- as.grob(~barplot(1:2))
+p1
+p3 <- as.ggplot(~plot(0,0,asp=1))
+plot_grid(p1, p3, ncol=1, greedy = F, scale=c(2,1))
+
+
+
+
+pfl <- stack(poolfile[,c("mfe", "Pfold", "Pdeg", "R", "length")])
+ggplot(data=pfl, aes(x=1, y=values)) +
+  facet_grid(ind~.)+
+  #geom_boxplot(aes(y=values))+
+  geom_violin(width=1)+
+  stat_summary(fun=mean, geom="point")
+coord_cartesian(ylim = c(0, -30))
+scale_x_discrete(labels=parse( text= levels(stlong$type) ), drop=drop_unused)+
+  labs(title= tt, subtitle=whattosee)+
+  theme(axis.title.x = element_blank(), 
+        axis.text.x=element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = "none",
+        axis.title.y = element_blank())
+
+
+
+
+
+
+
+
+#plot properties of pool
+maxok <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
+minek <- sapply(pooldata[, c("n", "mean_length", "mean_R", "mean_mfe")], max, na.rm=T)
+
+barplot( unlist(pooldata[r, c("mean_Pdeg", "mean_Pfold")]), 
+         xlim=c(0,7), 
+         axes=F, 
+         ylim=c(-1,1)
+)
+barplot( c(rep(NA, 2), pooldata[r,"n"] / maxok["n"] ), add=T, axes=F )
+barplot( c(rep(NA, 3), pooldata[r,"mean_length"] / maxok["mean_length"] ), add=T, axes=F )
+barplot( c(rep(NA, 4), pooldata[r,"mean_R"] / maxok["mean_R"] ), add=T, axes=F )
+barplot( c(rep(NA, 5), -pooldata[r,"mean_mfe"] / maxok["mean_mfe"] ), add=T, axes=F )
+text()
+
+
+
+
+
 plot_grid( tulplots[[7]], ncol=1, align="v")
 plot_grid(plotlist=lapply(tulplots, function(x) x + theme(axis.title.y = element_blank(), axis.text.y = element_blank())))
 
@@ -399,7 +574,7 @@ ggplot(numbers, aes(x=id, y=n))+
 										 labels = c("0%", "100%"), 
 										 limits=c(0, all)
 										 )
-all=50000
+
 
 
 
