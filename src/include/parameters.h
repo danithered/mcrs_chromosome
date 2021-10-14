@@ -11,7 +11,7 @@
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.3 basic max, seems fine, output with prev_type\0";
+const char versioninfo[255] = "ver 2.4 basic max, seems fine, output with prev_type, Pdeg now parametrised\0";
 
 extern int par_noEA;
 
@@ -49,6 +49,8 @@ extern double par_Emin;
 extern double par_Nmet;
 extern double par_Nrep;
 extern double par_gc_bonus;
+extern double par_rangePdeg;
+extern double par_maxPdeg;
 
 
 //Functions 

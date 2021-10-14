@@ -31,6 +31,8 @@ using namespace std;
 //rates
 				double par_diffusion_rate = 4; //
 				double par_claimEmpty = 0.1; //
+				double par_rangePdeg = 0.8; //
+				double par_maxPdeg = 0.9; //
 
 //neighbourhoods
 				double par_Nmet = 4; // 3 -> vonNeumann, 4 -> Moore 
@@ -125,6 +127,8 @@ int paramsToFile(const char* filename){
 	paramfile << "par_Nmet " << par_Nmet << std::endl;
 	paramfile << "par_Nrep " << par_Nrep << std::endl;
 	paramfile << "par_gc_bonus " << par_gc_bonus << std::endl;
+	paramfile << "par_rangePdeg " << par_rangePdeg << std::endl;
+	paramfile << "par_maxPdeg " << par_maxPdeg << std::endl;
 	paramfile << "versioninfo " << versioninfo << std::endl;
 	
 
@@ -152,7 +156,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_output_interval")) option = 'o';
 			else if(!strcmp(argv[i], "--par_save_interval")) option = 'w';
 			else if(!strcmp(argv[i], "--par_seed")) option = 'y';
-			else if(!strcmp(argv[i], "--par_seed_plus")) option = 'x';
+			else if(!strcmp(argv[i], "--par_seed_plus")) option = '+';
 			else if(!strcmp(argv[i], "--par_ID")) option = 'I';
 			else if(!strcmp(argv[i], "--par_str_pool")) option = 'P';
 			else if(!strcmp(argv[i], "--par_outdir")) option = 'O';
@@ -175,6 +179,8 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_Nmet")) option = 'm';
 			else if(!strcmp(argv[i], "--par_Nrep")) option = 'r';
 			else if(!strcmp(argv[i], "--par_gc_bonus")) option = 'U';
+			else if(!strcmp(argv[i], "--par_rangePdeg")) option = 'x';
+			else if(!strcmp(argv[i], "--par_maxPdeg")) option = 'X';
 		}
 		switch(option){
 			// double
@@ -322,6 +328,24 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
+			case 'x':
+				if (++i == argc) return 1;
+				par_rangePdeg = atof(argv[i]);
+				if(par_rangePdeg < 0 || par_rangePdeg > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+			
+			case 'X':
+				if (++i == argc) return 1;
+				par_maxPdeg = atof(argv[i]);
+				if(par_maxPdeg < 0 || par_maxPdeg > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}
+				continue;
+			
 			case 'U':
 				if (++i == argc) return 1;
 				par_gc_bonus = atof(argv[i]);
@@ -332,7 +356,7 @@ int Args(int argc, char **argv)
 				continue;
 			
 			// int
-			case 'x':
+			case '+':
 				if (++i == argc) return 1;
 				par_seed_plus = atoi(argv[i]);
 				continue;
