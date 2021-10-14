@@ -25,6 +25,18 @@ params:
   cache.path:
     label: Set path of cache folder
     value: report_cache/
+  ssh:
+    label: Reach remote host?
+    value: FALSE
+  ssh_address:
+    label: SSH address in format of user@domain:port
+    value: ""
+  ssh_dir:
+    label: rootdir on SSH server
+    value: ""
+  ssh_key:
+    label: Location of ssh public key
+    value: ~/.ssh/id_rsa
 editor_options: 
   chunk_output_type: console
 ---
@@ -49,7 +61,9 @@ library(cowplot)
 par.orig <- par(no.readonly = T) # save default parameters
 
 whattosee <- params$report
-workdir <- paste0(rootdir, whattosee, "/")
+workdir <- ifelse(as.logical(params$ssh),
+                  paste0(params$ssh_dir, whattosee, "/"),
+                  paste0(rootdir, whattosee, "/"))
 
 ```
 
@@ -270,37 +284,143 @@ type2A <- Vectorize(function(x){
 })
 
 
+get_remote <- function(address, 
+                        path="data/programs/mcrs_chromosome/OUT", 
+                        path2="", 
+                        key= "~/.ssh/id_rsa",
+                        what="all",
+                        fullpath=F    
+                       ){
+  if(!what %in% c("all", "dirs", "files")){
+    return(-2)
+  }
+  
+  try({
+    #connect to remote host
+    if(class(address) == "ssh_session"){
+      con = address
+      dest = F
+    } else {
+      con <- ssh_connect(address, keyfile = key)
+      dest = T
+    }
+    
+    
+    #get data
+    if(!ssh_session_info(con)$connected){
+      return(-1)
+    }
+    if(what == "all") {
+        out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -p"))
+    } else if(what=="dirs"){
+        out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -d */"))
+    } else {
+        out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -p | grep -v /"))
+    }
+    
+    #disconnect
+    if(dest) ssh_disconnect(con)
+    
+    #return data
+    if(fullpath){
+      return( paste( 
+        paste0(path, path2), 
+        ( rawToChar(out$stdout) |> strsplit("\\n") )[[1]], 
+        sep="/")
+      )
+    } else {
+      return(( rawToChar(out$stdout) |> strsplit("\\n") )[[1]])
+    }
+  })
+  
+  return(-3)
+}
+
+get_remote_dirs <- function(address, ...) get_remote(address=address, what = "dirs", ...)
+
+get_remote_files <- function(address, pattern=NA, ...) {
+  out <- get_remote(address=address, what = "files", ...)
+  if(is.na(pattern)) {
+    return(out)
+  }
+  return( grep(pattern, out, value = T) )
+}
+
 ```
 
 
 
-```{r read_data_parameters, message=FALSE, cache=T, cache.extra = tools::md5sum(paste0(workdir, "SAVE/parameters.txt"))}
+```{r read_data_parameters, message=FALSE, cache= !as.logical(params$ssh), cache.extra = tools::md5sum(paste0(workdir, "SAVE/parameters.txt"))}
 ######################
 #### read in data ####
 ######################
+if(!as.logical(params$ssh)) { #local files
+  # read in simulation name from param
+  #splitted <- unlist(strsplit(params$input, "/"))
+  #whattosee <- splitted[length(splitted)-1]
+  
+  #workdir <- paste0(paste(splitted[1:(length(splitted)-1)], collapse ="/"), "/")
+  #whattosee <- "test5.5"
+  #whattosee <- "t3sz2_dusit95L30_1"
+  
+  #knitr::opts_knit$set(root.dir = workdir)
+  #setwd(workdir)
+  
+  if(!file.exists(paste0(workdir, "SAVE/parameters.txt"))) warning("parameters file does not exist\n")
+  t <- read.table(paste0(workdir, "SAVE/parameters.txt"), header=F, sep=" ")
+  p <- as.list(as.character(t$V2))
+  names(p) <- t$V1
+  
+  #strsplit(readLines( paste0(workdir, "SAVE/parameters.txt") ), " ")
+} else { #remote files
+  library(ssh)
+ 
+  try({ 
+    #connecting to ssh
+    ssh_con <- ssh_connect(params$ssh_address, keyfile = params$ssh_key)
+    
+    #download
+    tdir = tempdir()
+    scp_download(ssh_con, files= paste0(workdir, "SAVE/parameters.txt"), to=tdir)
+    
+    #process
+    if(!file.exists(paste0(tdir, "/parameters.txt"))) 
+      warning("parameters file does not exist\n")
+    t <- read.table(paste0(tdir, "/parameters.txt"), header=F, sep=" ")
+    p <- as.list(as.character(t$V2))
+    names(p) <- t$V1
+    
+    #delete temp file
+    file.remove(paste0(tdir, "/parameters.txt"))
+  })
+  
+  if( !exists("ssh_con") ){
+    warning("Could not establish ssh connection!\n")
+    knitr::knit_exit()
+  }
+}
 
-# read in simulation name from param
-#splitted <- unlist(strsplit(params$input, "/"))
-#whattosee <- splitted[length(splitted)-1]
-
-#workdir <- paste0(paste(splitted[1:(length(splitted)-1)], collapse ="/"), "/")
-#whattosee <- "test5.5"
-#whattosee <- "t3sz2_dusit95L30_1"
-
-#knitr::opts_knit$set(root.dir = workdir)
-#setwd(workdir)
-
-if(!file.exists(paste0(workdir, "SAVE/parameters.txt"))) warning("parameters file does not exist\n")
-t <- read.table(paste0(workdir, "SAVE/parameters.txt"), header=F, sep=" ")
-p <- as.list(as.character(t$V2))
-names(p) <- t$V1
-
-#strsplit(readLines( paste0(workdir, "SAVE/parameters.txt") ), " ")
 ```
 
 
-```{r read_data_output, message=FALSE, cache=T, cache.extra = tools::md5sum(paste0(workdir, "SAVE/output.txt"))}
-table <- read.table(paste0(workdir, "output.csv"), header=T, sep=";")
+```{r read_data_output, message=FALSE, cache=!as.logical(params$ssh), cache.extra = tools::md5sum(paste0(workdir, "SAVE/output.txt"))}
+
+if(!as.logical(params$ssh)) { #local files
+  table <- read.table(paste0(workdir, "output.csv"), header=T, sep=";")
+} else{
+  try({ 
+    #download
+    scp_download(ssh_con, files= paste0(workdir, "output.csv"), to=tdir)
+    
+    #process
+    if(!file.exists(paste0(tdir, "/output.csv"))) 
+      warning("output file does not exist\n")
+    table <- read.table(paste0(workdir, "output.csv"), header=T, sep=";")
+    
+    #delete temp file
+    file.remove(paste0(workdir, "output.csv"))
+  })
+}
 
 #str(table)
 
@@ -320,10 +440,33 @@ if(!"state" %in% ls()){
   state <- list()
 }
 
-state[["times"]] <- unlist(strsplit(list.files(paste0(workdir,"SAVE"), "*.tsv"), ".", fixed=T))
+#read in times
+if(!as.logical(params$ssh)) { #local files
+  state[["times"]] <- unlist(strsplit(
+                                      list.files(paste0(workdir,"SAVE"), "*.tsv"),
+                                      ".", 
+                                      fixed=T))
+} else {
+  try({
+  state[["times"]] <- unlist(strsplit(
+                                      get_remote_files(ssh_con,
+                                                       path=paste0(workdir,"SAVE"),
+                                                       pattern="*.tsv"
+                                                       ),
+                                      ".", 
+                                      fixed=T))
+  })
+  if( is.null(state[["times"]]) ){
+    warning("ssh connection failed\n")
+    knitr::knit_exit()
+  }
+}
+
+#edit times
 state$times <- state$times[seq(1, length(state$times), 2)]
 state$times <- state$times[order(as.numeric(state$times))]
 
+#set ttt
 if( as.numeric(params$abrmax) < 0 ){
   ttt <- state$times
 } else {
@@ -339,13 +482,44 @@ read_in_ttt <- ttt[!paste0("t", ttt) %in% names(state)]
 ```
 
 
-```{r read_data_save, message=FALSE, cache=T, cache.lazy=F, cache.rebuild = length(read_in_ttt ) > 0, cache.extra = tools::md5sum(paste0(workdir, "SAVE/output.txt"))}
+```{r read_data_save, message=FALSE, cache=!as.logical(params$ssh), cache.lazy=F, cache.rebuild = length(read_in_ttt ) > 0, cache.extra = tools::md5sum(paste0(workdir, "SAVE/output.txt"))}
 #ttt <- 0
 
 for(tt in ttt )
 { 
   #tt=0
-  state[[paste0("t", tt)]] <- read.table( paste0(workdir, "SAVE/", tt, ".tsv"), sep="\t", header=F )
+  #read in file
+  if(!as.logical(params$ssh)) { #local files
+    state[[paste0("t", tt)]] <- read.table( paste0(workdir, "SAVE/", tt, ".tsv"),
+                                            sep="\t", 
+                                            header=F )
+  } else {
+    try({
+      #download
+      scp_download(ssh_con, paste0(workdir, "SAVE/", tt, ".tsv"), to=tdir)
+      if(!file.exists(paste0(tdir, "/", tt, ".tsv"))){ 
+        warning("output file does not exist\n")
+        knitr::knit_exit()
+      }
+      
+      #process
+      state[[paste0("t", tt)]] <- read.table( paste0(tdir, "/", tt, ".tsv"),
+                                            sep="\t", 
+                                            header=F )
+      
+      #delete
+      file.remove(paste0(tdir, "/", tt, ".tsv"))
+    })
+    if( !paste0("t", tt) %in%  names(state)){
+      warning("ssh connection failed\n")
+      knitr::knit_exit()
+    }
+  }
+
+  
+  
+  
+  #modify column names
   if(ncol(state[[paste0("t", tt)]]) == 9 + as.numeric(p$par_noEA)){
     colnames(state[[paste0("t", tt)]]) <- c("seq", 
                                             "str", 
@@ -382,6 +556,9 @@ for(tt in ttt )
   #colnames(state) <- c("seq", "str", "mfe", "Pfold", "Pdeg", "no_sites", "R", "M", "type", "a0", "a1", "a2")
   #state <- cbind(state, type_f = as.factor(state$type))
 }
+
+#close ssh 
+try( if(as.logical(params$ssh)) ssh_disconnect(ssh_con) )
 
 ```
 

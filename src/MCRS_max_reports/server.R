@@ -1,7 +1,6 @@
 library(shiny)
 
-if(!dir.exists("outputs")) dir.create("outputs")
-
+#functions
 update_report <- function(dir, input){
     try(rmarkdown::render("/home/danielred/data/programs/mcrs_chromosome/src/output_graph.Rmd", 
                       params = list(
@@ -19,10 +18,81 @@ update_report <- function(dir, input){
     #cat(paste0(getwd(), "/outputs/", input$report, "/cache/\n"))
 }
 
+get_remote <- function(address, 
+                       path="data/programs/mcrs_chromosome/OUT", 
+                       path2="", 
+                       key= "~/.ssh/id_rsa",
+                       what="all",
+                       fullpath=F    
+){
+    if(!what %in% c("all", "dirs", "files")){
+        return(-2)
+    }
+    
+    try({
+        #connect to remote host
+        if(class(address) == "ssh_session"){
+            con = address
+            dest = F
+        } else {
+            con <- ssh_connect(address, keyfile = key)
+            dest = T
+        }
+        
+        
+        #get data
+        if(!ssh_session_info(con)$connected){
+            return(-1)
+        }
+        if(what == "all") {
+            out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -p"))
+        } else if(what=="dirs"){
+            out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -d */"))
+        } else {
+            out <- ssh_exec_internal(con, command=paste("cd", paste0(path, path2), "\nls -p | grep -v /"))
+        }
+        
+        #disconnect
+        if(dest) ssh_disconnect(con)
+        
+        #return data
+        if(fullpath){
+            return( paste( 
+                paste0(path, path2), 
+                ( rawToChar(out$stdout) |> strsplit("\\n") )[[1]], 
+                sep="/")
+            )
+        } else {
+            return(( rawToChar(out$stdout) |> strsplit("\\n") )[[1]])
+        }
+    })
+    
+    return(-3)
+}
+
+get_remote_dirs <- function(address, ...) get_remote(address=address, what = "dirs", ...)
+
+get_remote_files <- function(address, pattern=NA, ...) {
+    out <- get_remote(address=address, what = "files", ...)
+    if(is.na(pattern)) {
+        return(out)
+    }
+    return( grep(pattern, out, value = T) )
+}
+
+#set default vals
 online <- NULL
 
 rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
 
+remote_dirs <- data.frame(name="eti",
+                          address = "danielred@148.6.202.1:22023", 
+                          key="~/.ssh/id_rsa", 
+                          dir="~/data/programs/mcrs_chromosome/OUT")
+
+if(!dir.exists("outputs")) dir.create("outputs")
+
+#server function
 shinyServer(function(input, output) {
     if(file.exists("last_updated.rds")){
         upd <- readRDS("last_updated.rds")
