@@ -12,11 +12,7 @@ div(
     # Menu
     div(fluidRow(
             column(4,
-               selectInput("report",
-                    label = "Which report would you like to see?",
-                    choices= list.dirs("/home/danielred/data/programs/mcrs_chromosome/OUT", 
-                                  recursive = F, full.names = F)
-               ),
+               uiOutput("reports"),
             ),
             column(4,
                # numericInput("abrmax",

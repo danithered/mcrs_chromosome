@@ -1,21 +1,54 @@
 library(shiny)
+library(ssh)
 
-#functions
-update_report <- function(dir, input){
-    try(rmarkdown::render("/home/danielred/data/programs/mcrs_chromosome/src/output_graph.Rmd", 
-                      params = list(
-                           report=input$report,
-                           abrmax=input$limits[2],
-                           abrmin=input$limits[1],
-                           kompl=input$kompl,
-                           cache.path=paste0(getwd(), "/MCRS_max_reports/outputs/", input$report, "/cache/")
-                      ),
-                      output_dir = paste("outputs", input$report, sep="/"),
-                      #knit_root_dir = paste("outputs", input$report, sep="/"),
-                      intermediates_dir = paste("outputs", input$report, sep="/"),
-                      output_file = "index.html"
-    ))
-    #cat(paste0(getwd(), "/outputs/", input$report, "/cache/\n"))
+#### functions ####
+update_report <- function(dir, input, ssh=NA, key=NA){
+    targetdir <- character()
+    if(is.na(ssh) ){
+        targetdir <- paste("outputs", input$report, sep="/")
+        try(rmarkdown::render("/home/danielred/data/programs/mcrs_chromosome/src/output_graph.Rmd", 
+                  params = list(
+                       report=input$report,
+                       abrmax=input$limits[2],
+                       abrmin=input$limits[1],
+                       kompl=input$kompl,
+                       cache.path=paste0(getwd(), 
+                                         "/MCRS_max_reports/", 
+                                         targetdir, 
+                                         "/cache/")
+                  ),
+                  output_dir = targetdir,
+                  #knit_root_dir = paste("outputs", input$report, sep="/"),
+                  intermediates_dir = targetdir,
+                  output_file = "index.html"
+        ))
+        #cat(paste0(getwd(), "/outputs/", input$report, "/cache/\n"))
+    } else { #on ssh
+        rd <- remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"]]
+        targetdir <- paste("outputs", rd$name, simul_names[simul_names$label == input$report, "names"], sep="/")
+        try(rmarkdown::render("/home/danielred/data/programs/mcrs_chromosome/src/output_graph.Rmd", 
+              params = list(
+                  report=simul_names[simul_names$label == input$report, "names"],
+                  abrmax=input$limits[2],
+                  abrmin=input$limits[1],
+                  kompl=input$kompl,
+                  cache.path=paste0(getwd(), 
+                                    "/MCRS_max_reports/",
+                                    targetdir,
+                                    "/cache/"),
+                  ssh=TRUE,
+                  ssh_address=rd$address,
+                  ssh_dir=rd$dir,
+                  ssh_key=rd$key
+              ),
+              output_dir = targetdir,
+              #knit_root_dir = paste("outputs", input$report, sep="/"),
+              intermediates_dir = targetdir,
+              output_file = "index.html"
+        )) #render
+    }#on ssh
+    
+    return( paste0(substr(targetdir,9,nchar(targetdir)), "/index.html") )
 }
 
 get_remote <- function(address, 
@@ -70,7 +103,11 @@ get_remote <- function(address,
     return(-3)
 }
 
-get_remote_dirs <- function(address, ...) get_remote(address=address, what = "dirs", ...)
+get_remote_dirs <- function(address, slash=T, ...) {
+    out <- get_remote(address=address, what = "dirs", ...)
+    if(slash) return(out)
+    return( substr(out,1,nchar(out)-1) )
+}
 
 get_remote_files <- function(address, pattern=NA, ...) {
     out <- get_remote(address=address, what = "files", ...)
@@ -80,7 +117,7 @@ get_remote_files <- function(address, pattern=NA, ...) {
     return( grep(pattern, out, value = T) )
 }
 
-#set default vals
+#### set default vals ####
 online <- NULL
 
 rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
@@ -92,7 +129,12 @@ remote_dirs <- data.frame(name="eti",
 
 if(!dir.exists("outputs")) dir.create("outputs")
 
-#server function
+
+
+
+
+
+#### server function ####
 shinyServer(function(input, output) {
     if(file.exists("last_updated.rds")){
         upd <- readRDS("last_updated.rds")
@@ -101,10 +143,29 @@ shinyServer(function(input, output) {
                           output_hash= character(), 
                           abrmax=numeric(),
                           abrmin=numeric(),
-                          kompl=logical()
+                          kompl=logical(),
+                          remote=character()
                           )
     }
 
+    #get simulation IDs
+    simul_names <- data.frame(
+        names= list.dirs("/home/danielred/data/programs/mcrs_chromosome/OUT", recursive = F, full.names = F),
+        remote=NA
+        )
+    for(rem in remote_dirs$name){
+        simul_names <- rbind(simul_names, data.frame(names=get_remote_dirs(
+                        address = remote_dirs[remote_dirs$name == rem, "address"],
+                        key = remote_dirs[remote_dirs$name == rem, "key"],
+                        path = remote_dirs[remote_dirs$name == rem, "dir"],
+                        slash=F
+                        ),
+                   remote=rem
+        ))
+    }
+    simul_names$label <- ifelse(is.na(simul_names$remote), simul_names$names, paste0("[", simul_names$remote, "] ", simul_names$names))
+    
+    #UI komlementer button (is it on or off)
     output$kompl <- renderUI({
         checkboxInput("kompl",
                       label= "Compute complemeters (lots of time)",
@@ -115,8 +176,36 @@ shinyServer(function(input, output) {
         )
     })
     
+    #UI list of outputs 
+    output$reports <- renderUI({
+        selectInput("report",
+                    label = "Which report would you like to see?",
+                    choices= simul_names$label
+        )
+    })
+    
+    #UI time slider
     output$scale <- renderUI({
-        times <- unlist(strsplit(list.files(paste0(rootdir, "/", input$report, "/SAVE"), "*.tsv"), ".", fixed=T))
+        #get times
+        if( is.na(simul_names[simul_names$label == input$report, "remote"]) ){
+            times <- unlist(strsplit(list.files(paste0(rootdir, 
+                                                       "/", 
+                                                       input$report, 
+                                                       "/SAVE"), "*.tsv"), 
+                                     ".", 
+                                     fixed=T)
+                            )
+        } else {
+            rd <- remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"], ]
+            times <- get_remote_files(address= rd$address, 
+                             key=rd$key, 
+                             path=rd$dir,
+                             path2=paste0("/", simul_names[simul_names$label == input$report, "names"], "/SAVE" ),
+                             pattern = "*.tsv"
+            ) |> strsplit(split=".", fixed=T) |> unlist()
+        }
+        
+        #make output
         if(is.null(times)){
             warning("times is NULL! (There are no snatshots in directory)\n")
             h3("No snapshot available")
@@ -138,6 +227,7 @@ shinyServer(function(input, output) {
         }
     })
     
+    #pushing knit button
     observeEvent(input$knit, {
         times <- unlist(strsplit(list.files(paste0(rootdir, "/", input$report, "/SAVE"), "*.tsv"), ".", fixed=T))
         #times <- times[seq(1, length(times), 2)]
@@ -149,7 +239,7 @@ shinyServer(function(input, output) {
             #cat("it has never been created before\n")
             
             dir.create(paste0("outputs/", input$report)) # it doesnot even have a dir
-            update_report(rootdir, input) # update report
+            td = update_report(rootdir, input) # update report
 
             #create new record at upd
             upd <- rbind(upd, data.frame(id= as.character(input$report),
@@ -171,7 +261,7 @@ shinyServer(function(input, output) {
                 # kompl differs
                 upd[ upd$id == input$report, "kompl"] != input$kompl
                ){
-                    update_report(rootdir, input) # update report
+                    td = update_report(rootdir, input) # update report
 
                     # update upd
                     upd[ upd$id == input$report, "output_hash"] = tools::md5sum(paste0(rootdir, input$report, "/output.csv"))
@@ -187,7 +277,7 @@ shinyServer(function(input, output) {
         cat( paste(getwd(), "updated\n") )
         
         if(is.null(online)){
-            browseURL(paste(getwd(), "outputs", input$report, "index.html", sep="/"))
+            browseURL(paste(getwd(), "outputs", td, sep="/"))
         } else {
         
             #addResourcePath("tmpuser", getwd())
@@ -195,7 +285,7 @@ shinyServer(function(input, output) {
                 "starting"
                 tags$iframe(#seamless="seamless", 
                             #src= paste("tmpuser/outputs", input$report, "index.html", sep="/"),
-                            src= paste(online, input$report, "index.html", sep="/"),
+                            src= paste(online, td, sep="/"),
                             #width="100%",
                             #, height="100hv"
                             margin= 0, 
