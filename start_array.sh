@@ -121,7 +121,7 @@ for ((i=1; i <= ${num}; i+=1))
 do
 	src/creat_inic_matrix.sh 4 300 300 80 > IN/mapping_$jobname'_'${i}.txt
 	#echo $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1'
-	nohup ./simulation $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1'
+	nohup ./simulation $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1' &
 	pid[ $(( i - 1)) ]=$!
 	
 	#echo pid no $(( i - 2)) is ${pid[ $(( i - 2)) ]}
