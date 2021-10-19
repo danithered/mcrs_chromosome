@@ -667,7 +667,7 @@ if(as.numeric(p$par_noEA) <= 3) {
   typecolors <- c("black", createPalette(2^as.numeric(p$par_noEA), c("#010101", "#ff0000"), M=100000) )
 }
 
-names(typecolors) <- c("empty", enzN(0:(2^as.numeric(p$par_noEA)-1) ))
+names(typecolors) <-  enzN(-1:(2^as.numeric(p$par_noEA)-1) )
 
 if("0" %in% ttt){
 outtable <-table(state$t0[state$t0$seq != "N", "type_name"])
@@ -803,9 +803,12 @@ for(tt in ttt )
     
     #map 2
     par(mfg=c(1,3))
-    image(1:300, 1:300,matrix(st$R, ncol=300), 
+    stateR <- st$R
+    stateR[st$seq=="N"] <- 0
+    image(1:300, 1:300,matrix(stateR, ncol=300), 
           asp=1, 
-          col=hcl.colors(300, "PuRd"),
+          #col= hcl.colors(300, "PuRd"),
+          col=c("white", hcl.colors(300, "PuRd")),
           axes=F, xlab="", ylab=""#,
           #main="R", 
           #sub=paste("time:", tt, "res:", whattosee)
@@ -834,7 +837,8 @@ for(tt in ttt )
     #map 3
     par(mfg=c(2,2))
     image(1:300, 1:300, matrix(dd, ncol=300), 
-          col= u_cols , 
+          col= typecolors ,
+          zlim= c(-1,(2^as.numeric(p$par_noEA)-1)),
           asp=1, #main="Replicator types",
           axes=F, xlab="", ylab="")
     
@@ -862,7 +866,7 @@ for(tt in ttt )
     # #u_dd <- sort(unique(dd))
     dd<- st$type
     dd[st$seq=="N"]<- -1    
-    #dd <- type2noA(dd)
+    #dd <- type2A(dd)
     image(1:300, 1:300, matrix(dd, ncol=300), 
           col= c("black", brewer.pal(length(u_dd)-1,"Dark2")) , 
           asp=1, #main="Promiscuity level",
