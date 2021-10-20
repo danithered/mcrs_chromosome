@@ -395,7 +395,7 @@ if(!as.logical(params$ssh)) { #local files
     if(!file.exists(paste0(tdir, "/parameters.txt"))) 
       warning("parameters file does not exist\n")
     t <- readLines(paste0(tdir, "/parameters.txt"))
-    t <- read.table( text = sub(" ", "\t", t) , header=F, sep=" ")
+    t <- read.table( text = sub(" ", "\t", t) , header=F, sep="\t")
     p <- as.list(as.character(t$V2))
     names(p) <- t$V1
     
@@ -527,7 +527,6 @@ for(tt in ttt )
     }
   }
 
-  
   
   
   #modify column names
@@ -1395,10 +1394,10 @@ Number of cells in a metabolic neighborhood: `r n_neighsMet` and in a replicatio
 
 ## Probablity of being folded
 
-$$P_{fold} = \frac{1}{1 + e^{-cE}}$$
+$$P_{fold} = 1-\frac{1}{1 + e^{-cE}}$$
 
 ```{r params_Pfold, cache=T, dependson="read_data_parameters"}
-curve(1/(1+exp(as.numeric(p$par_c)*x)),
+curve(1-1/(1+exp(as.numeric(p$par_c)*x)),
       xlim=c(0, as.numeric(p$par_Emin)-5),
       ylim=c(0,1),
       xlab="MFE",
