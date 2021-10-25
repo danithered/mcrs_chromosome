@@ -189,7 +189,7 @@ namespace dv_annot{
 									int gc_num = 0; //it will compute the ratio of pirimidin bases in open "." positions in the structure
 
 									//compute number of open bases in motif and number of C/Us in open places
-									for(int b = 0; b < templ_length; b++){
+									for(int b = 0; b < rules[search].pattern_length; b++){
 										if(templ[b] == '.' && (templ_seq[b] == 'G' || templ_seq[b] == 'C')){
 											//open_bases++;
 											//if(templ_seq[b] == 'G' || templ_seq[b] == 'C') 

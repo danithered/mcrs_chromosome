@@ -2,13 +2,13 @@
 
 # general settings
 
-maxnum=4
-par_ID=starttest
-no_repeats=10
+maxnum=1
+par_ID=A5_testnv
+no_repeats=2
 
 #parameter settings
-par_noEA=4
-par_maxtime=50000
+par_noEA=5
+par_maxtime=500000
 par_rangePdeg=
 par_maxPdeg=
 par_ncol=300
@@ -16,18 +16,18 @@ par_nrow=300
 par_output_interval=
 par_save_interval=1000
 par_seed=
-par_str_pool=IN/src/mappingA4_80.txt
+par_str_pool=IN/str/mappingA5.txt
 par_outdir=
 par_output_filename=
 par_savedir=
 par_load=
 par_seed_file=
 par_init_grid=
-par_diffusion_rate=
+par_diffusion_rate=(0 2 4 8)
 par_ll=
 par_sigma=
 par_claimEmpty=
-par_substitution=
+par_substitution=(0.01 0.005 0.001 0.0005)
 par_insertion=
 par_deletion=
 par_g=
@@ -35,8 +35,8 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=8
-par_Nrep=8
+par_Nmet=(8 9 10 12)
+par_Nrep=(8 9 10 12)
 
 #other settings
 

@@ -37,9 +37,9 @@ int main(int argc, char *argv[]) {
 	cout << "Starting to init simulation " << par_ID << " at " << ctime(&timer); 
 
 	//start to do stuff
-	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata
-
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
+
+	cadv::CellAut automata(par_nrow, par_ncol); //initialise automata
 
 	automata.neighInic(MARGOLUS_NEIGH, cadv::torus, 0); //init diffusional neighbourhood for Toffoli-Margoulus algorithm
 	automata.neighInic(par_Nmet, cadv::torus, 1); //init metabolic neighbourhood 

@@ -45,6 +45,19 @@ namespace rnarep {
 
 			//initialiser
 			CellContent(){	
+				// allocate memory for MFE structure (length + 1)
+				//str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
+				str = new char [MAXLEN + 1];
+
+				// allocate memory for enzymaitc activities
+				a = new double [par_noEA];
+
+				seq.reserve(MAXLEN);
+				//ins.reserve(MAXLEN+1);
+				//subs.reserve(MAXLEN+1);
+				//dels.reserve(MAXLEN);
+
+
 				int len=0;
 				
 				//initialise array for seq
@@ -61,24 +74,17 @@ namespace rnarep {
 					annotate();
 				}
 				else { //empty
+					empty = false; //to die properly
 					die();
 				}
 
-				seq.reserve(MAXLEN);
-				//ins.reserve(MAXLEN+1);
-				//subs.reserve(MAXLEN+1);
-				//dels.reserve(MAXLEN);
 
 				
-				// allocate memory for MFE structure (length + 1)
-				//str = (char *) vrna_alloc(sizeof(char) * ( MAXLEN  + 1));
-				str = new char [MAXLEN + 1];
-
-				// allocate memory for enzymaitc activities
-				a = new double [par_noEA];
+//				std::cout << "initialised without content" << par_noEA << std::endl;
 			 }
 
 			CellContent(std::string input_str){
+				empty=true;
 				seq.reserve(MAXLEN);
 				//ins.reserve(MAXLEN+1);
 				//subs.reserve(MAXLEN+1);
@@ -93,6 +99,8 @@ namespace rnarep {
 				// allocate memory for enzymaitc activities
 				a = new double [par_noEA];
 
+//				std::cout << "initialised" << par_noEA << std::endl;
+	
 				if(seq.length()){
 					annotate();
 				}
@@ -104,7 +112,7 @@ namespace rnarep {
 			~CellContent(){
 				//delete [] (seq);
 				//cleanup memory
-				free(str);
+				delete [] (str);
 				delete [] (a);
 			}
 
@@ -117,7 +125,7 @@ namespace rnarep {
 					seq = templ;
 					//if(seq.length()) 
 					annotate();
-//					std::cout << "added new replicator" << std::endl;
+//					std::cout << "added new replicator " << seq << std::endl;
 				}
 //				else std::cout << "cell stayed empty" << std::endl;
 			}

@@ -24,6 +24,7 @@ namespace dv_annot{
 			Subrule(){
 				no_bases = 0;
 				value = new double [par_noEA];
+//				std::cout << "Subrule allocated (empty constr) " << par_noEA << " values" << std::endl;
 //				std::cout << "Subrule initialised" << std::endl;
 			}
 
@@ -40,6 +41,7 @@ namespace dv_annot{
 					}
 				}
 				value = new double [par_noEA];
+//				std::cout << "Subrule allocated (copy constr) " << par_noEA << " values" << std::endl;
 				for(i = 0; i < par_noEA; i++){
 					value[i] = obj.value[i];
 				}
@@ -59,6 +61,7 @@ namespace dv_annot{
 					}
 				}
 				value = new double [par_noEA];
+//				std::cout << "Subrule allocated (operator =) " << par_noEA << " values" << std::endl;
 				for(i = 0; i < par_noEA; i++){
 					value[i] = obj.value[i];
 				}
@@ -69,6 +72,7 @@ namespace dv_annot{
 			~Subrule(){
 //				std::cout << "Subrule destructor called" << std::endl;
 				delete [] (value);
+//				std::cout << "Subrule deleted " << par_noEA << " values" << std::endl;
 
 				if (no_bases) {
 					delete [] (base);

@@ -11,7 +11,7 @@
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.4 basic max, seems fine, output with prev_type, Pdeg now parametrised\0";
+const char versioninfo[255] = "ver 2.4.2 basic max, seems fine, output with prev_type, Pdeg now parametrised, gc count/ memory leak corrected\0";
 
 extern int par_noEA;
 
