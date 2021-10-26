@@ -187,9 +187,10 @@ namespace rnarep {
 					  
 				//calculate Pdeg
 				//Pdeg = 0.9 - 0.8 * (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
-				Pdeg = par_maxPdeg -  par_rangePdeg* (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
+				//Pdeg = par_maxPdeg -  par_rangePdeg* (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
 				//Pdeg = 0.05 - 0.049 * ( (mfe<par_Emin)?par_Emin:mfe) / par_Emin ;
 				//Pdeg=0.07;
+				Pdeg = par_minPdeg + par_rangePdeg * std::exp(par_flexPdeg * mfe);
 				
 				no_replicators++;
 			} 

@@ -31,8 +31,6 @@ using namespace std;
 //rates
 				double par_diffusion_rate = 4; //
 				double par_claimEmpty = 0.1; //
-				double par_rangePdeg = 0.8; //
-				double par_maxPdeg = 0.9; //
 
 //neighbourhoods
 				double par_Nmet = 4; // 3 -> vonNeumann, 4 -> Moore 
@@ -69,10 +67,13 @@ P_fold is calculated (see above)
 				double par_ll = 2; // l + 1 in equation Rs 
 
 /*
-Pdeg = 0.9 - 0.8 * e / Emin
+Pdeg = Pdmin + Pdrange * e^{Pdflex * e} 
 e is mfe of replicator
 */
-				double par_Emin = -25.0; //
+				//double par_Emin = -25.0; //
+				double par_rangePdeg = 0.8; //
+				double par_minPdeg = 0.1; //
+				double par_flexPdeg = 0.2; //
 
 
 
@@ -123,12 +124,13 @@ int paramsToFile(const char* filename){
 	paramfile << "par_b1 " << par_b1 << std::endl;
 	paramfile << "par_b2 " << par_b2 << std::endl;
 	paramfile << "par_c " << par_c << std::endl;
-	paramfile << "par_Emin " << par_Emin << std::endl;
+	//paramfile << "par_Emin " << par_Emin << std::endl;
 	paramfile << "par_Nmet " << par_Nmet << std::endl;
 	paramfile << "par_Nrep " << par_Nrep << std::endl;
 	paramfile << "par_gc_bonus " << par_gc_bonus << std::endl;
 	paramfile << "par_rangePdeg " << par_rangePdeg << std::endl;
-	paramfile << "par_maxPdeg " << par_maxPdeg << std::endl;
+	paramfile << "par_minPdeg " << par_minPdeg << std::endl;
+	paramfile << "par_flexPdeg " << par_flexPdeg << std::endl;
 	paramfile << "versioninfo " << versioninfo << std::endl;
 	
 
@@ -175,12 +177,13 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_b1")) option = '1';
 			else if(!strcmp(argv[i], "--par_b2")) option = '2';
 			else if(!strcmp(argv[i], "--par_c")) option = 'c';
-			else if(!strcmp(argv[i], "--par_Emin")) option = 'e';
+			//else if(!strcmp(argv[i], "--par_Emin")) option = 'e';
 			else if(!strcmp(argv[i], "--par_Nmet")) option = 'm';
 			else if(!strcmp(argv[i], "--par_Nrep")) option = 'r';
 			else if(!strcmp(argv[i], "--par_gc_bonus")) option = 'U';
 			else if(!strcmp(argv[i], "--par_rangePdeg")) option = 'x';
-			else if(!strcmp(argv[i], "--par_maxPdeg")) option = 'X';
+			else if(!strcmp(argv[i], "--par_minPdeg")) option = 'X';
+			else if(!strcmp(argv[i], "--par_flexPdeg")) option = 'k';
 		}
 		switch(option){
 			// double
@@ -202,7 +205,7 @@ int Args(int argc, char **argv)
 				//}
 				continue;
 
-			case 'e':
+			/*case 'e':
 				if (++i == argc) return 1;
 				par_Emin = atof(argv[i]);
 				if(par_Emin > 0 ) {
@@ -210,7 +213,7 @@ int Args(int argc, char **argv)
 					return(-1);
 				}
 				continue;
-
+			*/
 			case 'c':
 				if (++i == argc) return 1;
 				par_c = atof(argv[i]);
@@ -337,13 +340,23 @@ int Args(int argc, char **argv)
 				}
 				continue;
 			
+			
 			case 'X':
 				if (++i == argc) return 1;
-				par_maxPdeg = atof(argv[i]);
-				if(par_maxPdeg < 0 || par_maxPdeg > 1) {
+				par_minPdeg = atof(argv[i]);
+				if(par_minPdeg < 0 || par_minPdeg > 1) {
 					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
 					return(-1);
 				}
+				continue;
+			
+			case 'k':
+				if (++i == argc) return 1;
+				par_flexPdeg = atof(argv[i]);
+				/*if(par_flexPdeg < 0 || par_flexPdeg > 1) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be between 0 and 1!" << std::endl;
+					return(-1);
+				}*/
 				continue;
 			
 			case 'U':

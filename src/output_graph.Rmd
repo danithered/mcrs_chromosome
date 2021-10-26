@@ -714,6 +714,8 @@ for(tt in ttt )
 ## MFE
 
 ```{r hist_mfegg, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
+Emin=-35
+
 for(tt in ttt )
 { 
   #tt=0
@@ -725,7 +727,7 @@ for(tt in ttt )
   print(
       ggplot(data=st[st$seq != "N",],aes(mfe, fill=type_name)) +
         geom_histogram(binwidth=0.5) +
-        xlim(0,as.numeric(p$par_Emin)-2) +
+        xlim(0,Emin) +
         ylim(0, as.numeric(p$par_ncol)*as.numeric(p$par_nrow)/3)+
         labs(caption=paste("time:", tt, "res:", whattosee)) +
         scale_fill_discrete(labels=parse_format(), name="")
@@ -1145,8 +1147,9 @@ curve(1- 1/(1+ exp( -0.3*x )), xlab="mfe", xlim=c(-25,0), ylab="Pfold")
 
 #mfe
 ggplot(data=state[state$seq != "N",],aes(mfe, fill=type_f)) +
-  geom_histogram(binwidth=0.5) 
-xlim(0,as.numeric(p$par_Emin))
+  geom_histogram(binwidth=0.5)+ 
+  xlim(0,Emin )
+
 plot(table$time, table$mean_mfe_par
      , type="l"
      , ylim=c(-25,0)
@@ -1399,7 +1402,7 @@ $$P_{fold} = 1-\frac{1}{1 + e^{-cE}}$$
 
 ```{r params_Pfold, cache=T, dependson="read_data_parameters"}
 curve(1-1/(1+exp(as.numeric(p$par_c)*x)),
-      xlim=c(0, as.numeric(p$par_Emin)-5),
+      xlim=c(0, Emin),
       ylim=c(0,1),
       xlab="MFE",
       ylab=expression(P[fold]),
@@ -1435,14 +1438,36 @@ axis(2, at=c(0,0.5,1), labels=c("0%", "50%", "100%"), las=1)
 ## Rate of degradation
 
 ```{r params_Pdegvals_cont, cache=T, dependson="read_data_parameters"}
-Pdegmax=ifelse("par_maxPdeg" %in% names(p), as.numeric(p$par_maxPdeg), 0.9)
-Pdegrange=ifelse("par_rangePdeg" %in% names(p), as.numeric(p$par_rangePdeg), 0.8)
+if("par_flexPdeg" %in% names(p)){
+  Pdflex = as.numeric(p$par_flexPdeg)
+  Pdmin = as.numeric(p$par_minPdeg)
+  Pdegrange = as.numeric(p$par_rangePdeg)
+  
+  Pdegeq = paste("P_{deg}=", Pdmin, "+", Pdegrange, "e^{", Pdflex, "E}")
+  newPdeg = T
+} else {
+  Pdegmax=ifelse("par_maxPdeg" %in% names(p), as.numeric(p$par_maxPdeg), 0.9)
+  Pdegrange=ifelse("par_rangePdeg" %in% names(p), as.numeric(p$par_rangePdeg), 0.8)
+  
+  Pdegeq= paste("P_{deg}=", Pdegmax, "-", Pdegrange, "\\frac{E}{", p$par_Emin, "}, ~ E \\ge", p$par_Emin)
+  newPdeg = F
+}
 ```
 
 
-$P_{deg}=$ `r Pdegmax` - `r Pdegrange` $\frac{E}{E_{min}}, ~ E \ge E_{min}$
+old version:
 
-```{r params_Pdegvals, cache=T, dependson="params_Pdegvals_cont"}
+$$P_{deg}= max(P_{deg}) - range(P_{deg}) \frac{E}{E_{min}}, ~ E \ge E_{min}$$
+
+new version:
+
+$$P_{deg}=min(P_{deg})+range(P_{deg}) \cdot e^{E \cdot f_{deg}}$$
+
+**actual:**
+
+$$`r cat(Pdegeq)`$$
+
+```{r params_Pdegvals, cache=T, dependson="params_Pdegvals_cont", eval=!newPdeg}
 curve(Pdegmax - Pdegrange*ifelse(x<as.numeric(p$par_Emin), as.numeric(p$par_Emin), x)/as.numeric(p$par_Emin),
       xlim=c(0, as.numeric(p$par_Emin)-5),
       ylim=c(0, 1),
@@ -1455,6 +1480,18 @@ axis(2, at=c(0,0.5,1, Pdegmax, Pdegmax-Pdegrange), labels=c("0%", "50%", "100%",
 grid()
 ```
 
+```{r params_Pdegvals_new, cache=T, dependson="params_Pdegvals_cont", eval=newPdeg}
+curve(exp(Pdflex*x)*Pdegrange+Pdmin, 
+      xlim=c(0, Emin),
+      ylim=c(0, 1),
+      yaxt="n",
+      xlab="MFE",
+      ylab=expression(P[deg]),
+      main=p$par_ID)
+axis(2, at=c(0,0.5,1, Pdmin, Pdmin+Pdegrange), labels=c("0%", "50%", "100%", paste0(c(Pdmin, Pdmin+Pdegrange)*100, "%")), las=1)
+grid()
+
+```
 
 ## Replication rate
 
