@@ -638,6 +638,31 @@ par(par.orig) #restore default parameters
 
 ```
 
+```{r , eval=F}
+begs <- c("no_","mean_R_","mean_length_","mean_mfe_","mean_a_")
+endings <- c("par", paste0("enz", 0:3))
+
+longtable <- do.call(rbind, apply(table, 1, function(r){
+	do.call(rbind, lapply( endings, function(x){
+		if(x=="par") wh=1:4 else wh = 1:5
+		data.frame(time=r["time"], 
+							 enz_type=x, 
+							 meas= begs[wh], 
+							 value= unlist(r[paste0(begs, x)[wh]] ),
+							 row.names = NULL
+							 )
+	})
+	)
+})
+)
+str(longtable)
+ggplot(data=longtable, aes(x=time, y=value))+
+	geom_line() +
+	facet_grid(meas~enz_type, scales="free_y")
+
+```
+
+
 ## frequency of promiscous replicators in the inic pool
 
 ```{r inicpool_freq_promisc, cache=T, dependson="read_data_output"}
@@ -722,7 +747,7 @@ for(tt in ttt )
   st <- state[[paste0("t", tt)]] # get the state
   types <- levels(st$type_f)
 
-  st$mfe[st$mfe < -25] <- -25 # set the minimum of mfe (it is done in runtime, anyway)
+  #st$mfe[st$mfe < -25] <- -25 # set the minimum of mfe (it is done in runtime, anyway)
   
   print(
       ggplot(data=st[st$seq != "N",],aes(mfe, fill=type_name)) +
@@ -978,6 +1003,7 @@ for(tt in ttt )
   Rmax <- as.numeric(p$par_g) / ( as.numeric(p$par_b1)+as.numeric(p$par_b2) ) * ( as.numeric(p$par_ll) )
   #stlong[stlong$ind == "R", "values"] <- stlong[stlong$ind == "R", "values"] / Rmax
 
+  #draw plots
   if(nrow(stlong) >0){
     gplots <- list(
       #mfe
@@ -998,7 +1024,7 @@ for(tt in ttt )
       
       #Pfold
       ggplot(data=stlong[stlong$ind == "Pfold", ], aes(x=type, fill=type, y=values)) +
-        facet_grid(ind~.)+
+        facet_grid(ind~., labeller = label_bquote( P[fold] ))+
         geom_violin(width=1)+
         stat_summary(fun=mean, geom="point")+
         #geom_boxplot(aes(y=values))+
@@ -1018,7 +1044,7 @@ for(tt in ttt )
       
       #Pdeg
       ggplot(data=stlong[stlong$ind == "Pdeg", ], aes(x=type, fill=type, y=values)) +
-        facet_grid(ind~.)+
+        facet_grid(ind~., labeller = label_bquote( P[deg] ))+
         geom_violin(width=1)+
         stat_summary(fun=mean, geom="point")+
         #geom_boxplot(aes(y=values))+
