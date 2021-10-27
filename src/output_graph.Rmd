@@ -427,7 +427,7 @@ if(!as.logical(params$ssh)) { #local files
     table <- read.table(paste0(tdir, "/output.csv"), header=T, sep=";")
     
     #delete temp file
-    file.remove(paste0(workdir, "output.csv"))
+    file.remove(paste0(tdir, "output.csv"))
     
     message("output read\n")
   })
@@ -600,7 +600,7 @@ legend("topleft", fill=linecolors, legend=paste("A",0:3))
 
 ## by activity by property
 
-```{r time_everything, cache=TRUE, dependson="read_data_output"}
+```{r time_everything, cache=TRUE, dependson="read_data_output", eval=F}
 par(mfrow=c(1+as.numeric(p$par_noEA),5), oma=c(5,2,4,1), mar=c(0,4.1,0,0))
 
 plotprop=T
@@ -638,9 +638,10 @@ par(par.orig) #restore default parameters
 
 ```
 
-```{r , eval=F}
+```{r time_everything2, cache=TRUE, dependson="read_data_output"}
+size = as.numeric(p$par_ncol) * as.numeric(p$par_nrow)
 begs <- c("no_","mean_R_","mean_length_","mean_mfe_","mean_a_")
-endings <- c("par", paste0("enz", 0:3))
+endings <- c("par", paste0("enz", 1:as.numeric(p$par_noEA) -1))
 
 longtable <- do.call(rbind, apply(table, 1, function(r){
 	do.call(rbind, lapply( endings, function(x){
@@ -655,10 +656,32 @@ longtable <- do.call(rbind, apply(table, 1, function(r){
 	)
 })
 )
-str(longtable)
+
+#str(longtable)
+longtable$enz_type <- as.factor(longtable$enz_type)
+longtable$meas <- as.factor(longtable$meas)
+head(longtable)
+
+#rename enzymes
+Enames <- enzN(c(0, 2^(0:4)) )
+names(Enames) <- endings
+levels(longtable$enz_type) <- Enames[levels(longtable$enz_type)]
+
+#rename measure variables
+Mnames <- expression("no_" = number,
+                     "mean_R_" = bar(R),
+                     "mean_length_" = bar(length),
+                     "mean_mfe_"= bar( paste(Delta, "G")[min] ),
+                     "mean_a_"=bar(a[i]))
+levels(longtable$meas) <- Mnames[levels(longtable$meas)]
+
+
+
 ggplot(data=longtable, aes(x=time, y=value))+
-	geom_line() +
-	facet_grid(meas~enz_type, scales="free_y")
+	geom_line(col="red") +
+	facet_grid(meas~enz_type, scales="free_y", labeller = label_parsed)+
+  theme(axis.title.y = element_blank())
+
 
 ```
 
