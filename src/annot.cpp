@@ -13,6 +13,12 @@ namespace dv_annot{
 		pos = new int[no_bases];
 		std::strncpy(base, _base, no_bases);
 		std::memcpy(pos, _pos, sizeof(int) * no_bases);
+
+		//count GCs in subrule
+		no_GC_in_pattern = 0;
+		for(int i = 0; i < no_bases; i++){
+			if(base[i] == 'G' || base[i] == 'C') no_GC_in_pattern++;
+		}
 	}
 
 	//Funcion to initialise base
@@ -198,7 +204,8 @@ namespace dv_annot{
 									}
 
 									//calc
-									if( gc_num ) {
+									gc_num -= rules[search].subrules[sr].no_GC_in_pattern; //substract GC that is there as a part of the subrule
+									if( gc_num > 0) {
 										//acts[act] += curr_act * (1 + par_gc_bonus * (double) gc_num / open_bases); // if there is bonus system and bonus
 										acts[act] += curr_act * gcBonusFunc[gc_num]; // if there is bonus system and bonus
 										 

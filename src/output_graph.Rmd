@@ -660,7 +660,7 @@ longtable <- do.call(rbind, apply(table, 1, function(r){
 #str(longtable)
 longtable$enz_type <- as.factor(longtable$enz_type)
 longtable$meas <- as.factor(longtable$meas)
-head(longtable)
+#head(longtable)
 
 #rename enzymes
 Enames <- enzN(c(0, 2^(0:4)) )

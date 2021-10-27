@@ -11,7 +11,7 @@
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.5 basic max, seems fine, output with prev_type, Pdeg exponential\0";
+const char versioninfo[255] = "ver 2.52 basic max, seems fine, output with prev_type, Pdeg exponential, GC bonus rejects subrule bases\0";
 
 extern int par_noEA;
 

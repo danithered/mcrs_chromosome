@@ -16,6 +16,7 @@ namespace dv_annot{
 		public:
 			double *value; //the value of the structure
 			int no_bases; //number of bases as subrule
+			int no_GC_in_pattern;
 
 			char *base;
 			int *pos;
@@ -23,6 +24,7 @@ namespace dv_annot{
 			//Constructor
 			Subrule(){
 				no_bases = 0;
+				no_GC_in_pattern = 0;
 				value = new double [par_noEA];
 //				std::cout << "Subrule allocated (empty constr) " << par_noEA << " values" << std::endl;
 //				std::cout << "Subrule initialised" << std::endl;
@@ -32,6 +34,7 @@ namespace dv_annot{
 			Subrule(const Subrule &obj){
 				int i = 0;
 				no_bases = obj.no_bases;
+				no_GC_in_pattern = obj.no_GC_in_pattern;
 				if(no_bases){
 					base = new char[no_bases];
 					pos = new int[no_bases];
@@ -52,6 +55,7 @@ namespace dv_annot{
 			void operator = (const Subrule &obj){
 				int i = 0;
 				no_bases = obj.no_bases;
+				no_GC_in_pattern = obj.no_GC_in_pattern;
 				if(no_bases){
 					base = new char[no_bases];
 					pos = new int[no_bases];
