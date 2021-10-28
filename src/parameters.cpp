@@ -94,7 +94,7 @@ int paramsToFile(const char* filename){
 	system(comm.c_str());
 
 
-	//paramfile << "RNAversion " << VRNA_VERSION << std::endl;
+	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;

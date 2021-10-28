@@ -11,6 +11,12 @@
 #include "randomgen.h"
 #include "bitmuveletek.h"
 #include "limits"
+extern "C" {
+//#include <ViennaRNA/fold.h>
+//#include <ViennaRNA/utils/basic.h>
+//#include <ViennaRNA/fold_vars.h>
+#include <ViennaRNA/vrna_config.h>
+}
 
 using namespace std;
 
@@ -98,8 +104,10 @@ int main(int argc, char *argv[]) {
     r = (gsl_rng *) gsl_rng_alloc (gsl_rng_mt19937);
     gsl_rng_set(r, time(&timer));
 
-    	int a=2, b=3;
-	std::cout << a / b << " " << a / (double) b << " " << (double) a / b  << std::endl;
+	std::cout << VRNA_VERSION << std::endl;
+
+//    	int a=2, b=3;
+//	std::cout << a / b << " " << a / (double) b << " " << (double) a / b  << std::endl;
 
 //	init_fromfile(argv[1]);
 
