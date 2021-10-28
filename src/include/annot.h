@@ -64,8 +64,12 @@ namespace dv_annot{
 						pos[i] = obj.pos[i];
 					}
 				}
+				//reallocate memory - probably completely unnecessary, but it cost nothing
+				delete [] (value);
 				value = new double [par_noEA];
 //				std::cout << "Subrule allocated (operator =) " << par_noEA << " values" << std::endl;
+
+				//copy value
 				for(i = 0; i < par_noEA; i++){
 					value[i] = obj.value[i];
 				}

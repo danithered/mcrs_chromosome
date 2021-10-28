@@ -85,7 +85,8 @@ namespace dv_annot{
 
 	//Functions for PatternPool
 	void PatternPool::readFile(char *filename){
-		int no = 0, min = 0, order = 0; //number of ea, subrules
+		int no = 0; 
+		int min = 0; //number of ea, subrules
 		std::string word;
 		
 		std::ifstream file;
@@ -120,8 +121,8 @@ namespace dv_annot{
 		//sorting rules by pattern_length 
 		if(rules.size() > 1) {
 			class Rule memory(0);
-			for( no = 0; no < (rules.size() - 1); no++){
-				for(order = no + 1, min = no; order < rules.size(); order++){
+			for( no = 0; (unsigned int) no < (rules.size() - 1); no++){
+				for(unsigned int order = no + 1, min = no; order < rules.size(); order++){
 					if(rules[order].pattern_length < rules[min].pattern_length ) min = order;
 				}
 				if(min != no) {
@@ -161,7 +162,7 @@ namespace dv_annot{
 		
 //		std::cout << "search this: " << seq << "\t" << str << "\t a:"; for (int pr = 0; pr < par_noEA; pr++ ) std::cout << acts[pr] << " "; std::cout << std::endl;
 		
-		if(templ_length) for(int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){ // goes tru rules
+		if(templ_length) for(unsigned int search = 0; search < rules.size() && rules[search].pattern_length <= templ_length ; search++){ // goes tru rules
 //			std::cout << "search = " << search << std::endl;
 
 			for(templ = std::strstr(str, rules[search].pattern) ; templ != NULL; templ = std::strstr(++templ, rules[search].pattern)){ // finds rule's patterns
@@ -243,7 +244,7 @@ namespace dv_annot{
 	}
 
 	void PatternPool::printRules(){
-		for(int r = 0; r < rules.size(); r++){
+		for(unsigned int r = 0; r < rules.size(); r++){
 			std::cout << "############################" << std::endl;
 			std::cout << "RULE no " << r+1 << std::endl << std::endl;
 			std::cout << "pattern: " <<  rules[r].pattern << std::endl << std::endl;

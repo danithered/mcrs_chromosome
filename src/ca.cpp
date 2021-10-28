@@ -455,7 +455,7 @@ namespace cadv {
 				    //matrix[i].neigh = new Cell*[matrix[i].no_neigh] ;
 				    for(int n = 0; n < (int) n_inic_x.size(); n++) {
 					    //matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)) ; 
-					    matrix[i].setNeigh( matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)), n, neigh_no ); 
+					    matrix[i].setNeigh( matrix + (  dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow )  * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)), n, neigh_no ); 
 				    } 
 			    } //end itarate thru grid
 			}
@@ -675,7 +675,7 @@ namespace cadv {
 		output << time << ';' << rnarep::CellContent::no_replicators;
 		double no;
 		for(int ea = 0; ea <= par_noEA; ea++) {
-			if(no = (double) out_no[ea]){
+			if((no = (double) out_no[ea])){
 //				std::cout << "outputting: no= " << no << std::endl;
 				output << ';' << no << ';' << out_R[ea]/no << ';' << out_length[ea]/no << ';' << out_mfe[ea]/no;
 				if(ea) output << ';' << out_a[ea]/no;
