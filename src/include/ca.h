@@ -9,7 +9,7 @@
 #include <iostream>
 #include <cstring>
 #include <sys/stat.h>
-#include <signal.h>
+#include <csignal>
 
 #define SINGLESQ 2.0
 #define SINGLEHEX 3.0
@@ -192,6 +192,7 @@ namespace cadv {
 					}
 				}
 
+				CellAut::instance = this; //to be able to properly handle signals
 				
 //				std::cout << "Basic Constructor Called" << std::endl;
 			}
@@ -282,9 +283,15 @@ namespace cadv {
 			// return values: 0 (OK), 1 (no savedir specified), 2 (could not open file)
 			int save();
 
+			//signal handling
+			void signalHandler(int signal);
+			static void static_signalHandler(int signal){
+				std::cout << "Signal received " << signal << std::endl;
+				CellAut::instance->signalHandler(signal);
+			}
+			static CellAut *instance;
 		private:
 			int mtime;
-			static void signalHandler(int signal);
 
 			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
 			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities

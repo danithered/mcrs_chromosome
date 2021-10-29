@@ -3,6 +3,7 @@
 namespace cadv {
 	//int no_births=0;
 	//int no_deaths=0;
+	CellAut *CellAut::instance = NULL;
 
 	//FUNCTIONS FOR Cell
 	void Cell::inicNeigh(int n, int type){
@@ -243,7 +244,8 @@ namespace cadv {
 	///Random update
 	int CellAut::rUpdate(int gens){
 		//setting up signal hadler
-		std::signal(SIGTERM, CellAut::signalHandler);
+		signal(SIGTERM, CellAut::static_signalHandler);
+		//std::cerr << "Signal listener started" << std::endl;
 
 		int iter=0, diff_until = dvtools::fracpart(diff * size * time);
 
@@ -778,8 +780,7 @@ namespace cadv {
 	}
 
 	//signal handler
-	static void CellAut::signalHandler(int signal){
-		std::cout << "Signal received " << signal << std::endl;
+	void CellAut::signalHandler(int signal){
 		mtime = time;
 	}
 
