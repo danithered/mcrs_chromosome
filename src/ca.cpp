@@ -244,7 +244,7 @@ namespace cadv {
 	///Random update
 	int CellAut::rUpdate(int gens){
 		//setting up signal hadler
-		signal(SIGTERM, CellAut::static_signalHandler);
+		signal(SIGINT, CellAut::static_signalHandler);
 		//std::cerr << "Signal listener started" << std::endl;
 
 		int iter=0, diff_until = dvtools::fracpart(diff * size * time);
