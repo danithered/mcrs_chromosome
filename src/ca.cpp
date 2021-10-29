@@ -242,6 +242,9 @@ namespace cadv {
 
 	///Random update
 	int CellAut::rUpdate(int gens){
+		//setting up signal hadler
+		std::signal(SIGTERM, CellAut::signalHandler);
+
 		int iter=0, diff_until = dvtools::fracpart(diff * size * time);
 
 		//check if output is open
@@ -256,7 +259,7 @@ namespace cadv {
 			if(par_save_interval && (time % par_save_interval)) save();
 		}
 
-		for(int mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators; time++){ //updating generations
+		for(mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators; time++){ //updating generations
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();
@@ -297,7 +300,7 @@ namespace cadv {
 			order[iter] = iter;
 		}
 
-		for(int mtime = time + gens ; rnarep::CellContent::no_replicators && time < mtime ; time++){ //updating generations
+		for(mtime = time + gens ; rnarep::CellContent::no_replicators && time < mtime ; time++){ //updating generations
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();
@@ -773,6 +776,13 @@ namespace cadv {
 
 		return 0;
 	}
+
+	//signal handler
+	static void CellAut::signalHandler(int signal){
+		std::cout << "Signal received " << signal << std::endl;
+		mtime = time;
+	}
+
 
 }
 

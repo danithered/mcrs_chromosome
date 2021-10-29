@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstring>
 #include <sys/stat.h>
+#include <signal.h>
 
 #define SINGLESQ 2.0
 #define SINGLEHEX 3.0
@@ -282,6 +283,9 @@ namespace cadv {
 			int save();
 
 		private:
+			int mtime;
+			static void signalHandler(int signal);
+
 			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
 			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities
 			std::vector<double> out_R; //mean R of replicators with no act, act0, act1, etc.
