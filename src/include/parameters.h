@@ -11,7 +11,7 @@ extern "C" {
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.53 basic max, seems fine, output with prev_type, Pdeg exponential, GC bonus rejects subrule bases, signal handling\0";
+const char versioninfo[255] = "ver 2.60 basic max, correct metabolism\0";
 
 extern int par_noEA;
 

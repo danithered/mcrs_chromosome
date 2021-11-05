@@ -69,7 +69,7 @@ namespace cadv {
 			M *= akt;
 		}
 
-		return M;
+		return std::pow(M, reciproc_noEA);
 	}
 
 	void Cell::update(){

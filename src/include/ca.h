@@ -97,6 +97,8 @@ namespace cadv {
 				no_met_neigh = no_repl_neigh = no_diff_neigh = 0; //no inic
 
 				claims = NULL;
+				
+				reciproc_noEA = 1/par_noEA;
 
 				//vals->value1 = 1; //TEMPORARY!!
 			}
@@ -143,6 +145,7 @@ namespace cadv {
 
 		private:
 			double *claims;
+			double reciproc_noEA;
 	
 	};
 
