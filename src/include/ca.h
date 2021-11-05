@@ -98,7 +98,7 @@ namespace cadv {
 
 				claims = NULL;
 				
-				reciproc_noEA = 1/par_noEA;
+				reciproc_noEA = 1/(double)par_noEA;
 
 				//vals->value1 = 1; //TEMPORARY!!
 			}
