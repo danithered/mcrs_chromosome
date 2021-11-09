@@ -175,18 +175,23 @@ namespace dv_annot{
 					char *base = rules[search].subrules[sr].base;
 					int *pos = rules[search].subrules[sr].pos;
 					int *pos_max = pos + rules[search].subrules[sr].no_bases;
+					double subrules_apply = 0.0;
 
 //					std::cout << "compare " << *(seq + (templ - str + *pos)) << "and" << *base << " (from " << rules[search].subrules[sr].no_bases << " bases)" << std::endl;
-					for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){} //checks subrule
-
+					//for(templ_seq = seq + (templ - str); pos != pos_max && templ_seq[*pos] == *base; base++, pos++){} //checks subrule
+					for(templ_seq = seq + (templ - str); pos != pos_max; base++, pos++){
+						if(templ_seq[*pos] == *base) subrules_apply++; //checks subrule
+					}
 //					std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
-					if (pos == pos_max){ //subrule applies
+//
+					subrules_apply /= (double) rules[search].no_subrules;
+					if (subrules_apply){ //subrule applies
 						sites++;
 
 						//looking tru activities in subrule
 						for(int act = 0; act < par_noEA; act++){
 //							std::cout << rules[search].subrules[sr].value[act] << " added to activity " << act << std::endl;
-							int curr_act = rules[search].subrules[sr].value[act];
+							double curr_act = rules[search].subrules[sr].value[act];
 
 							if(curr_act){ //if subrule adds a valid activity
 								/******************************/
@@ -208,14 +213,14 @@ namespace dv_annot{
 									gc_num -= rules[search].subrules[sr].no_GC_in_pattern; //substract GC that is there as a part of the subrule
 									if( gc_num > 0) {
 										//acts[act] += curr_act * (1 + par_gc_bonus * (double) gc_num / open_bases); // if there is bonus system and bonus
-										acts[act] += curr_act * gcBonusFunc[gc_num]; // if there is bonus system and bonus
+										acts[act] += subrules_apply * curr_act * gcBonusFunc[gc_num]; // if there is bonus system and bonus
 										 
 									} else {
-										acts[act] += curr_act; // if there is bonus system, but no bonus (only core activity)
+										acts[act] += subrules_apply * curr_act; // if there is bonus system, but no bonus (only core activity)
 									}
 								} else {
 									//no bonus system
-									acts[act] += curr_act;
+									acts[act] += subrules_apply * curr_act;
 								}
 
 								/******************************/
