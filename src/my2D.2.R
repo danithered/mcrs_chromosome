@@ -155,7 +155,8 @@ for(r in 1:length(strID) ) {
   #open(filecon)
   startofPattern <- NA
   linecount = 0
-  while(is.na(startofPattern)){
+  while(is.na(startofPattern) & linecount < nrow(poolfile)){
+  #while(is.na(startofPattern)){
   	#read in next line
   	linecount = linecount+1
   	repl <- poolfile[linecount, c("seq", "str")]
