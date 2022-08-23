@@ -1420,6 +1420,27 @@ for(tt in ttt ){
 
 ```
 
+# Balazs plot
+
+```{r}
+trans_time <- data.frame(from=numeric(), to=numeric(), time= numeric(), n = numeric()) 
+
+for(tt in ttt ){ try({
+    st <- state[[paste0("t", tt)]] # get the state
+    trans <- table(st[, c("type","type_prev")])
+
+    for(from in rownames(trans) ) for(to in colnames(trans) ){
+      #from = rownames(trans)[2]; to = colnames(trans)[2]
+      trans_time[nrow(trans_time)+1,] <- list(from = as.numeric(from), to = as.numeric(to), time = as.numeric(tt), n = trans[from, to])
+    }
+})}
+
+ggplot(trans_time, aes(x=time, y= n, colour=  as.character(enzN(to))  ))+
+  geom_line()+
+  facet_wrap(~ as.character(enzN(from)), labeller=label_parsed)+
+  scale_colour_discrete(labels = parse_format() , name="to")
+
+```
 
 
 # nem tudom ez mi
