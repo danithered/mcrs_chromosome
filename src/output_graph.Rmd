@@ -1427,7 +1427,18 @@ trans_time <- data.frame(from=numeric(), to=numeric(), time= numeric(), n = nume
 
 for(tt in ttt ){ try({
     st <- state[[paste0("t", tt)]] # get the state
+    
+    # to get real data (not prev)
+    if(F) try(st$type_prev <- as.numeric(system(paste("../rev_type",  
+                         p$par_nrow, 
+                         p$par_ncol,
+                         p$par_noEA, 
+                         paste0("../", p$par_str_pool), 
+                         paste0(workdir, "SAVE/", tt, ".tsv"))
+                   , intern=T)), silent=T)
+    
     trans <- table(st[, c("type","type_prev")])
+    trans <- trans[,colnames(trans)!=-1] #to filter out new mutatants (if from prev data)
 
     for(from in rownames(trans) ) for(to in colnames(trans) ){
       #from = rownames(trans)[2]; to = colnames(trans)[2]

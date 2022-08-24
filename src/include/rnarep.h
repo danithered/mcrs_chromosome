@@ -133,6 +133,8 @@ namespace rnarep {
 			void die();
 
 			void replicate( CellContent &templ);
+			
+			void replicate_clear( CellContent &templ);
 
 			double geta(int no);
 
@@ -145,6 +147,8 @@ namespace rnarep {
 			int get_no_acts();
 
 			unsigned long long int get_type();
+
+			unsigned long long int get_type_rev();
 
 			unsigned long long int get_prev_type();
 

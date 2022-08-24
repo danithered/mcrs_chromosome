@@ -11,7 +11,7 @@ extern "C" {
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.7 basic max, not all subrules are compulsary\0";
+const char versioninfo[255] = "ver 2.7.2 save includes reverse type\0";
 
 extern int par_noEA;
 

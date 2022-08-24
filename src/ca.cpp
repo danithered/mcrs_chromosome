@@ -755,7 +755,9 @@ namespace cadv {
 					out << '\t' << *a;
 				}
 
-				out 	<< '\t' << cellcont->get_prev_type() << '\n';
+				out 	<< '\t' << cellcont->get_prev_type()
+				 	<< '\t' << cellcont->get_type_rev() 
+					<< std::endl;
 			}
 
 			//out.flush();

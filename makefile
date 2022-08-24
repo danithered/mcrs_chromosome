@@ -24,6 +24,9 @@ OBJ_test = $(patsubst %,$(ODIR)/%,$(_OBJ_test))
 _OBJ_rev = reverse.o ca.o annot.o rnarep.o parameters.o randomgen.o dv_tools.o 
 OBJ_rev = $(patsubst %,$(ODIR)/%,$(_OBJ_rev))
 
+_OBJ_rev_type = reverse_type.o ca.o annot.o rnarep.o parameters.o randomgen.o dv_tools.o 
+OBJ_rev_type = $(patsubst %,$(ODIR)/%,$(_OBJ_rev_type))
+
 _OBJ_strgen = strgen2.o randomgen.o 
 OBJ_strgen = $(patsubst %,$(ODIR)/%,$(_OBJ_strgen))
 
@@ -59,6 +62,9 @@ test: $(OBJ_test)
 	./test
 
 rev: $(OBJ_rev)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
+rev_type: $(OBJ_rev_type)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 gen: $(OBJ_strgen)
