@@ -3,7 +3,8 @@
  
 #include <iostream>
 #include <cstring>
-#include <fstream>
+#include <fstream>   
+#include <time.h> 
 
 extern "C" {
 #include <ViennaRNA/vrna_config.h>

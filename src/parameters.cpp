@@ -93,7 +93,11 @@ int paramsToFile(const char* filename){
 	comm += filename;
 	system(comm.c_str());
 
+	// for date and time
+	time_t rawtime;
+	time (&rawtime);
 
+	//outputting
 	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
@@ -132,6 +136,7 @@ int paramsToFile(const char* filename){
 	paramfile << "par_minPdeg " << par_minPdeg << std::endl;
 	paramfile << "par_flexPdeg " << par_flexPdeg << std::endl;
 	paramfile << "versioninfo " << versioninfo << std::endl;
+	paramfile << "datetime " << ctime(&rawtime) << std::endl; 
 	
 
 	paramfile.close();
