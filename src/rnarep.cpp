@@ -176,7 +176,10 @@ namespace rnarep {
 		CellContent cell;
 		cell.replicate_clear(*this);
 		
-		return cell.get_type();
+		unsigned long long int output = cell.get_type();
+		cell.die();
+
+		return output;
 	}
 
 	unsigned long long int CellContent::get_prev_type(){
