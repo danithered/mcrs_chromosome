@@ -503,23 +503,24 @@ for(tt in ttt ){
                                             sep="\t", 
                                             header=F )
   } else {
-    #try({
+    try({
       #download
       scp_download(ssh_con, paste0(workdir, "SAVE/", tt, ".tsv"), to=tdir)
-      if(!file.exists(paste0(tdir, "/", tt, ".tsv"))){ 
-        warning("output file does not exist\n")
-        knitr::knit_exit()
-      }
-      
-      #process
-      state[[paste0("t", tt)]] <- read.table( paste0(tdir, "/", tt, ".tsv"),
-                                            sep="\t", 
-                                            header=F )
-      
-      #delete
-      file.remove(paste0(tdir, "/", tt, ".tsv"))
+    })
+    if(!file.exists(paste0(tdir, "/", tt, ".tsv"))){ 
+      warning("output file does not exist\n")
+      knitr::knit_exit()
+    }
+    
+    #process
+    state[[paste0("t", tt)]] <- read.table( paste0(tdir, "/", tt, ".tsv"),
+                                          sep="\t", 
+                                          header=F )
+    
+    #delete
+    file.remove(paste0(tdir, "/", tt, ".tsv"))
 
-    #})
+    
     if( !paste0("t", tt) %in%  names(state)){
       warning("ssh connection failed\n")
       knitr::knit_exit()
@@ -1422,7 +1423,7 @@ for(tt in ttt ){
 
 # Balazs plot
 
-```{r}
+```{r balazs_plot}
 trans_time <- data.frame(from=numeric(), to=numeric(), time= numeric(), n = numeric()) 
 
 for(tt in ttt ){ try({
@@ -1446,10 +1447,14 @@ for(tt in ttt ){ try({
     }
 })}
 
-ggplot(trans_time, aes(x=time, y= n, colour=  as.character(enzN(to))  ))+
-  geom_line()+
-  facet_wrap(~ as.character(enzN(from)), labeller=label_parsed)+
-  scale_colour_discrete(labels = parse_format() , name="to")
+#browser()
+
+if(nrow(trans_time) > 0) try({
+  ggplot(trans_time, aes(x=time, y= n, colour=  as.character(enzN(to))  ))+
+    geom_line()+
+    facet_wrap(~ as.character(enzN(from)), labeller=label_parsed)+
+    scale_colour_discrete(labels = parse_format() , name="to")
+})
 
 ```
 

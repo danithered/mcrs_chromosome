@@ -43,6 +43,8 @@ update_report <- function(dir, input, ssh=NA, key=NA, outdir){
             ssh_key=key
         )
         
+        message(paste0("Rendering outputn targetdir ", targetdir, " with parameters:\n\t", paste(names(parameters), parameters, sep="=", collapse="\n\t")))
+        
         try(rmarkdown::render("/home/danielred/data/programs/mcrs_chromosome/src/output_graph.Rmd", 
               params = parameters,
               output_dir = targetdir,
@@ -161,7 +163,7 @@ rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
 remote_dirs <- data.frame(name=c("eti", "eti2"),
                           address = c("danielred@10.30.0.12", "danielred@10.30.0.14"),
                           key="~/.ssh/id_rsa", 
-                          dir="~/data/programs/mcrs_chromosome/OUT")
+                          dir="/home/danielred/data/programs/mcrs_chromosome/OUT")
 
 if(!dir.exists("outputs")) dir.create("outputs")
 
@@ -222,6 +224,53 @@ shinyServer(function(input, output) {
                     choices= simul_names$label
         )
     })
+    
+    #UI parameters
+    output$parameters <- renderTable({
+      if( is.na(simul_names[simul_names$label == input$report, "remote"]) ){ # local
+        read.table(paste0(rootdir, 
+                         #"/", 
+                         input$report, 
+                         "/SAVE/parameters.txt"), header=F, sep="\t")
+      } else { #remote
+        try({ 
+          #connecting to ssh
+          ssh_con <- ssh_connect(remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"], "address"], 
+                                 keyfile = remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"], "key"])
+          
+          #download
+          tdir = tempdir()
+          scp_download(ssh_con, 
+                       files= paste0(remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"], "dir"], 
+                                      "/", 
+                                     simul_names[simul_names$label == input$report, "names"], 
+                                      "/SAVE/parameters.txt"),
+                       to=tdir)
+          ssh_disconnect(ssh_con)
+          
+          #process
+          if(!file.exists(paste0(tdir, "/parameters.txt"))) 
+            warning("parameters file does not exist\n")
+          t <- readLines(paste0(tdir, "/parameters.txt"))
+          t <- read.table( text = sub(" ", "\t", t) , header=F, sep="\t")
+          p <- as.list(as.character(t$V2))
+          names(p) <- t$V1
+          
+          #delete temp file
+          file.remove(paste0(tdir, "/parameters.txt"))
+        })
+        
+        #rd <- remote_dirs[remote_dirs$name == simul_names[simul_names$label == input$report, "remote"], ]
+        #times <- get_remote_files(address= rd$address, 
+        #                          key=rd$key, 
+        #                          path=rd$dir,
+        #                          path2=paste0("/", simul_names[simul_names$label == input$report, "names"], "/SAVE" ),
+        #                          pattern = "*.tsv"
+        #) |> strsplit(split=".", fixed=T) |> unlist()
+        #paste(names(p), p, sep="=", collapse="\n\t")
+        t
+      }
+    }, colnames = F)
     
     #UI time slider
     output$scale <- renderUI({

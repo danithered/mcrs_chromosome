@@ -37,7 +37,7 @@ div(
         
         , style="position:static; width:inherit;background-color:lightblue")
     ),
-    
+    tableOutput("parameters"),
     htmlOutput("rep", style="overflow-y: scroll; height:75%; padding:10px")
 , style="height:90vh")
 ))
