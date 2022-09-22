@@ -161,7 +161,9 @@ online <- NULL
 rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
 
 remote_dirs <- data.frame(name=c("eti", "eti2"),
-                          address = c("danielred@10.30.0.12", "danielred@10.30.0.14"),
+                          #name=c("eti", "eti2", "dani"),
+                          #address = c("danielred@10.30.0.12", "danielred@10.30.0.14", "danielred@10.30.0.15"),
+                          address = c("danielred@148.6.202.1:22023", "danielred@148.6.202.1:22025"),
                           key="~/.ssh/id_rsa", 
                           dir="/home/danielred/data/programs/mcrs_chromosome/OUT")
 

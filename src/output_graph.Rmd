@@ -52,7 +52,7 @@ message("report: ", params$report,
 rootdir="/home/danielred/data/programs/mcrs_chromosome/OUT/"
 
 # set this option in the first code chunk in the document
-knitr::opts_chunk$set(echo = F, cache.path=params$cache.path )
+knitr::opts_chunk$set(echo = F, cache.path=params$cache.path, cache.lazy = FALSE )
 message(paste("cache dir:", params$cache.path) )
 
 # libraries
@@ -729,7 +729,7 @@ outtable <-table(state$t0[state$t0$seq != "N", "type_name"])
 
 # unique data
 
-```{r , fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", cache=TRUE, dependson="read_data_save"}
+```{r , fig.show='animate', eval=F, animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", cache=TRUE, dependson="read_data_save"}
 par(mfrow=c(1,2), oma=c(0,0,2,0))
 for(tt in ttt )
 { 
@@ -763,7 +763,7 @@ for(tt in ttt )
 
 ## MFE
 
-```{r hist_mfegg, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
+```{r hist_mfegg, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
 Emin=-35
 
 for(tt in ttt )
@@ -787,7 +787,7 @@ for(tt in ttt )
 
 ## Pdeg
 
-```{r hist_Pdeg, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
+```{r hist_Pdeg, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
 for(tt in ttt )
 { 
   #tt=0
@@ -806,7 +806,7 @@ for(tt in ttt )
 
 ## Maps
 
-```{r maps, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", fig.height=4.5, fig.width=7, cache=TRUE, dependson="read_data_save"}
+```{r maps, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", fig.height=4.5, fig.width=7, cache=TRUE, dependson="read_data_save"}
 for(tt in ttt )
 { 
   #tt=0
@@ -934,7 +934,7 @@ for(tt in ttt )
 
 ## Properties of types
 
-```{r propsbars, eval=F, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", cache=TRUE, dependson="read_data_save"}
+```{r propsbars, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=1, aniopts="controls,loop", cache=TRUE, dependson="read_data_save"}
 for(tt in ttt )
 { 
   # select data
@@ -972,6 +972,7 @@ for(tt in ttt )
 drop_unused = F
 dropfrom = 3
 
+#browser()
 for(tt in ttt )
 { 
   # select data
@@ -1368,8 +1369,10 @@ for(tt in ttt ){
     # p2 <- pairs
     # p2[lower.tri(pairs)] <- p2[lower.tri(pairs)] + t(p2)[lower.tri(pairs)] # add to each other
     # p2[upper.tri(pairs)] <- t(p2)[upper.tri(pairs)] # make it symmetric
-    pairs <- pairs + t(pairs)
-    diag(pairs) <- diag(pairs)/2
+    
+    
+    #pairs <- pairs + t(pairs)
+    #diag(pairs) <- diag(pairs)/2
     
     tv <- as.numeric(colnames(pairs))
     
