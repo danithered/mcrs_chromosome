@@ -59,7 +59,8 @@ update_report <- function(dir, input, ssh=NA, key=NA, outdir){
 
 
 get_hash <- function(file, path="", ssh=NA, key){
-    if(is.na(ssh)){
+    #browser()
+    if(is.na(ssh[1])){
         return(tools::md5sum( paste0(path, file) ))
     }
     # it is online
@@ -360,6 +361,7 @@ shinyServer(function(input, output) {
             
 
             #create new record at upd
+            #browser()
             upd <- rbind(upd, data.frame(id= as.character(input$report),
                                          output_hash= as.character( get_hash( path=paste0(rootdir, input$report, "/"),
                                                                               file="output.csv",
@@ -408,12 +410,16 @@ shinyServer(function(input, output) {
 
                     saveRDS(upd, "last_updated.rds") # save upd
             } # if it has been changed
+            else { #it is the old version
+              td = paste0(input$report, "/index.html")
+            }
         }
         
         # serve it
         #cat( paste(getwd(), "updated\n") )
         
         if(is.null(online)){
+            #message(paste("Opening", paste(getwd(), "outputs", td, sep="/")))
             browseURL(paste(getwd(), "outputs", td, sep="/"))
         } else {
         
