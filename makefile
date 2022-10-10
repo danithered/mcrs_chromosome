@@ -1,4 +1,4 @@
-PROGNAME=simulation
+PROGNAME=mcrs
 
 IDIR =./src/include
 ODIR=./src/obj

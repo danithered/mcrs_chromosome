@@ -152,6 +152,7 @@ namespace dv_annot{
 	int PatternPool::search(char *seq, char *str, double *acts){
 		char *templ, *templ_seq;
 		int templ_length = std::strlen(seq);
+		double stepwise[] = {0.0, 0.1, 0.8, 1.0};
 
 		//clear();
 		int sites=0;
@@ -184,7 +185,13 @@ namespace dv_annot{
 					}
 //					std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 //
-					subrules_apply /= (double) rules[search].no_subrules;
+					//if number of subrules = 3 -> go stepwise like balazs, else go linearly
+					if(rules[search].no_subrules == 3){
+						subrules_apply = stepwise[(int) subrules_apply];
+					} else {
+						subrules_apply /= (double) rules[search].no_subrules;
+					}
+
 					if (subrules_apply > 0){ //subrule applies
 						sites++;
 
