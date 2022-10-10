@@ -185,7 +185,7 @@ namespace dv_annot{
 //					std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 //
 					subrules_apply /= (double) rules[search].no_subrules;
-					if (subrules_apply){ //subrule applies
+					if (subrules_apply > 0){ //subrule applies
 						sites++;
 
 						//looking tru activities in subrule
