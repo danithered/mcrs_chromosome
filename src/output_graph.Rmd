@@ -483,8 +483,8 @@ if( as.numeric(params$abrmax) < 0 ){
 } else {
   ttt <- state$times[as.numeric(state$times) <= as.numeric(params$abrmax) & as.numeric(state$times) >= as.numeric(params$abrmin) ]
 }
-if(length(ttt) > 200 ){
-  ttt <- ttt[round(seq(1,length(ttt), length.out=200))]
+if(length(ttt) > 100 ){
+  ttt <- ttt[round(seq(1,length(ttt), length.out=100))]
 }
 
 
