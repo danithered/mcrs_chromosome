@@ -1,5 +1,6 @@
 #!/bin/bash 
 
+# it seems like a-mapping.sh, but it does it automatically from dir IN/str, so you unly need to provide the number of activities you would like to have. It still outputs to std out. 
 no_strs=$1
 
 #first line of mapping file (number of activities)

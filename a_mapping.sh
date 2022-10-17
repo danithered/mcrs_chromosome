@@ -1,3 +1,9 @@
+#!/bin/bash 
+
+# as I see it creates a mapping file (that mcrs accepts) from structure descriptions which strgen generates
+# it`s argoments are the input files
+# it outputs to std output, so you may would like to redirect it to a file
+
 echo $# >> temp.vmi
 
 start=1

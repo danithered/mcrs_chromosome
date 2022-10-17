@@ -261,7 +261,7 @@ namespace cadv {
 			if(par_save_interval && (time % par_save_interval)) save();
 		}
 
-		for(mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators; time++){ //updating generations
+		for(mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators > 0; time++){ //updating generations
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();
@@ -302,7 +302,7 @@ namespace cadv {
 			order[iter] = iter;
 		}
 
-		for(mtime = time + gens ; rnarep::CellContent::no_replicators && time < mtime ; time++){ //updating generations
+		for(mtime = time + gens ; rnarep::CellContent::no_replicators > 0 && time < mtime ; time++){ //updating generations
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();
