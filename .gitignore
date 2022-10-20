@@ -3,6 +3,7 @@ src/obj/*
 .directory
 modell_leiras.docx
 simulation
+mcrs
 test
 *~
 src/.Rhistory
@@ -12,3 +13,7 @@ gen
 rev
 randseq
 IN/.Rhistory
+IN/mapping*
+IN/str/*/randseqs*.txt
+nohup.out
+

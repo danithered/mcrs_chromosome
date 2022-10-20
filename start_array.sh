@@ -2,13 +2,13 @@
 
 # general settings
 
-maxnum=1
-par_ID=A5_testnv
+maxnum=20
+par_ID=A3_2.8.1_re
 no_repeats=2
 inic_dens=80
 
 #parameter settings
-par_noEA=5
+par_noEA=3
 par_maxtime=500000
 par_rangePdeg=
 par_minPdeg=
@@ -18,18 +18,18 @@ par_nrow=300
 par_output_interval=
 par_save_interval=1000
 par_seed=
-par_str_pool=IN/str/mappingA5.txt
+par_str_pool=IN/str/mappingA3.txt
 par_outdir=
 par_output_filename=
 par_savedir=
 par_load=
 par_seed_file=
 par_init_grid=
-par_diffusion_rate=(0 2 4 8)
+par_diffusion_rate=(0 4)
 par_ll=
 par_sigma=
 par_claimEmpty=
-par_substitution=(0.01 0.005 0.001 0.0005)
+par_substitution=(0.005 0.0005)
 par_insertion=
 par_deletion=
 par_g=
@@ -37,8 +37,8 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=(8 9 10 12)
-par_Nrep=(8 9 10 12)
+par_Nmet=(3 4 5)
+par_Nrep=(3 4 5)
 
 #other settings
 
@@ -123,7 +123,7 @@ for ((i=1; i <= ${num}; i+=1))
 do
 	src/creat_inic_matrix.sh $par_noEA $par_ncol $par_nrow $inic_dens > IN/mapping_$jobname'_'${i}.txt
 	#echo $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1'
-	nohup ./simulation $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1' &
+	nohup ./mcrs $(sed "${i}q;d" $direct/$file) --par_seed_plus $i --par_ID $jobname'_'${i} --par_load IN/mapping_$jobname'_'${i}.txt '>>' $outdirect/output_$jobname '2>&1' &
 	pid[ $(( i - 1)) ]=$!
 	
 	#echo pid no $(( i - 2)) is ${pid[ $(( i - 2)) ]}
