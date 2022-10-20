@@ -756,7 +756,7 @@ namespace cadv {
 				}
 
 				out 	<< '\t' << cellcont->get_prev_type()
-				 	<< '\t' << cellcont->get_type_rev() 
+				 	//<< '\t' << cellcont->get_type_rev() 
 					<< std::endl;
 			}
 
