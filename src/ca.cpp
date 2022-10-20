@@ -91,7 +91,7 @@ namespace cadv {
 //									for(int op = 0; op < no_repl_neigh+1;op++ ) std::cout << claims[op]/sum << "\t";
 //									std::cout << std::endl;}
 				if(decision){ //claim 0 is claimEmpty NOTE that the probablity of staying empty is not fixed (e.g. 10%)! In case decision is negative see: brokenStickVals
-						vals->replicate( *(repl_neigh[decision]->vals) );
+						vals->replicate( *(repl_neigh[decision]->vals) ); //it is an empty cel, so no need to kill it first
 						if(gsl_rng_uniform(r) < 0.5) { //havet to switch them at 50 percent
 							switchit( *(repl_neigh[decision]) );
 						}

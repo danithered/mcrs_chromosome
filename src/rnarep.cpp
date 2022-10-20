@@ -71,6 +71,7 @@ namespace rnarep {
 	}
 
 	void CellContent::replicate_clear(CellContent &templ){
+		if(!empty) die();
 		for(auto old_it = templ.seq.rbegin(); old_it != templ.seq.rend(); old_it++){
 				seq.push_back( RNAc2cc( (char) *old_it) ); //good (correct copying)
 		}
@@ -80,9 +81,9 @@ namespace rnarep {
 			annotate();
 			prev_type = templ.get_type(); 
 		}
-		else {
+		/*else {
 			die();
-		}
+		}*/
 	}
 
 	void CellContent::replicate(CellContent &templ){

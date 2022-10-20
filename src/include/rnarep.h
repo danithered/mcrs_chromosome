@@ -118,7 +118,7 @@ namespace rnarep {
 
 			void operator =( std::string& templ){
 //				std::cout << "CellContent assignment from templ " << templ << " on empty (" << empty << ") cell.\n";				
-				if(! empty) die();
+				die(); // !empty is checked in die()
 
 				//check if new seq is ok
 				if(templ.length() && (templ != "N") && (templ != "0") ){ //length is not zero AND seq is not "N" or "0"
