@@ -506,7 +506,7 @@ namespace cadv {
 			matrix[i].inicNeigh(noNei, neigh_no);
 			
 			//assign neighbours
-			for(unsigned int n = 0; n < noNei; n++) {	
+			for(unsigned int n = 0; n < noNei; ++n) {	
 				int myneigh = calcNeigh(i, n, n_inic_x, n_inic_y, edge);
 				if( myneigh > -1 ) {
 					matrix[i].setNeigh( matrix + myneigh, neigh_no); 	
@@ -709,9 +709,88 @@ namespace cadv {
 
 	}
 
-	void CellAut::bubble_sampling(unsigned int middle, int bubblesize){
-		if(middle >= static_cast<unsigned int>(size)) std::cerr << "ERROR: bubble_sampling: invalid middlepoint: " << middle << std::endl;
+	void CellAut::bubble_sampling(const double bubblesize){
+		// get blueprint for neigbourhood
+		std::vector<int> x, y;
+		blueprintNeigh(bubblesize, x, y);
 
+		// count number of neighbours	
+		unsigned int no_neigh = countNoNeigh(torus, x, y);
+
+		if(no_neigh){
+			// get filename for output
+			std::string filename, command;
+			unsigned int no_bubble=0;
+
+			if(!savedir.length()) {
+				std::cerr << "ERROR: No savedir inicialised! Please do run CellAut::openOutputs() before saving!" << std::endl;
+				return;
+			}
+			
+			filename = savedir; 
+			filename += "/bubble_t"; 
+			filename += std::to_string(time);
+			filename += '_';
+			
+			//check if file already exists
+			command.clear();
+			command += "test -f ";
+			command += filename;
+			command += std::to_string(no_bubble);
+			command += ".tsv";
+			while(!system(command.c_str())){ //exists already
+				command.clear();
+				command += "test -f ";
+				command += filename;
+				command += std::to_string(++no_bubble);
+				command += ".tsv";
+			}
+	
+			filename += std::to_string(no_bubble);
+			filename += ".tsv";
+
+			// open output filestream
+			std::ofstream out(filename);
+			if(!out){
+				std::cerr << "ERROR: Could not open file " << filename << " for saving bubble!" << std::endl;
+				return;
+			}
+
+			// get random position
+			const unsigned int middle = gsl_rng_uniform_int(r, size); 
+
+			// get neighbours
+			for(unsigned int n = 0; n < no_neigh; ++n){
+				int neigh = calcNeigh(middle, n, x, y, torus);
+				if( neigh > -1 ) {
+					auto cellcont = matrix[neigh].vals;
+
+					// write it out
+					out 	<< *(cellcont->get_seq())
+						<< '\t' << cellcont->get_str()
+						<< '\t' << cellcont->get_mfe() 
+						<< '\t' << cellcont->getPfold()
+						<< '\t' << cellcont->Pdeg 
+						<< '\t' << cellcont->get_no_sites()
+						<< '\t' << cellcont->getR()
+						<< '\t' << 0 //cell->M()
+						<< '\t' << cellcont->get_type() ; 
+					for(double *a = cellcont->geta(), *a_until = cellcont->geta() + par_noEA; a != a_until; a++){
+						out << '\t' << *a;
+					}
+
+					out 	<< '\t' << cellcont->get_prev_type()
+						//<< '\t' << cellcont->get_type_rev() 
+						<< std::endl;
+
+					// kill it
+					cellcont->die();
+				}
+			}
+			
+			//close output filestream
+			out.close(); // unneccessary
+		}
 
 	}
 

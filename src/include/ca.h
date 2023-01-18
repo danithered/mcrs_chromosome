@@ -125,12 +125,6 @@ namespace cadv {
 			///set neighbours
 			void setNeigh(class Cell *np, const int type=1, int which_neigh = -1);
 
-			///copies over its value to another
-			//void operator >( Cell& target){
-			//	target.vals = vals;
-			//	return;
-			//}
-
 			///diffusion
 			void diff(); // ONE Toffoli-Margoulus step
 
@@ -290,7 +284,7 @@ namespace cadv {
 			int openOutputs();
 
 			void do_output();
-			void bubble_sampling(unsigned int middle, int bubblesize);
+			void bubble_sampling(const double bubblesize);
 
 			// return values: 0 (OK), 1 (no savedir specified), 2 (could not open file)
 			int save();
