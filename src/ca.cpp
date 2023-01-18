@@ -1,4 +1,5 @@
 #include "ca.h"
+#include <vector>
 
 namespace cadv {
 	//int no_births=0;
@@ -10,14 +11,17 @@ namespace cadv {
 		switch(type){
 			case 0:
 				no_diff_neigh = n;
+				diff_neigh_used = 0;
 				diff_neigh = new Cell* [n] ; 
 				break;
 			case 1:
 				no_met_neigh = n;
+				met_neigh_used = 0;
 				met_neigh = new Cell* [n] ; 
 				break;
 			case 2:
 				no_repl_neigh = n;
+				repl_neigh_used = 0;
 				repl_neigh = new Cell* [n] ; 
 				claims = new double [n+1];
 				claims[0] = par_claimEmpty;
@@ -25,16 +29,34 @@ namespace cadv {
 		}
 	}
 
-	void Cell::setNeigh(class Cell *np, int which_neigh, int type){
+	void Cell::setNeigh(class Cell *np, const int type, int which_neigh){
 		switch(type){
 			case 0:
-				diff_neigh[which_neigh] = np;
+				if(which_neigh < 0) which_neigh = diff_neigh_used;
+				if(which_neigh >= no_diff_neigh){
+					std::cerr << "WARNING: Cell::setNeigh: cant set incorrect diff neighbour " << which_neigh << " when number of neighbours is " << no_diff_neigh << std::endl;
+				} else {
+					diff_neigh[which_neigh] = np;
+					++diff_neigh_used;
+				}
 				break;
 			case 1:
-				met_neigh[which_neigh] = np;
+				if(which_neigh < 0) which_neigh = met_neigh_used;
+				if(which_neigh >= no_met_neigh){
+					std::cerr << "WARNING: Cell::setNeigh: cant set incorrect met neighbour " << which_neigh << " when number of neighbours is " << no_met_neigh << std::endl;
+				} else {
+					met_neigh[which_neigh] = np;
+					++met_neigh_used;
+				}
 				break;
 			case 2:
-				repl_neigh[which_neigh] = np;
+				if(which_neigh < 0) which_neigh = repl_neigh_used;
+				if(which_neigh >= no_repl_neigh){
+					std::cerr << "WARNING: Cell::setNeigh: cant set incorrect repl neighbour " << which_neigh << " when number of neighbours is " << no_repl_neigh << std::endl;
+				} else {
+					repl_neigh[which_neigh] = np;
+					++repl_neigh_used;
+				}
 				break;
 		}
 	}
@@ -342,7 +364,7 @@ namespace cadv {
 		}
 
 		if(par_save_interval) save();
-		if(par_output_filename) do_output();
+		if(std::strlen(par_output_filename)) do_output();
 
 		delete [] (order);
 
@@ -375,11 +397,11 @@ namespace cadv {
 		return(coords);
 	}
 
-	void CellAut::neighInic(double neigh_tipus, Ca_edge edge, int neigh_no = 1) {
-	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
+	void CellAut::blueprintNeigh(const double neigh_tipus, std::vector<int> & n_inic_x, std::vector<int> & n_inic_y){
+		int maxDist = 0, x = 0, y = 0;
 
-		std::vector<int> n_inic_x;
-		std::vector<int> n_inic_y;
+		n_inic_x.clear();
+		n_inic_y.clear();
 
 		//Create neighbourhood definition
 		if(neigh_tipus == MARGOLUS_NEIGH) {
@@ -405,15 +427,13 @@ namespace cadv {
 			    
 				//other cells
 				maxDist = (int) std::log2((int) neigh_tipus - 1);
-				for(x = -maxDist; x <= maxDist; x++){ 
-					for(y = -maxDist; y <= maxDist; y++){ 
+				for(x = -maxDist; x <= maxDist; x++) for(y = -maxDist; y <= maxDist; y++){ 
 //						std::cout << "std::pow(2, " << x << ") + std::pow(2," << y << ") <= " << neigh_tipus << "\t" << std::pow(2, std::abs(x)) << " " << std::pow(2, std::abs(y)) << std::endl; 
 						if( (x || y) && (std::pow(2, std::abs(x)) + std::pow(2, std::abs(y)) <= neigh_tipus ) ) {
 							n_inic_x.push_back(x);
 							n_inic_y.push_back(y);
 						}
-					} //end for y
-				} //end for x
+				} //end for x and y
 			    }
 		    }
 		    else if(layout == hex){
@@ -424,42 +444,114 @@ namespace cadv {
 
 				//other cells
 				maxDist = (int) std::log2((int) neigh_tipus - 2);
-				for(x=-maxDist; x <= maxDist; x++){ 
-					for(y=-maxDist; y <= maxDist; y++){ 
+				for(x=-maxDist; x <= maxDist; x++) for(y=-maxDist; y <= maxDist; y++){ 
 						if( (x || y) && (std::pow(2, std::abs(x)) + std::pow(2, std::abs(y)) + std::pow(2, std::abs(0-x-y)) <= neigh_tipus ) ) {
 							n_inic_x.push_back(x);
 							n_inic_y.push_back(y);
 						}
-					} //end for y
-				} //end for x
+				} //end for x and y
 			    }
 			    
 		    }
 		}
+	}
+
+	int CellAut::calcNeigh(int i, unsigned int n, std::vector<int> n_inic_x, std::vector<int> n_inic_y, const Ca_edge edge) const{
+		if(edge == torus){
+			if(layout == square){
+					  return ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol));
+			}
+			else if(layout == hex){
+					   return(  dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow )  * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + (( (int)i / ncol)&1)  )/2 , ncol)); 
+			}
+		}
+		else if (edge == wall){
+				const int x = (int) i / ncol, y = i % ncol;
+
+				if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) {
+					return (i + n_inic_x[n] * ncol + n_inic_y[n]); 	
+				}  
+		}
+		else if (edge == mirror){ //does not work!!!
+		}
+
+		return -1;
+	}
+
+	unsigned int CellAut::countNoNeigh(const Ca_edge edge, std::vector<int> & n_inic_x, std::vector<int> & n_inic_y, const int i) const{
+		if(edge == wall){
+			const int x = (int) i / ncol, y = i % ncol;
+			unsigned int noNei = 0;
+			for(unsigned int n = 0; n < n_inic_x.size(); n++) {
+				if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) noNei++;
+			}
+			return noNei;
+		} else {
+		        return n_inic_x.size();
+		}
+		//return 0;
+	}
+
+	void CellAut::neighInic(const double neigh_tipus, const Ca_edge edge, int neigh_no = 1) {
+		std::vector<int> n_inic_x;
+		std::vector<int> n_inic_y;
+
+		blueprintNeigh(neigh_tipus, n_inic_x, n_inic_y);
+
+		for(int i=0; i < size; i++){ //iterate throught grid
+			// count number of neighbours	
+			unsigned int noNei = countNoNeigh(edge, n_inic_x, n_inic_y, i);
+
+			// allocate space for neighbou pointers
+			matrix[i].inicNeigh(noNei, neigh_no);
+			
+			//assign neighbours
+			for(unsigned int n = 0; n < noNei; n++) {	
+				int myneigh = calcNeigh(i, n, n_inic_x, n_inic_y, edge);
+				if( myneigh > -1 ) {
+					matrix[i].setNeigh( matrix + myneigh, neigh_no); 	
+				}
+			}
+
+			// printing for diagnostic purposes
+			std::cout << "CellAut::neighInic has set type " << neigh_no << " neighbours for cell " << i << ':' << std::endl;
+			switch(neigh_no){
+				case 0:
+					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_diff_neigh); ++neigh_index) std::cout << '\t' << matrix[i].diff_neigh[neigh_index];
+					break;
+				case 1:
+					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_met_neigh); ++neigh_index) std::cout << '\t' << matrix[i].met_neigh[neigh_index];
+					break;
+				case 2:
+					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_repl_neigh); ++neigh_index) std::cout << '\t' << matrix[i].repl_neigh[neigh_index];
+					break;
+			}
+			std::cout << std::endl;
+		}
+	} //end neighInic
+
+	/*void CellAut::neighInic(const double neigh_tipus, const Ca_edge edge, int neigh_no = 1) {
+	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
+
+		std::vector<int> n_inic_x;
+		std::vector<int> n_inic_y;
+
+		blueprintNeigh(neigh_tipus, n_inic_x, n_inic_y);
 
 		//iterate through grid
 		if(edge == torus){
 			if(layout == square){
-//				std::cout << "ncol " << ncol << " nrow " << nrow << std::endl;
 			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
 				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
-				    //matrix[i].no_neigh = n_inic_x.size();
-				    //matrix[i].neigh = new int[matrix[i].no_neigh] ; 
-				    //matrix[i].neigh = new Cell* [matrix[i].no_neigh] ; 
 				    for(int n = 0; n < (int) n_inic_x.size(); n++) {
-					    //matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol));
 					    matrix[i].setNeigh( matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol)), n, neigh_no );
-//					    std::cout << "for cell " << i << " the x" << n_inic_x[n] << " y" << n_inic_y[n] << " neighbour is " << matrix[i].neigh[n] << "\t" << (int)i/ncol << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) << " " << ( ((int)i/ncol + n_inic_y[n]) % nrow ) * ncol << " " << ( i % ncol + n_inic_x[n] ) % ncol << std::endl;
 				    } 
 			    } //end itarate thru grid
 			}
 			else if(layout == hex){
 			    for(int i=0; i < size; i++){ //iterate throught grid
 				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
-				    //matrix[i].no_neigh = n_inic_x.size();
-				    //matrix[i].neigh = new Cell*[matrix[i].no_neigh] ;
 				    for(int n = 0; n < (int) n_inic_x.size(); n++) {
-					    //matrix[i].neigh[n] = matrix + ( ( dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow ) ) * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)) ; 
 					    matrix[i].setNeigh( matrix + (  dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow )  * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)), n, neigh_no ); 
 				    } 
 			    } //end itarate thru grid
@@ -476,13 +568,10 @@ namespace cadv {
 					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) noNei++;
 				}
 				matrix[i].inicNeigh(noNei, neigh_no);
-				//matrix[i].no_neigh = noNei;
-				//matrix[i].neigh = new Cell* [noNei] ; 
 				
 				//assign neighbours
 				for(int n = 0; n < noNei; n++) {	
 					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) {
-						//matrix[i].neigh[n] = matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]); 
 						matrix[i].setNeigh( matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]), n, neigh_no ); 
 						
 					}
@@ -493,8 +582,6 @@ namespace cadv {
 				
 			for(int i=0; i < size; i++){ //iterate throught grid
 				matrix[i].inicNeigh(n_inic_x.size(), neigh_no);
-				//matrix[i].no_neigh = n_inic_x.size();
-				//matrix[i].neigh = new Cell* [matrix[i].no_neigh] ;
 				for(int n = 0; n < (int) n_inic_x.size(); n++) {
 				}
 			}
@@ -502,6 +589,7 @@ namespace cadv {
 		
 		
 	} //end neighInic
+	*/
 	
 	int CellAut::openOutputs(){
 		std::string name, command;
@@ -618,6 +706,12 @@ namespace cadv {
 		savedir = name;
 
 		return 0;
+
+	}
+
+	void CellAut::bubble_sampling(unsigned int middle, int bubblesize){
+		if(middle >= static_cast<unsigned int>(size)) std::cerr << "ERROR: bubble_sampling: invalid middlepoint: " << middle << std::endl;
+
 
 	}
 

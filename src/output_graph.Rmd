@@ -788,11 +788,19 @@ for(tt in ttt )
 ## Pdeg
 
 ```{r hist_Pdeg, eval=T, fig.show='animate', animation.hook="ffmpeg", ffmpeg.format="mp4", interval=0.5, aniopts="controls,loop", warning=F, cache=TRUE, dependson="read_data_save"}
+Mmax = 0
+Rmax = 0
 for(tt in ttt )
 { 
   #tt=0
   st <- state[[paste0("t", tt)]] # get the state
   types <- levels(st$type_f)
+  
+  #calculate Mmax and Rmax values for maps
+  Mmaxact = max(st$M)
+  Rmaxact = max(st$R)
+  if(Mmaxact > Mmax) Mmax <- Mmaxact
+  if(Rmaxact > Rmax) Rmax <- Rmaxact
 
   print(
       ggplot(data=st[st$seq != "N",],aes(Pdeg, fill=type_name)) +
@@ -824,15 +832,18 @@ for(tt in ttt )
     u <- par("usr")
     collegend(u[2], u[4]- (u[4]-u[3])*0.15, xjust=1,
               #title="Metabolism",
-              min=0, max="max", 
+              #min=0, max="max", 
+              min=0, max=Mmax, 
               bty="n",
-              pal=heat.colors(300))
+              pal=hcl.colors(111, "YlOrRd", rev = F))
     text(u[2], u[4]- (u[4]-u[3])*0.1, "Metabolism", cex=1.5, adj=c(1,0))
 
     #map1
     par(mfg=c(1,2))
+    st$M[st$M<0] <- NA
     image(1:300, 1:300, matrix(st$M, ncol=300), 
           asp=1, 
+          col = hcl.colors(111, "YlOrRd", rev = TRUE), zlim=c(0, Mmax),
           axes=F, xlab="", ylab=""#,
           #main="Metabolism", 
           #sub=paste("time:", tt, "res:", whattosee)
@@ -846,7 +857,7 @@ for(tt in ttt )
     collegend(u[1], u[4]- (u[4]-u[3])*0.15, 
               #title="Replication rate",
               #title.adj = 5,
-              min=0, max="max", 
+              min=0, max=Rmax, 
               bty="n",
               pal=hcl.colors(300, "PuRd"))
     text(u[1], u[4]- (u[4]-u[3])*0.1, "Replication rate", cex=1.5, adj=c(0,0))
@@ -859,7 +870,7 @@ for(tt in ttt )
           asp=1, 
           #col= hcl.colors(300, "PuRd"),
           col= hcl.colors(300, "PuRd", rev=T),
-          #zlim=c(0, max(stateR)),
+          zlim=c(0, Rmax),
           axes=F, xlab="", ylab=""#,
           #main="R", 
           #sub=paste("time:", tt, "res:", whattosee)
@@ -1457,6 +1468,41 @@ if(nrow(trans_time) > 0) try({
     geom_line()+
     facet_wrap(~ as.character(enzN(from)), labeller=label_parsed)+
     scale_colour_discrete(labels = parse_format() , name="to")
+})
+
+```
+
+# correlations
+
+```{r valcors}
+vars <- c("mfe", "M", "R", "A")
+varcors <- data.frame(time=numeric(), cmp1=character(), cmp2=character(), cor=numeric())
+    
+for(tt in ttt ){ try({
+    st <- state[[paste0("t", tt)]] # get the state
+    
+    #st$comp_type <- bitshiftL(st$type_prev, p$par_noEA) + st$type
+    st$A <- type2A(st$type)
+    st$A[st$seq=="N"]<- -1  
+    #
+    for(f in 1:(length(vars)-1)){
+      for(s in (f+1):length(vars)){
+        varcors <- rbind(varcors, data.frame(time=as.numeric(tt), cmp1=vars[f], cmp2=vars[s], cor=cor(st[,vars[f]], st[,vars[s]], method="pearson") ))
+        varcors <- rbind(varcors, data.frame(time=as.numeric(tt), cmp1=vars[s], cmp2=vars[f], cor=cor(st[,vars[f]], st[,vars[s]], method="pearson") ))
+      }
+    }
+   
+})}
+
+try({
+  varcors$cmp1 <- factor(varcors$cmp1, levels=vars)
+  varcors$cmp2 <- factor(varcors$cmp2, levels=vars)
+  
+  ggplot(varcors, aes(x=time, y=cor, color=cmp2))+
+    geom_line()+
+    facet_grid(cmp1~., drop=T)+
+    coord_cartesian(ylim=c(-1,1))+
+    labs(x="Time [generations]", y="Pearson correlation coefficient")
 })
 
 ```

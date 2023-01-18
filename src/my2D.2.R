@@ -773,7 +773,7 @@ addToPlot <- function(x=0, y=0, coords,
 	coords$y <- y + coords$y
 	
 	#connector lines
-	if(!is.na(main_con)){
+	if(!is.na(main_con)[1]){
 		if(is.logical(main_con)) if(main_con) main_con <- list(lwd=1, lty=1, col="black")
 		
 		with(main_con, {
@@ -787,7 +787,7 @@ addToPlot <- function(x=0, y=0, coords,
 		
 	}
 	
-	if(!is.na(side_con)){
+	if(!is.na(side_con)[1]){
 		if(is.logical(side_con)) if(side_con) side_con <- list(lwd=1, lty=1, col="black")
 		
 		with(side_con, {
@@ -867,3 +867,4 @@ for(length in seq(5, 13, 2)) {
 }
 barplot(runif(5), xlim=c(0,7.5), axes=F, width=1.3, space=0.1)
 }
+

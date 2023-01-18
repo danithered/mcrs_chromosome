@@ -62,6 +62,10 @@ namespace cadv {
 			int no_met_neigh;
 			int no_repl_neigh;
 			int no_diff_neigh;
+
+			int diff_neigh_used;
+			int met_neigh_used;
+			int repl_neigh_used;
 			
 			class Cell **met_neigh;
 			class Cell **repl_neigh;
@@ -91,16 +95,17 @@ namespace cadv {
 
 
 			//Cell base functions
-			Cell(){
+			Cell(): 
+				no_met_neigh(0),
+				no_repl_neigh(0),
+				no_diff_neigh(0),
+				diff_neigh_used(0),
+				met_neigh_used(0),
+				repl_neigh_used(0), 
+				claims(NULL),
+				reciproc_noEA(1/(double)par_noEA)
+			{
 				vals = new rnarep::CellContent; //creating place for cell content values
-
-				no_met_neigh = no_repl_neigh = no_diff_neigh = 0; //no inic
-
-				claims = NULL;
-				
-				reciproc_noEA = 1/(double)par_noEA;
-
-				//vals->value1 = 1; //TEMPORARY!!
 			}
 
 			~Cell(){
@@ -118,7 +123,7 @@ namespace cadv {
 			void inicNeigh(int n, int type = 1);
 
 			///set neighbours
-			void setNeigh(class Cell *np, int which_neigh, int type = 1);
+			void setNeigh(class Cell *np, const int type=1, int which_neigh = -1);
 
 			///copies over its value to another
 			//void operator >( Cell& target){
@@ -275,13 +280,17 @@ namespace cadv {
 			///TM classic
 
 			///Initialise neighbourhood
-			void neighInic(double neigh_tipus, Ca_edge edge, int neigh_no);
+			void blueprintNeigh(const double neigh_tipus, std::vector<int> & n_inic_x, std::vector<int> & n_inic_y);
+			unsigned int countNoNeigh(const Ca_edge edge, std::vector<int> & n_inic_x, std::vector<int> & n_inic_y, const int i = 0) const;
+			int calcNeigh(int i, unsigned int n, std::vector<int> n_inic_x, std::vector<int> n_inic_y, const Ca_edge edge) const;
+			void neighInic(const double neigh_tipus, const Ca_edge edge, int neigh_no);
 
 			// Outputs
 			// return values: 0 (OK), 1 (could not find a new directory, most likely more than one simulations run with the same ID and seed), 2 (cant open output file)
 			int openOutputs();
 
 			void do_output();
+			void bubble_sampling(unsigned int middle, int bubblesize);
 
 			// return values: 0 (OK), 1 (no savedir specified), 2 (could not open file)
 			int save();
