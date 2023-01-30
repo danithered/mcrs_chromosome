@@ -284,6 +284,9 @@ namespace cadv {
 		}
 
 		for(mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators > 0; time++){ //updating generations
+			// bubble extinction event
+			if (par_bubble_interval && !(time % par_bubble_interval)) bubble_sampling( std::abs(gsl_ran_gaussian(r, par_sd_bubblesize) + par_mean_bubblesize ) );
+
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
 			if (par_save_interval && !(time % par_save_interval)) save();
@@ -299,7 +302,7 @@ namespace cadv {
 //			std::cout << "Cycle " << time << ": number of total deaths: " << no_deaths << ", number of total births: " << no_births << std::endl;
 		}
 		
-		//saving/outputting
+		// saving/outputting
 		if(par_output_interval) do_output();
 		if(par_save_interval) if(save()) return -2;
 

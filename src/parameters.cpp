@@ -75,6 +75,10 @@ e is mfe of replicator
 				double par_minPdeg = 0.1; //
 				double par_flexPdeg = 0.2; //
 
+// bubble sampling
+				int par_bubble_interval = 0;
+				double par_mean_bubblesize = 6.0;
+				double par_sd_bubblesize = 1;
 
 
 
@@ -135,6 +139,9 @@ int paramsToFile(const char* filename){
 	paramfile << "par_rangePdeg " << par_rangePdeg << std::endl;
 	paramfile << "par_minPdeg " << par_minPdeg << std::endl;
 	paramfile << "par_flexPdeg " << par_flexPdeg << std::endl;
+	paramfile << "par_bubble_interval " << par_bubble_interval << std::endl;
+	paramfile << "par_mean_bubblesize " << par_mean_bubblesize << std::endl;
+	paramfile << "par_sd_bubblesize " << par_sd_bubblesize << std::endl;
 	paramfile << "versioninfo " << versioninfo << std::endl;
 	paramfile << "datetime " << ctime(&rawtime) << std::endl; 
 	
@@ -189,6 +196,9 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_rangePdeg")) option = 'x';
 			else if(!strcmp(argv[i], "--par_minPdeg")) option = 'X';
 			else if(!strcmp(argv[i], "--par_flexPdeg")) option = 'k';
+			else if(!strcmp(argv[i], "--par_bubble_interval")) option = 'b';
+			else if(!strcmp(argv[i], "--par_mean_bubblesize")) option = 'B';
+			else if(!strcmp(argv[i], "--par_sd_bubblesize")) option = '3';
 		}
 		switch(option){
 			// double
@@ -228,6 +238,22 @@ int Args(int argc, char **argv)
 				}
 				continue;
 
+			case 'B':
+				if (++i == argc) return 1;
+				par_mean_bubblesize = atof(argv[i]);
+				if(par_mean_bubblesize < 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": has to be positive!" << std::endl;
+					return(-1);
+				}
+				continue;
+			case '3':
+				if (++i == argc) return 1;
+				par_sd_bubblesize = atof(argv[i]);
+				if(par_sd_bubblesize < 0 ) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": have to be positive!" << std::endl;
+					return(-1);
+				}
+				continue;
 			case '2':
 				if (++i == argc) return 1;
 				par_b2 = atof(argv[i]);
@@ -377,6 +403,14 @@ int Args(int argc, char **argv)
 			case '+':
 				if (++i == argc) return 1;
 				par_seed_plus = atoi(argv[i]);
+				continue;
+			case 'b':
+				if (++i == argc) return 1;
+				par_bubble_interval = atoi(argv[i]);
+				if(par_bubble_interval < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": cant be negative!" << std::endl;
+					return(-1);
+				}
 				continue;
 			case 'y':
 				if (++i == argc) return 1;

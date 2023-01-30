@@ -12,7 +12,7 @@ extern "C" {
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.8.1 curved stepwise enzimatic activities\0";
+const char versioninfo[255] = "ver 2.8.2 bubble sampling\0";
 
 extern int par_noEA;
 
@@ -54,6 +54,9 @@ extern double par_rangePdeg;
 extern double par_minPdeg;
 extern double par_flexPdeg;
 
+extern int par_bubble_interval;
+extern double par_mean_bubblesize;
+extern double par_sd_bubblesize;
 
 //Functions 
 int paramsToFile(const char* filename);
