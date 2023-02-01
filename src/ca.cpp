@@ -517,10 +517,10 @@ namespace cadv {
 			}
 
 			// printing for diagnostic purposes
-			std::cout << "CellAut::neighInic has set type " << neigh_no << " neighbours for cell " << i << ':' << std::endl;
+/*			std::cout << "CellAut::neighInic has set type " << neigh_no << " neighbours for cell " << i << ':' << std::endl;
 			switch(neigh_no){
 				case 0:
-					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_diff_neigh); ++neigh_index) std::cout << '\t' << matrix[i].diff_neigh[neigh_index];
+					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_diff_neigh); ++neigh_index) std::cout << '\t' << (int) matrix[i].diff_neigh[neigh_index] - matrix[i].diff_neigh[0];
 					break;
 				case 1:
 					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_met_neigh); ++neigh_index) std::cout << '\t' << matrix[i].met_neigh[neigh_index];
@@ -530,7 +530,7 @@ namespace cadv {
 					break;
 			}
 			std::cout << std::endl;
-		}
+*/		}
 	} //end neighInic
 
 	/*void CellAut::neighInic(const double neigh_tipus, const Ca_edge edge, int neigh_no = 1) {
@@ -767,27 +767,28 @@ namespace cadv {
 				int neigh = calcNeigh(middle, n, x, y, torus);
 				if( neigh > -1 ) {
 					auto cellcont = matrix[neigh].vals;
+					if(!cellcont->empty){
+						// write it out
+						out 	<< *(cellcont->get_seq())
+							<< '\t' << cellcont->get_str()
+							<< '\t' << cellcont->get_mfe() 
+							<< '\t' << cellcont->getPfold()
+							<< '\t' << cellcont->Pdeg 
+							<< '\t' << cellcont->get_no_sites()
+							<< '\t' << cellcont->getR()
+							<< '\t' << 0 //cell->M()
+							<< '\t' << cellcont->get_type() ; 
+						for(double *a = cellcont->geta(), *a_until = cellcont->geta() + par_noEA; a != a_until; a++){
+							out << '\t' << *a;
+						}
 
-					// write it out
-					out 	<< *(cellcont->get_seq())
-						<< '\t' << cellcont->get_str()
-						<< '\t' << cellcont->get_mfe() 
-						<< '\t' << cellcont->getPfold()
-						<< '\t' << cellcont->Pdeg 
-						<< '\t' << cellcont->get_no_sites()
-						<< '\t' << cellcont->getR()
-						<< '\t' << 0 //cell->M()
-						<< '\t' << cellcont->get_type() ; 
-					for(double *a = cellcont->geta(), *a_until = cellcont->geta() + par_noEA; a != a_until; a++){
-						out << '\t' << *a;
+						out 	<< '\t' << cellcont->get_prev_type()
+							//<< '\t' << cellcont->get_type_rev() 
+							<< std::endl;
+
+						// kill it
+						cellcont->die();
 					}
-
-					out 	<< '\t' << cellcont->get_prev_type()
-						//<< '\t' << cellcont->get_type_rev() 
-						<< std::endl;
-
-					// kill it
-					cellcont->die();
 				}
 			}
 			
