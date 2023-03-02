@@ -103,7 +103,7 @@ int paramsToFile(const char* filename){
 	time (&rawtime);
 
 	//outputting
-	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
+	paramfile << "RNAversion " <<  "2.1.5" << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;
@@ -201,6 +201,10 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_mean_bubblesize")) option = 'B';
 			else if(!strcmp(argv[i], "--par_sd_bubblesize")) option = '3';
 			else if(!strcmp(argv[i], "--par_no_bubi")) option = 'Q';
+			else {
+				std::cerr << "WARNING: Args: could not find option " << argv[i] << std::endl;
+				return(-1);
+			}
 		}
 		switch(option){
 			// double
@@ -539,7 +543,7 @@ int Args(int argc, char **argv)
 				continue;
 			
 			default:
-				std::cerr << "ERROR at reading argoments: not valid argoment!" << std::endl;
+				std::cerr << "ERROR at reading argoments: not valid argoment (" << option << ")!" << std::endl;
 				return -1;
 		}
 	}

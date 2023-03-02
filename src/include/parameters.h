@@ -7,7 +7,7 @@
 #include <time.h> 
 
 extern "C" {
-#include <ViennaRNA/vrna_config.h>
+//#include <ViennaRNA/vrna_config.h>
 }
  
 #define MAXLEN 300

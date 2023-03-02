@@ -8,7 +8,7 @@
 
 extern "C" {
 #include <ViennaRNA/fold.h>
-#include <ViennaRNA/utils/basic.h>
+//#include <ViennaRNA/utils/basic.h>
 //#include <ViennaRNA/fold_vars.h>
 }
 
@@ -187,7 +187,7 @@ namespace rnarep {
 				
 				// predict Minmum Free Energy and corresponding secondary structure
 				//mfe = vrna_fold(seq.c_str(), str);
-				mfe = (double) vrna_fold(seq.c_str(), str);
+				mfe = (double) fold(seq.c_str(), str);
 					  
 				//calculate Pdeg
 				//Pdeg = 0.9 - 0.8 * (mfe<par_Emin?par_Emin:mfe) / par_Emin ;
