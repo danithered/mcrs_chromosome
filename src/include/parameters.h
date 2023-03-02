@@ -55,6 +55,7 @@ extern double par_minPdeg;
 extern double par_flexPdeg;
 
 extern int par_bubble_interval;
+extern int par_no_bubi;
 extern double par_mean_bubblesize;
 extern double par_sd_bubblesize;
 

@@ -77,6 +77,7 @@ e is mfe of replicator
 
 // bubble sampling
 				int par_bubble_interval = 0;
+				int par_no_bubi = 0;
 				double par_mean_bubblesize = 6.0;
 				double par_sd_bubblesize = 1;
 
@@ -199,6 +200,7 @@ int Args(int argc, char **argv)
 			else if(!strcmp(argv[i], "--par_bubble_interval")) option = 'b';
 			else if(!strcmp(argv[i], "--par_mean_bubblesize")) option = 'B';
 			else if(!strcmp(argv[i], "--par_sd_bubblesize")) option = '3';
+			else if(!strcmp(argv[i], "--par_no_bubi")) option = 'Q';
 		}
 		switch(option){
 			// double
@@ -400,6 +402,14 @@ int Args(int argc, char **argv)
 				continue;
 			
 			// int
+			case 'Q':
+				if (++i == argc) return 1;
+				par_no_bubi = atoi(argv[i]);
+				continue;
+				if(par_no_bubi < 0) {
+					std::cerr << "ERROR at reading argoments: option " << option << ": cant be negative!" << std::endl;
+					return(-1);
+				}
 			case '+':
 				if (++i == argc) return 1;
 				par_seed_plus = atoi(argv[i]);

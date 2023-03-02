@@ -285,7 +285,7 @@ namespace cadv {
 
 		for(mtime = time + gens ; time < mtime && rnarep::CellContent::no_replicators > 0; time++){ //updating generations
 			// bubble extinction event
-			if (par_bubble_interval && !(time % par_bubble_interval)) bubble_sampling( std::abs(gsl_ran_gaussian(r, par_sd_bubblesize) + par_mean_bubblesize ) );
+			if (par_bubble_interval && !(time % par_bubble_interval)) for(int repeta = par_no_bubi; repeta--;) bubble_sampling( std::abs(gsl_ran_gaussian(r, par_sd_bubblesize) + par_mean_bubblesize ) );
 
 			//outputs
 			if (par_output_interval && !(time % par_output_interval)) do_output();
