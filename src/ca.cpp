@@ -117,6 +117,7 @@ namespace cadv {
 						if(gsl_rng_uniform(r) < 0.5) { //havet to switch them at 50 percent
 							switchit( *(repl_neigh[decision]) );
 						}
+						parent->cum_replications++;
 //						no_births++;
 //						std::cout << "Replication happend. The two molecules:" << std::endl << *(vals->get_seq()) << std::endl << *(repl_neigh[decision]->vals->get_seq()) << std::endl;  
 				}
@@ -126,6 +127,7 @@ namespace cadv {
 			//DEGRADATION
 			if(vals->Pdeg > gsl_rng_uniform(r) ) {
 //				no_deaths++;
+				parent->cum_deaths++;				
 //				std::cout << "Degradation with Pdeg " << vals->Pdeg << std::endl;
 				vals->die();
 			}
@@ -297,6 +299,11 @@ namespace cadv {
 				//DIFFUSION
 				for(diff_until += diff; diff_until >= 1; diff_until--){
 					matrix[ gsl_rng_uniform_int(r, size) ].diff();
+				}
+				// Secondry output
+				if(cum_replications > (par_output_interval*size) ){
+					do_output(time + static_cast<double>(iter+1)/static_cast<double>(size));
+					cum_deaths = cum_replications = 0;
 				}
 			}
 //			std::cout << "Cycle " << time << ": number of total deaths: " << no_deaths << ", number of total births: " << no_births << std::endl;
@@ -799,6 +806,10 @@ namespace cadv {
 	}
 
 	void CellAut::do_output(){
+		do_output(time);
+	}
+
+	void CellAut::do_output(const double otime){
 
 //		std::cout << "output" << std::endl;
 		/* what i need:
@@ -854,7 +865,7 @@ namespace cadv {
 		} // tru cells in matrix
 
 		//outputting
-		output << time << ';' << rnarep::CellContent::no_replicators;
+		output << otime << ';' << rnarep::CellContent::no_replicators;
 		double no;
 		for(int ea = 0; ea <= par_noEA; ea++) {
 			if((no = (double) out_no[ea])){
@@ -873,6 +884,8 @@ namespace cadv {
 		for(int ea = 0; ea <= par_noEA; ea++) {
 			output << ';' << out_noA[ea] ;
 		}
+
+		output << ';' << cum_replications << ';' << cum_deaths;
 
 		output << std::endl;
 

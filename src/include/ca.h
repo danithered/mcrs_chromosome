@@ -161,6 +161,9 @@ namespace cadv {
 			
 			double diff;
 			//double saving_freq;
+			
+			unsigned int cum_replications;
+			unsigned int cum_deaths;
 
 			std::string savedir;
 
@@ -172,14 +175,16 @@ namespace cadv {
 			int grid_init() ;
 
 			//Constructor 1
-			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square){
-				time=0;
-				diff = 0;
-				//saving_freq = 0;
-				nrow=size1;
-				ncol=size2;
-				layout = layout_type;
+			CellAut(int size1=300, int size2=300, cadv::Ca_layout layout_type=square):
+				time(0),
+				diff(0),
+				nrow(size1),
+				ncol(size2),
+				layout(layout_type),
+				cum_replications(0),
+				cum_deaths(0)
 
+			{
 				rnarep::CellContent::no_replicators = 0;
 
 				grid_init();
@@ -305,6 +310,9 @@ namespace cadv {
 			std::vector<double> out_length; //mean length of replicators with no act, act0, act1, etc.
 			std::vector<double> out_a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
 			std::vector<double> out_mfe; //mean mfe of replicators with no act, act0, act1, etc.
+						    
+						     
+			void do_output(double otime);
 	};
 	
 }
