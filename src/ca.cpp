@@ -690,6 +690,8 @@ namespace cadv {
 			output << ";no_A" << a ;
 		}
 
+		output << ";no_replications;no_deaths"
+
 		output << std::endl;
 
 		output.flush();

@@ -103,7 +103,7 @@ int paramsToFile(const char* filename){
 	time (&rawtime);
 
 	//outputting
-	paramfile << "RNAversion " << VRNA_VERSION << std::endl;
+	paramfile << "RNAversion " << "2.1.5" << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;

@@ -3,12 +3,12 @@
 # general settings
 
 maxnum=20
-par_ID=A3_2.8.1_re
-no_repeats=2
+par_ID=A7re
+no_repeats=1
 inic_dens=80
 
 #parameter settings
-par_noEA=3
+par_noEA=7
 par_maxtime=500000
 par_rangePdeg=
 par_minPdeg=
@@ -18,18 +18,18 @@ par_nrow=300
 par_output_interval=
 par_save_interval=1000
 par_seed=
-par_str_pool=IN/str/mappingA3.txt
+par_str_pool=IN/str/mappingA${par_noEA}.txt
 par_outdir=
 par_output_filename=
 par_savedir=
 par_load=
 par_seed_file=
 par_init_grid=
-par_diffusion_rate=(0 4)
+par_diffusion_rate=(4)
 par_ll=
 par_sigma=
 par_claimEmpty=
-par_substitution=(0.005 0.0005)
+par_substitution=0.0005
 par_insertion=
 par_deletion=
 par_g=
@@ -37,8 +37,8 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=(3 4 5)
-par_Nrep=(3 4 5)
+par_Nmet=(18)
+par_Nrep=(18)
 
 #other settings
 
