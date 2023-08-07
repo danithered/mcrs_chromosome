@@ -826,6 +826,12 @@ namespace cadv {
 		out_a.assign(par_noEA + 1, 0);
 		out_mfe.assign(par_noEA + 1, 0);
 
+/*		std::vector<int> outG_no; //how many gen replicator has act0, act1, etc.
+		std::vector<double> outG_R; //mean R of gen replicators with act0, act1, etc.
+		std::vector<double> outG_length; //mean length of gen replicators with act0, act1, etc.
+		std::vector<double> outG_a; //mean activity of gen replicators with act0, act1, etc. (the strength of the indicated activities of course)
+		std::vector<double> outG_mfe; //mean mfe of gen replicators with act0, act1, etc.
+*/					      
 		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
 //			std::cout << "examined cell" << std::endl;
