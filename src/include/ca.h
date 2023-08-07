@@ -304,13 +304,20 @@ namespace cadv {
 		private:
 			int mtime;
 
+			// vectors storing data for PARAZITE and SPECIALISTS
 			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
-			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities
 			std::vector<double> out_R; //mean R of replicators with no act, act0, act1, etc.
 			std::vector<double> out_length; //mean length of replicators with no act, act0, act1, etc.
 			std::vector<double> out_a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
 			std::vector<double> out_mfe; //mean mfe of replicators with no act, act0, act1, etc.
-						    
+			
+			// vectors storing data for GENERALISTS			    
+			std::vector<int> outG_no; //how many gen replicator has act0, act1, etc.
+			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities
+			std::vector<double> outG_R; //mean R of gen replicators with act0, act1, etc.
+			std::vector<double> outG_length; //mean length of gen replicators with act0, act1, etc.
+			std::vector<double> outG_a; //mean activity of gen replicators with act0, act1, etc. (the strength of the indicated activities of course)
+			std::vector<double> outG_mfe; //mean mfe of gen replicators with act0, act1, etc.
 						     
 			void do_output(double otime);
 	};

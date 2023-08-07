@@ -836,15 +836,19 @@ namespace cadv {
 				out_noA[no_acts]++;
 
 				if(no_acts){ //it is not a parasite
-					for(int ea = 1; ea <= par_noEA; ea++){
-						double activity = cell->vals->geta(ea - 1); //indexing of "out_" arrays starts at parazite, "a" starts with activity 0
-//						std::cout << "in rep (" << cell->vals->get_type() <<  ")  having " << no_acts << " activities " << ea << "th activity is " << activity << std::endl;
-						if(activity) { //if it has activity ea
-							out_no[ea]++;
-							out_R[ea] += cell->vals->getR();
-							out_length[ea] += cell->vals->get_length();
-							out_mfe[ea] += cell->vals->get_mfe();
-							out_a[ea] += activity;
+					if(no_acts == 1){ // is a specialist
+						trjoisjh;
+					} else { // is a generalist
+						for(int ea = 1; ea <= par_noEA; ea++){
+							double activity = cell->vals->geta(ea - 1); //indexing of "out_" arrays starts at parazite, "a" starts with activity 0
+//							std::cout << "in rep (" << cell->vals->get_type() <<  ")  having " << no_acts << " activities " << ea << "th activity is " << activity << std::endl;
+							if(activity) { //if it has activity ea
+								out_no[ea]++;
+								out_R[ea] += cell->vals->getR();
+								out_length[ea] += cell->vals->get_length();
+								out_mfe[ea] += cell->vals->get_mfe();
+								out_a[ea] += activity;
+							}
 						}
 					}
 				}
