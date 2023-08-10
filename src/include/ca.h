@@ -25,6 +25,28 @@ namespace cadv {
 	enum Ca_layout {empty=0, single=1, line=2, hex=6, square = 4};
 	enum Ca_edge {wall = 0, mirror = 1, torus=2};
 
+	struct Outdata{
+		int no; //how many replicator has no act, act0, act1, etc.
+		double R; //mean R of replicators with no act, act0, act1, etc.
+		double length; //mean length of replicators with no act, act0, act1, etc.
+		double a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
+		double mfe; //mean mfe of replicators with no act, act0, act1, etc.
+		
+		Outdata():no(0), R(0.0), length(0.0), a(0.0), mfe(0.0) {};
+
+		void add(const double &_R, const double &_length, const double &_a, const double &_mfe ){
+			++no;
+			R += _R;
+			length += _length;
+			a += _a;
+			mfe += _mfe;
+		}
+		
+		double avg_R() const {return R/no;}
+		double avg_length() const {return length/no;}
+		double avg_a() const {return a/no;}
+		double avg_mfe() const {return mfe/no;}
+	};
 
 /*	class CellContent{
 		public:
@@ -305,19 +327,24 @@ namespace cadv {
 			int mtime;
 
 			// vectors storing data for PARAZITE and SPECIALISTS
-			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
-			std::vector<double> out_R; //mean R of replicators with no act, act0, act1, etc.
-			std::vector<double> out_length; //mean length of replicators with no act, act0, act1, etc.
-			std::vector<double> out_a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
-			std::vector<double> out_mfe; //mean mfe of replicators with no act, act0, act1, etc.
+//			std::vector<int> out_no; //how many replicator has no act, act0, act1, etc.
+//			std::vector<double> out_R; //mean R of replicators with no act, act0, act1, etc.
+//			std::vector<double> out_length; //mean length of replicators with no act, act0, act1, etc.
+//			std::vector<double> out_a; //mean activity of replicators with no act, act0, act1, etc. (the strength of the indicated activities of course)
+//			std::vector<double> out_mfe; //mean mfe of replicators with no act, act0, act1, etc.
 			
+			std::vector<Outdata> out_spec;
+			std::vector<Outdata> out_gen;
+			Outdata out_par;
+			Outdata out_templ;
+			std::vector<int> out_noA; //how many replicator has alltogether 1, 2, etc different activities (0 is par+templ)
+
 			// vectors storing data for GENERALISTS			    
-			std::vector<int> outG_no; //how many gen replicator has act0, act1, etc.
-			std::vector<int> out_noA; //how many replicator has alltogether 0, 1, 2, etc different activities
-			std::vector<double> outG_R; //mean R of gen replicators with act0, act1, etc.
-			std::vector<double> outG_length; //mean length of gen replicators with act0, act1, etc.
-			std::vector<double> outG_a; //mean activity of gen replicators with act0, act1, etc. (the strength of the indicated activities of course)
-			std::vector<double> outG_mfe; //mean mfe of gen replicators with act0, act1, etc.
+//			std::vector<int> outG_no; //how many gen replicator has act0, act1, etc.
+//			std::vector<double> outG_R; //mean R of gen replicators with act0, act1, etc.
+//			std::vector<double> outG_length; //mean length of gen replicators with act0, act1, etc.
+//			std::vector<double> outG_a; //mean activity of gen replicators with act0, act1, etc. (the strength of the indicated activities of course)
+//			std::vector<double> outG_mfe; //mean mfe of gen replicators with act0, act1, etc.
 						     
 			void do_output(double otime);
 	};

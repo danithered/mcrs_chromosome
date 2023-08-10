@@ -682,15 +682,20 @@ namespace cadv {
 		//adding header to output
 		output << "time;replicators";
 		output << ";no_par;mean_R_par;mean_length_par;mean_mfe_par" ;
+		output << ";no_templ;mean_R_templ;mean_length_templ;mean_mfe_templ" ;
 		for(int e = 0; e < par_noEA; e++){
 			output << ";no_enz" << e << ";mean_R_enz" << e << ";mean_length_enz" << e << ";mean_mfe_enz" << e << ";mean_a_enz" << e ;
+		}
+
+		for(int e = 0; e < par_noEA; e++){
+			output << ";no_Genz" << e << ";mean_R_Genz" << e << ";mean_length_Genz" << e << ";mean_mfe_Genz" << e << ";mean_a_Genz" << e ;
 		}
 
 		for(int a = 0; a <= par_noEA; a++) {
 			output << ";no_A" << a ;
 		}
 
-		output << ";no_replications;no_deaths"
+		output << ";no_replications;no_deaths";
 
 		output << std::endl;
 
@@ -698,12 +703,9 @@ namespace cadv {
 
 		//prepare vectors for output
 		
-		out_no.reserve(par_noEA + 1);
+		out_gen.reserve(par_noEA);
+		out_spec.reserve(par_noEA);
 		out_noA.reserve(par_noEA + 1);
-		out_R.reserve(par_noEA + 1);
-		out_length.reserve(par_noEA + 1);
-		out_a.reserve(par_noEA + 1); //parasites do not have activities, no need to calculate with 0th value!
-		out_mfe.reserve(par_noEA + 1);
 
 		//creating SAVE directory
 		command.clear();
@@ -812,29 +814,19 @@ namespace cadv {
 	}
 
 	void CellAut::do_output(const double otime){
-
-//		std::cout << "output" << std::endl;
 		/* what i need:
 			time, alive, [by akt: No, Rs mean, length mean, alpha mean, mfe mean], [by no akts: number]
 
 		*/
-		//clearing
-		out_no.assign(par_noEA + 1, 0);
-		out_noA.assign(par_noEA + 1, 0);
-		out_R.assign(par_noEA + 1, 0);
-		out_length.assign(par_noEA + 1, 0);
-		out_a.assign(par_noEA + 1, 0);
-		out_mfe.assign(par_noEA + 1, 0);
 
-/*		std::vector<int> outG_no; //how many gen replicator has act0, act1, etc.
-		std::vector<double> outG_R; //mean R of gen replicators with act0, act1, etc.
-		std::vector<double> outG_length; //mean length of gen replicators with act0, act1, etc.
-		std::vector<double> outG_a; //mean activity of gen replicators with act0, act1, etc. (the strength of the indicated activities of course)
-		std::vector<double> outG_mfe; //mean mfe of gen replicators with act0, act1, etc.
-*/					      
+		//clearing
+		out_spec.assign(par_noEA, Outdata());
+		out_gen.assign(par_noEA, Outdata());
+		out_par = Outdata();
+		out_templ = Outdata();
+					      
 		//calculating values
 		for(Cell *cell = matrix, *end = (Cell *) matrix + size ; cell != end; cell++){
-//			std::cout << "examined cell" << std::endl;
 			if(!cell->vals->empty){ // if cell is not empty
 				//how much activities does it have?
 				int no_acts = cell->vals->get_no_acts();
@@ -843,60 +835,84 @@ namespace cadv {
 
 				if(no_acts){ //it is not a parasite
 					if(no_acts == 1){ // is a specialist
-						trjoisjh;
+						// find which one is it (zero indexed: type==1 -> 0)
+						unsigned int curract = 0;
+						{
+							auto n = cell->vals->get_type();
+							while(n >>= 1) ++curract;
+						}
+
+						// store values
+						out_spec[curract].add(cell->vals->getR(), cell->vals->get_length(), cell->vals->geta(curract), cell->vals->get_mfe());
 					} else { // is a generalist
-						for(int ea = 1; ea <= par_noEA; ea++){
-							double activity = cell->vals->geta(ea - 1); //indexing of "out_" arrays starts at parazite, "a" starts with activity 0
-//							std::cout << "in rep (" << cell->vals->get_type() <<  ")  having " << no_acts << " activities " << ea << "th activity is " << activity << std::endl;
+						for(int ea = 0; ea < par_noEA; ea++){
+							double activity = cell->vals->geta(ea); //indexing of "out_" arrays starts at parazite, "a" starts with activity 0
 							if(activity) { //if it has activity ea
-								out_no[ea]++;
-								out_R[ea] += cell->vals->getR();
-								out_length[ea] += cell->vals->get_length();
-								out_mfe[ea] += cell->vals->get_mfe();
-								out_a[ea] += activity;
+								out_gen[ea].add(cell->vals->getR(), cell->vals->get_length(), activity, cell->vals->get_mfe());
 							}
 						}
 					}
 				}
-				else { //it is a parasite
-					out_no[0]++;
-					out_R[0] += cell->vals->getR();
-					out_length[0] += cell->vals->get_length();
-					out_mfe[0] += cell->vals->get_mfe();
+				else { //it has no activity
+					if(cell->vals->get_prev_type()){ //it is a template
+						out_templ.add(cell->vals->getR(), cell->vals->get_length(), 0.0, cell->vals->get_mfe());
+					} else { //it is a parazite
+						out_par.add(cell->vals->getR(), cell->vals->get_length(), 0.0, cell->vals->get_mfe());
+					}
 				} 
-
-				//calculating means
-				/*for(int ea = 0; ea <= par_noEA; ea++){
-					out_R[ea] /= out_no[ea];
-					out_length[ea] /= out_no[ea];
-					out_a[ea] /= out_no[ea];
-					out_mfe[ea] /= out_no[ea];
-				}*/
-
 			} // cell not empty
 		} // tru cells in matrix
 
 		//outputting
+		// general data
 		output << otime << ';' << rnarep::CellContent::no_replicators;
-		double no;
-		for(int ea = 0; ea <= par_noEA; ea++) {
-			if((no = (double) out_no[ea])){
-//				std::cout << "outputting: no= " << no << std::endl;
-				output << ';' << no << ';' << out_R[ea]/no << ';' << out_length[ea]/no << ';' << out_mfe[ea]/no;
-				if(ea) output << ';' << out_a[ea]/no;
+
+		//parasites
+		if(out_par.no){
+			output << ';' << out_par.no << ';' << out_par.avg_R() << ';' << out_par.avg_length() << ';' << out_par.avg_mfe();
+		} else {
+				output << ";0;0;0;0";
+		}
+
+		//templates
+		if(out_templ.no){
+			output << ';' << out_templ.no << ';' << out_templ.avg_R() << ';' << out_templ.avg_length() << ';' << out_templ.avg_mfe();
+		} else {
+				output << ";0;0;0;0";
+		}
+
+		//specialists
+		unsigned long long int no;
+		for(int ea = 0; ea < par_noEA; ea++) {
+			Outdata *rep = &out_spec[ea]; 
+			if((no = rep->no)){
+				output << ';' << no << ';' << rep->avg_R() << ';' << rep->avg_length() << ';' << rep->avg_mfe() << ';' << rep->avg_a();
 			}
 			else {
-//				std::cout << "outputting: no= " << no << " (supposedly 0)" << std::endl;
-				output << ";0;0;0;0";
-				if(ea) output << ";0";
+				output << ";0;0;0;0;0";
 			}
 
 		}
 
+		// generalists
+		for(int ea = 0; ea < par_noEA; ea++) {
+			Outdata *rep = &out_gen[ea]; 
+			if((no = rep->no)){
+				output << ';' << no << ';' << rep->avg_R() << ';' << rep->avg_length() << ';' << rep->avg_mfe() << ';' << rep->avg_a();
+			}
+			else {
+				output << ";0;0;0;0;0";
+			}
+
+		}
+
+		//by A
 		for(int ea = 0; ea <= par_noEA; ea++) {
 			output << ';' << out_noA[ea] ;
 		}
 
+
+		// cummulative data
 		output << ';' << cum_replications << ';' << cum_deaths;
 
 		output << std::endl;
