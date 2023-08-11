@@ -3,7 +3,7 @@
 # general settings
 
 maxnum=20
-par_ID=A7re
+par_ID=A7re_newout
 no_repeats=1
 inic_dens=80
 

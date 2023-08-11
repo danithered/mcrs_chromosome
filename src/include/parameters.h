@@ -12,7 +12,7 @@ extern "C" {
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.8.2 bubble sampling\0";
+const char versioninfo[255] = "ver 2.8.5 new output\0";
 
 extern int par_noEA;
 
