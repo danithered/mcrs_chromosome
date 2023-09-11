@@ -3,8 +3,8 @@
 # general settings
 
 maxnum=20
-par_ID=A7re_newout
-no_repeats=1
+par_ID=A7v5
+no_repeats=5
 inic_dens=80
 
 #parameter settings
@@ -25,11 +25,11 @@ par_savedir=
 par_load=
 par_seed_file=
 par_init_grid=
-par_diffusion_rate=(4)
+par_diffusion_rate=(0 4)
 par_ll=
 par_sigma=
 par_claimEmpty=
-par_substitution=0.0005
+par_substitution=(0.005 0.0005)
 par_insertion=
 par_deletion=
 par_g=
@@ -37,8 +37,8 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=(18)
-par_Nrep=(18)
+par_Nmet=(8 9 11 15 16 17 18)
+par_Nrep=(8 9 11 15 16 17 18)
 
 #other settings
 
