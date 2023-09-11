@@ -186,11 +186,11 @@ namespace dv_annot{
 //					std::cout << "pos " << pos << " pos max "<< pos_max << std::endl;
 //
 					//if number of subrules = 3 -> go stepwise like balazs, else go linearly
-					if(rules[search].no_subrules == 3){
+					//if(rules[search].no_subrules == 3){
 						subrules_apply = stepwise[(int) subrules_apply];
-					} else {
-						subrules_apply /= (double) rules[search].no_subrules;
-					}
+					//} else {
+					//	subrules_apply /= (double) rules[search].no_subrules;
+					//}
 
 					if (subrules_apply > 0){ //subrule applies
 						sites++;

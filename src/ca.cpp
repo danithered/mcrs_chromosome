@@ -522,84 +522,9 @@ namespace cadv {
 					matrix[i].setNeigh( matrix + myneigh, neigh_no); 	
 				}
 			}
-
-			// printing for diagnostic purposes
-/*			std::cout << "CellAut::neighInic has set type " << neigh_no << " neighbours for cell " << i << ':' << std::endl;
-			switch(neigh_no){
-				case 0:
-					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_diff_neigh); ++neigh_index) std::cout << '\t' << (int) matrix[i].diff_neigh[neigh_index] - matrix[i].diff_neigh[0];
-					break;
-				case 1:
-					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_met_neigh); ++neigh_index) std::cout << '\t' << matrix[i].met_neigh[neigh_index];
-					break;
-				case 2:
-					for(unsigned int neigh_index = 0; neigh_index < static_cast<unsigned int>(matrix[i].no_repl_neigh); ++neigh_index) std::cout << '\t' << matrix[i].repl_neigh[neigh_index];
-					break;
-			}
-			std::cout << std::endl;
-*/		}
+		}
 	} //end neighInic
 
-	/*void CellAut::neighInic(const double neigh_tipus, const Ca_edge edge, int neigh_no = 1) {
-	    	int maxDist = 0, x = 0, y = 0, noNei = 0;
-
-		std::vector<int> n_inic_x;
-		std::vector<int> n_inic_y;
-
-		blueprintNeigh(neigh_tipus, n_inic_x, n_inic_y);
-
-		//iterate through grid
-		if(edge == torus){
-			if(layout == square){
-			    for(int i=0; i < cadv::CellAut::size; i++){ //iterate throught grid
-				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
-				    for(int n = 0; n < (int) n_inic_x.size(); n++) {
-					    matrix[i].setNeigh( matrix + ( ( dvtools::Rmod( ((int)i/ncol + n_inic_y[n]) , nrow) ) * ncol + dvtools::Rmod( dvtools::Rmod(i , ncol) + n_inic_x[n] , ncol)), n, neigh_no );
-				    } 
-			    } //end itarate thru grid
-			}
-			else if(layout == hex){
-			    for(int i=0; i < size; i++){ //iterate throught grid
-				    matrix[i].inicNeigh( n_inic_x.size(), neigh_no );
-				    for(int n = 0; n < (int) n_inic_x.size(); n++) {
-					    matrix[i].setNeigh( matrix + (  dvtools::Rmod((int)i/ncol + n_inic_y[n] , nrow )  * ncol + dvtools::Rmod ( dvtools::Rmod( i, ncol) + n_inic_x[n] + ( n_inic_y[n] + ( (int)i / ncol)&1  )/2 , ncol)), n, neigh_no ); 
-				    } 
-			    } //end itarate thru grid
-			}
-
-		}
-		else if (edge == wall){
-			for(int i=0; i < size; i++){ //iterate throught grid
-				//count number of neighbours	
-				x = (int) i / ncol; 
-				y = i % ncol;
-				noNei = 0;
-				for(int n = 0; n < (int) n_inic_x.size(); n++) {
-					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) noNei++;
-				}
-				matrix[i].inicNeigh(noNei, neigh_no);
-				
-				//assign neighbours
-				for(int n = 0; n < noNei; n++) {	
-					if(x + n_inic_x[n] >= 0 && x + n_inic_x[n] < ncol && y + n_inic_y[n] >= 0 && y + n_inic_y[n] < nrow  ) {
-						matrix[i].setNeigh( matrix + (i + n_inic_x[n] * ncol + n_inic_y[n]), n, neigh_no ); 
-						
-					}
-				}
-			}
-		}
-		else if (edge == mirror){ //does not work!!!
-				
-			for(int i=0; i < size; i++){ //iterate throught grid
-				matrix[i].inicNeigh(n_inic_x.size(), neigh_no);
-				for(int n = 0; n < (int) n_inic_x.size(); n++) {
-				}
-			}
-		}
-		
-		
-	} //end neighInic
-	*/
 	
 	int CellAut::openOutputs(){
 		std::string name, command;

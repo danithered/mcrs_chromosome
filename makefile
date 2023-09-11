@@ -8,8 +8,8 @@ CC=g++
 C=gcc
 
 #CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -ggdb -fexceptions -Wall -pg # for testing
-#CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -O3 # for stuff
-CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` -O3 -pthread -I/home/danielred/packages -I/home/danielred/packages/ViennaRNA  # for stuff with RNAfold 2.1.5
+CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` `pkg-config --cflags RNAlib2` -O3 # for stuff
+#CFLAGS=-I$(IDIR) `pkg-config --cflags gsl` -O3 -pthread -I/home/danielred/packages -I/home/danielred/packages/ViennaRNA  # for stuff with RNAfold 2.1.5
 
 
 #LIBS=-lm `pkg-config --libs gsl` `pkg-config --libs RNAlib2` -fopenmp # for system RNAlib
