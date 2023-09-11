@@ -12,7 +12,7 @@ extern "C" {
  
 #define MAXLEN 300
 
-const char versioninfo[255] = "ver 2.8.5 new output\0";
+const char versioninfo[255] = "ver 5.0.0 new annot\0";
 
 extern int par_noEA;
 
