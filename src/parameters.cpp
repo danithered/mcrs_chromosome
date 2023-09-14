@@ -83,7 +83,27 @@ e is mfe of replicator
 
 
 
+std::string cmd(std::string command) {
+   char buffer[128];
+   string result;
 
+   // Open pipe to file
+   FILE* pipe = popen(command.c_str(), "r");
+   if (!pipe) {
+      return "popen failed!";
+   }
+
+   // read till end of process:
+   while (!feof(pipe)) {
+
+      // use buffer to read and add to result
+      if (fgets(buffer, 128, pipe) != NULL)
+         result += buffer;
+   }
+
+   pclose(pipe);
+   return result;
+}
 
 
 //output parameters to file
@@ -103,7 +123,7 @@ int paramsToFile(const char* filename){
 	time (&rawtime);
 
 	//outputting
-	paramfile << "RNAversion " << system("RNAfold --version") << std::endl;
+	paramfile << "RNAversion " << cmd("RNAfold --version") << std::endl;
 	paramfile << "MAXLEN " << MAXLEN << std::endl;
 	paramfile << "par_noEA " << par_noEA << std::endl;
 	paramfile << "par_maxtime " << par_maxtime << std::endl;
