@@ -747,6 +747,7 @@ namespace cadv {
 		//clearing
 		out_spec.assign(par_noEA, Outdata());
 		out_gen.assign(par_noEA, Outdata());
+		out_noA.assign(par_noEA + 1, 0);
 		out_par = Outdata();
 		out_templ = Outdata();
 					      

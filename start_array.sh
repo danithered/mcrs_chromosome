@@ -2,7 +2,7 @@
 
 # general settings
 
-maxnum=20
+maxnum=31
 par_ID=A7v5
 no_repeats=5
 inic_dens=80
@@ -37,7 +37,7 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=(8 9 11 15 16 17 18)
+par_Nmet=(16 17 18)
 par_Nrep=(8 9 11 15 16 17 18)
 
 #other settings
