@@ -161,6 +161,7 @@ int paramsToFile(const char* filename){
 	paramfile << "par_minPdeg " << par_minPdeg << std::endl;
 	paramfile << "par_flexPdeg " << par_flexPdeg << std::endl;
 	paramfile << "par_bubble_interval " << par_bubble_interval << std::endl;
+	paramfile << "par_no_bubi " << par_no_bubi << std::endl;
 	paramfile << "par_mean_bubblesize " << par_mean_bubblesize << std::endl;
 	paramfile << "par_sd_bubblesize " << par_sd_bubblesize << std::endl;
 	paramfile << "versioninfo " << versioninfo << std::endl;
