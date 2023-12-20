@@ -436,10 +436,11 @@ namespace cadv {
 				n_inic_y.push_back(0);
 			    
 				//other cells
-				maxDist = (int) std::log2((int) neigh_tipus - 1);
+				//maxDist = (int) std::log2((int) neigh_tipus - 1);
+				maxDist = (int) std::sqrt(neigh_tipus)+1;
 				for(x = -maxDist; x <= maxDist; x++) for(y = -maxDist; y <= maxDist; y++){ 
 //						std::cout << "std::pow(2, " << x << ") + std::pow(2," << y << ") <= " << neigh_tipus << "\t" << std::pow(2, std::abs(x)) << " " << std::pow(2, std::abs(y)) << std::endl; 
-						if( (x || y) && (std::pow(2, std::abs(x)) + std::pow(2, std::abs(y)) <= neigh_tipus ) ) {
+						if( (x || y) && (x*x + y*y <= neigh_tipus ) ) {
 							n_inic_x.push_back(x);
 							n_inic_y.push_back(y);
 						}

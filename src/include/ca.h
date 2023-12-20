@@ -11,10 +11,10 @@
 #include <sys/stat.h>
 #include <csignal>
 
-#define SINGLESQ 2.0
+#define SINGLESQ 0.0
 #define SINGLEHEX 3.0
-#define MOORE_NEIGH 4.0
-#define VON_NEUMANN_NEIGH 3.0
+#define MOORE_NEIGH 2.0
+#define VON_NEUMANN_NEIGH 1.0
 #define MARGOLUS_NEIGH -1.0
 #define NEIGH5X5 8.0
 #define HEX1 4.0
