@@ -2,21 +2,21 @@
 
 # general settings
 
-maxnum=31
-par_ID=A7v5
+maxnum=30
+par_ID=A3v5_partest
 no_repeats=5
 inic_dens=80
 
 #parameter settings
-par_noEA=7
-par_maxtime=500000
+par_noEA=3
+par_maxtime=2000
 par_rangePdeg=
 par_minPdeg=
 par_flexPdeg=
 par_ncol=300
 par_nrow=300
-par_output_interval=
-par_save_interval=1000
+par_output_interval=100
+par_save_interval=2000
 par_seed=
 par_str_pool=IN/str/mappingA${par_noEA}.txt
 par_outdir=
@@ -25,11 +25,11 @@ par_savedir=
 par_load=
 par_seed_file=
 par_init_grid=
-par_diffusion_rate=(0 4)
+par_diffusion_rate=4
 par_ll=
 par_sigma=
 par_claimEmpty=
-par_substitution=(0.005 0.0005)
+par_substitution=0.005
 par_insertion=
 par_deletion=
 par_g=
@@ -37,8 +37,8 @@ par_b1=
 par_b2=
 par_c=
 par_Emin=
-par_Nmet=(16 17 18)
-par_Nrep=(8 9 11 15 16 17 18)
+par_Nmet=(3 4 5 6 8 9 10 12 16 17 18 20 24 32 33 34 36)
+par_Nrep=0
 
 #other settings
 
@@ -80,7 +80,7 @@ done
 touch $direct/$file
 
 #creating parameter file
-./src/paramfile_gen.R $(printf "%s%s" "--par_flexPdeg" $(printf ",%s" "${par_flexPdeg[@]}")) $(printf "%s%s" "--par_minPdeg" $(printf ",%s" "${par_minPdeg[@]}")) $(printf "%s%s" "--par_rangePdeg" $(printf ",%s" "${par_rangePdeg[@]}")) $(printf "%s%s" "--par_Nrep" $(printf ",%s" "${par_Nrep[@]}")) $(printf "%s%s" "--par_Nmet" $(printf ",%s" "${par_Nmet[@]}")) $(printf "%s%s" "--par_Emin" $(printf ",%s" "${par_Emin[@]}")) $(printf "%s%s" "--par_c" $(printf ",%s" "${par_c[@]}")) $(printf "%s%s" "--par_b2" $(printf ",%s" "${par_b2[@]}")) $(printf "%s%s" "--par_b1" $(printf ",%s" "${par_b1[@]}")) $(printf "%s%s" "--par_g" $(printf ",%s" "${par_g[@]}")) $(printf "%s%s" "--par_deletion" $(printf ",%s" "${par_deletion[@]}")) $(printf "%s%s" "--par_insertion" $(printf ",%s" "${par_insertion[@]}")) $(printf "%s%s" "--par_substitution" $(printf ",%s" "${par_substitution[@]}")) $(printf "%s%s" "--par_claimEmpty" $(printf ",%s" "${par_claimEmpty[@]}")) $(printf "%s%s" "--par_save_interval" $(printf ",%s" "${par_sigma[@]}")) $(printf "%s%s" "--par_ll" $(printf ",%s" "${par_ll[@]}")) $(printf "%s%s" "--par_diffusion_rate" $(printf ",%s" "${par_diffusion_rate[@]}")) $(printf "%s%s" "--par_init_grid" $(printf ",%s" "${par_init_grid[@]}")) $(printf "%s%s" "--par_seed_file" $(printf ",%s" "${par_seed_file[@]}")) $(printf "%s%s" "--par_load" $(printf ",%s" "${par_load[@]}")) $(printf "%s%s" "--par_savedir" $(printf ",%s" "${par_savedir[@]}")) $(printf "%s%s" "--par_output_filename" $(printf ",%s" "${par_output_filename[@]}")) $(printf "%s%s" "--par_outdir" $(printf ",%s" "${par_outdir[@]}")) $(printf "%s%s" "--par_str_pool" $(printf ",%s" "${par_str_pool[@]}")) $(printf "%s%s" "--par_seed" $(printf ",%s" "${par_seed[@]}")) $(printf "%s%s" "--par_save_interval" $(printf ",%s" "${par_save_interval[@]}")) $(printf "%s%s" "--par_output_interval" $(printf ",%s" "${par_output_interval[@]}")) $(printf "%s%s" "--par_nrow" $(printf ",%s" "${par_nrow[@]}")) $(printf "%s%s" "--par_maxtime" $(printf ",%s" "${par_maxtime[@]}")) $(printf "%s%s" "--par_ncol" $(printf ",%s" "${par_ncol[@]}") ) >> $direct/$file
+./src/paramfile_gen2.R $(printf "%s%s" "--par_flexPdeg" $(printf ",%s" "${par_flexPdeg[@]}")) $(printf "%s%s" "--par_minPdeg" $(printf ",%s" "${par_minPdeg[@]}")) $(printf "%s%s" "--par_rangePdeg" $(printf ",%s" "${par_rangePdeg[@]}")) $(printf "%s%s" "--par_Nrep" $(printf ",%s" "${par_Nrep[@]}")) $(printf "%s%s" "--par_Nmet" $(printf ",%s" "${par_Nmet[@]}")) $(printf "%s%s" "--par_Emin" $(printf ",%s" "${par_Emin[@]}")) $(printf "%s%s" "--par_c" $(printf ",%s" "${par_c[@]}")) $(printf "%s%s" "--par_b2" $(printf ",%s" "${par_b2[@]}")) $(printf "%s%s" "--par_b1" $(printf ",%s" "${par_b1[@]}")) $(printf "%s%s" "--par_g" $(printf ",%s" "${par_g[@]}")) $(printf "%s%s" "--par_deletion" $(printf ",%s" "${par_deletion[@]}")) $(printf "%s%s" "--par_insertion" $(printf ",%s" "${par_insertion[@]}")) $(printf "%s%s" "--par_substitution" $(printf ",%s" "${par_substitution[@]}")) $(printf "%s%s" "--par_claimEmpty" $(printf ",%s" "${par_claimEmpty[@]}")) $(printf "%s%s" "--par_save_interval" $(printf ",%s" "${par_sigma[@]}")) $(printf "%s%s" "--par_ll" $(printf ",%s" "${par_ll[@]}")) $(printf "%s%s" "--par_diffusion_rate" $(printf ",%s" "${par_diffusion_rate[@]}")) $(printf "%s%s" "--par_init_grid" $(printf ",%s" "${par_init_grid[@]}")) $(printf "%s%s" "--par_seed_file" $(printf ",%s" "${par_seed_file[@]}")) $(printf "%s%s" "--par_load" $(printf ",%s" "${par_load[@]}")) $(printf "%s%s" "--par_savedir" $(printf ",%s" "${par_savedir[@]}")) $(printf "%s%s" "--par_output_filename" $(printf ",%s" "${par_output_filename[@]}")) $(printf "%s%s" "--par_outdir" $(printf ",%s" "${par_outdir[@]}")) $(printf "%s%s" "--par_str_pool" $(printf ",%s" "${par_str_pool[@]}")) $(printf "%s%s" "--par_seed" $(printf ",%s" "${par_seed[@]}")) $(printf "%s%s" "--par_save_interval" $(printf ",%s" "${par_save_interval[@]}")) $(printf "%s%s" "--par_output_interval" $(printf ",%s" "${par_output_interval[@]}")) $(printf "%s%s" "--par_nrow" $(printf ",%s" "${par_nrow[@]}")) $(printf "%s%s" "--par_maxtime" $(printf ",%s" "${par_maxtime[@]}")) $(printf "%s%s" "--par_ncol" $(printf ",%s" "${par_ncol[@]}") ) >> $direct/$file
 
 if (( $(wc -w < $direct/$file ) > 0 ))
 then 

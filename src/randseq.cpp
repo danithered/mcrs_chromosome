@@ -81,7 +81,7 @@ int main(int argc, char *argv[]){
 
 
 	//stuff
-	std::string seq_file_start("IN/str/"), seq_file, compl_seq_file, seq;
+	std::string seq_file_start("IN/str_temp/"), seq_file, compl_seq_file, seq;
 	rnarep::CellContent::patterns.readFile(par_str_pool); //read in pattern file
 	rnarep::CellContent replicator, compl_replicator;
 	int no_seqs = 100000000, lambda = 45;
@@ -90,6 +90,8 @@ int main(int argc, char *argv[]){
 	unsigned long long int type;
 
 //	rnarep::CellContent::patterns.printRules();
+
+	std::cout << "Generating " << no_seqs << " random seqs." << std::endl;
 
 	//create output file streams
 	std::vector<std::ofstream> files, compl_files;
@@ -113,6 +115,8 @@ int main(int argc, char *argv[]){
 //		files[of] << "vmi";
 		//if(!files[of].is_open()) std::cerr << "ERROR: file (" << seq_file << ") not found!" << std::endl;
 	}
+
+	std::cout << "Outputting to " << seq_file_start << std::endl;
 
 	for(; no_seqs--; ){
 		//get a sequence
@@ -168,7 +172,10 @@ int main(int argc, char *argv[]){
 					compl_files[typecheck] << '\t' << *a;
 				}
 
-				compl_files[typecheck] << std::endl; 			
+				compl_files[typecheck] << std::endl; 
+				files[typecheck].flush();
+				compl_files[typecheck].flush();
+
 			} //output complementer strand too
 //		}
 //		else {
