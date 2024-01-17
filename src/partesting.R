@@ -20,3 +20,4 @@ for(l in 1:length(dirs)){
   res[l, "alive"] = as.numeric(endresults[2]) > 0
   
 }
+write.table(res, file="/home/danielred/partest_res.tsv", sep="\t", col.names = T, row.names = F, quote = F)
