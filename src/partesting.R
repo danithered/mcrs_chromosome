@@ -3,7 +3,7 @@ setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/")
 dirs = list.dirs(recursive = F)
 dirs = grep("partest", dirs, value = T)
 
-res = data.frame(dir=dirs, A=NA, Nrep=NA, Nmet=NA, D=NA, time=NA, alive=NA, nodename = Sys.info()["nodename"], no_rep=NA, no_par=NA)
+res = data.frame(dir=dirs, A=NA, Nrep=NA, Nmet=NA, D=NA, time=NA, alive=NA, nodename = unname(Sys.info()["nodename"]), no_rep=NA, no_par=NA)
 for(l in 1:length(dirs)){
   lines = readLines(paste0(res[l, "dir"], "/SAVE/parameters.txt"))
   table = read.table( text = sub(" ", "\t", lines) , header=F, sep="\t")
