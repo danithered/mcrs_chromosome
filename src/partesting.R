@@ -18,7 +18,7 @@ for(l in 1:length(dirs)){
   endresults = strsplit(system(paste0("tail -n 1 ", res[l, "dir"], "/output.csv"), intern = T), ";")[[1]]
   res[l, "time"] = as.numeric(endresults[1])
   res[l, "alive"] = as.numeric(endresults[2]) > 0
-  res[l, "rep"] = as.numeric(endresults[2])
+  res[l, "no_rep"] = as.numeric(endresults[2])
   res[l, "no_par"] = as.numeric(endresults[3]) 
   
 }
