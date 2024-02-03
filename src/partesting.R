@@ -3,7 +3,7 @@ setwd("/home/danielred/data/programs/mcrs_chromosome/OUT/")
 dirs = list.dirs(recursive = F)
 dirs = grep("partest", dirs, value = T)
 
-res = data.frame(dir=dirs, A=NA, Nrep=NA, Nmet=NA, D=NA, time=NA, alive=NA, nodename = unname(Sys.info()["nodename"]), no_rep=NA, no_par=NA)
+res = data.frame(dir=dirs, A=NA, Nrep=NA, Nmet=NA, D=NA, time=NA, alive=NA, sub=NA, nodename = unname(Sys.info()["nodename"]), no_rep=NA, no_par=NA)
 for(l in 1:length(dirs)){
   lines = readLines(paste0(res[l, "dir"], "/SAVE/parameters.txt"))
   table = read.table( text = sub(" ", "\t", lines) , header=F, sep="\t")
@@ -14,6 +14,7 @@ for(l in 1:length(dirs)){
   res[l, "Nrep"] = as.numeric(p$par_Nrep)
   res[l, "Nmet"] = as.numeric(p$par_Nmet)
   res[l, "D"] = as.numeric(p$par_diffusion_rate)
+  res[l, "sub"] = as.numeric(p$par_substitution)
   
   endresults = strsplit(system(paste0("tail -n 1 ", res[l, "dir"], "/output.csv"), intern = T), ";")[[1]]
   res[l, "time"] = as.numeric(endresults[1])
